@@ -11,7 +11,7 @@ function [P, K] = run_calib_checker(datadir, num_imgs)
 
     % read images
     for i=1:num_imgs
-        close all
+        close all;
 
         fprintf('Processing img %d: %s ... \n', i, files(i).name);
         I = imread([files(i).folder, '/', files(i).name]);
