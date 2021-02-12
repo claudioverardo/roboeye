@@ -13,7 +13,7 @@ ROI_H_SIDE  = 40;
 HAMMING_TH  = 1;
 
 % Debug
-EXTRACT_ROI_VERBOSE = 1;
+EXTRACT_ROI_VERBOSE = 0;
 MATCH_ROI_VERBOSE   = 1;
 
 % Open image
@@ -25,61 +25,8 @@ img2 = imread('../assets/img_tests/test1/images2_01.png');
 % img = imread('../assets/img_tests/test3/images2_01.png');
 % img = imread('../assets/img_tests/aruco.jpg');
 
-% aruco_markers(:,:,1) = [ ...
-%     % 1st marker
-%     0 0 0 0 0 0 0 0
-%     0 0 1 1 1 1 0 0
-%     0 1 0 0 0 1 0 0
-%     0 1 0 0 0 0 1 0
-%     0 0 1 1 0 1 0 0
-%     0 0 1 1 0 1 1 0
-%     0 1 0 1 0 1 1 0
-%     0 0 0 0 0 0 0 0
-% ];
-%     
-% aruco_markers(:,:,2) = [ ...
-%     % 2nd marker
-%     0 0 0 0 0 0 0 0
-%     0 0 0 0 0 1 1 0
-%     0 0 0 0 0 1 1 0
-%     0 1 1 1 1 0 0 0
-%     0 1 0 0 0 1 0 0
-%     0 0 1 0 1 0 1 0
-%     0 0 1 1 0 0 1 0
-%     0 0 0 0 0 0 0 0
-% ];
-%     
-% aruco_markers(:,:,3) = [ ...
-%     % 3rd marker
-%     0 0 0 0 0 0 0 0
-%     0 1 1 0 0 1 1 0
-%     0 0 1 1 0 0 0 0
-%     0 1 0 1 1 1 0 0
-%     0 1 0 1 0 0 0 0
-%     0 1 0 0 1 0 0 0
-%     0 0 0 0 1 1 0 0
-%     0 0 0 0 0 0 0 0
-% ];
-    
-aruco_markers(:,:,1) = [ ...
-    0 0 0 0 0 0 0
-    0 0 1 1 1 0 0
-    0 0 0 1 1 0 0
-    0 0 0 1 1 0 0
-    0 0 1 0 0 0 0
-    0 1 0 1 1 1 0
-    0 0 0 0 0 0 0
-];
-    
-aruco_markers(:,:,2) = [ ...
-    0 0 0 0 0 0 0
-    0 0 1 1 0 0 0
-    0 0 0 1 1 0 0
-    0 1 0 0 0 0 0
-    0 0 1 0 0 0 0
-    0 1 1 1 1 1 0
-    0 0 0 0 0 0 0
-];
+% Load examples of markers
+load('aruco_markers_7x7.mat');
 
 %-----------------------------------------------------------------
 
@@ -94,7 +41,7 @@ for i=1:n_aruco_markers
 end
 
 fprintf('------- Processing 1st image -------\n');
-[i_rois1, i_arucos1, k_rots1] = aruco_detection(...
+[roi1, i_arucos1, k_rots1] = aruco_detection(...
     img1, aruco_markers, ...
     'canny_th_low', CANNY_TH_LOW, ...
     'canny_th_high', CANNY_TH_HIGH, ...
@@ -108,7 +55,7 @@ fprintf('------- Processing 1st image -------\n');
 );
 
 fprintf('------- Processing 2nd image -------\n');
-[i_rois2, i_arucos2, k_rots2] = aruco_detection(...
+[roi2, i_arucos2, k_rots2] = aruco_detection(...
     img2, aruco_markers, ...
     'canny_th_low', CANNY_TH_LOW, ...
     'canny_th_high', CANNY_TH_HIGH, ...
@@ -121,5 +68,5 @@ fprintf('------- Processing 2nd image -------\n');
     'match_roi_verbose', MATCH_ROI_VERBOSE ...
 );
 
-[i_rois1; i_arucos1; k_rots1]'
-[i_rois2; i_arucos2; k_rots2]'
+% [i_rois1; i_arucos1; k_rots1]'
+% [i_rois2; i_arucos2; k_rots2]'
