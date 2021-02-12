@@ -1,4 +1,4 @@
-function [i_rois, i_arucos, k_rots] = aruco_detection(img, aruco_markers, varargin)
+function [roi, i_arucos, k_rots] = aruco_detection(img, aruco_markers, varargin)
 
     % Default values of parameters
     default_canny_th_low  = 0.01;
@@ -90,5 +90,7 @@ function [i_rois, i_arucos, k_rots] = aruco_detection(img, aruco_markers, vararg
         'hamming_th', HAMMING_TH, ...
         'verbose', MATCH_ROI_VERBOSE ...
     );
+
+    roi = rois{i_rois};
 
 end
