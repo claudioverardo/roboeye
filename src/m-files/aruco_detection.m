@@ -1,4 +1,4 @@
-function [roi, i_arucos, k_rots] = aruco_detection(img, aruco_markers, varargin)
+function [rois_found, i_rois, i_arucos, k_rots] = aruco_detection(img, aruco_markers, varargin)
 
     % Default values of parameters
     default_canny_th_low  = 0.01;
@@ -82,7 +82,7 @@ function [roi, i_arucos, k_rots] = aruco_detection(img, aruco_markers, varargin)
     % verbose = 2;
     % rois = components(1:8, 3);
     rois = components(:, 3);
-    [i_rois, i_arucos, k_rots] = roi_matching(...
+    [rois_found, i_rois, i_arucos, k_rots] = roi_matching(...
         img, rois, aruco_markers, ...
         'bb_padding', BB_PADDING, ...
         'roi_th_size', ROI_TH_SIZE, ...
@@ -90,7 +90,7 @@ function [roi, i_arucos, k_rots] = aruco_detection(img, aruco_markers, varargin)
         'hamming_th', HAMMING_TH, ...
         'verbose', MATCH_ROI_VERBOSE ...
     );
-
-    roi = rois{i_rois};
+    
+    % rois_found contains sorted vertices of ROIs
 
 end

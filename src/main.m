@@ -19,14 +19,16 @@ MATCH_ROI_VERBOSE   = 1;
 % Open image
 img1 = imread('../assets/img_tests/test1/images1_01.png');
 img2 = imread('../assets/img_tests/test1/images2_01.png');
-% img = imread('../assets/img_tests/test2/images1_01.png');
-% img = imread('../assets/img_tests/test2/images2_01.png');
-% img = imread('../assets/img_tests/test3/images1_01.png');
-% img = imread('../assets/img_tests/test3/images2_01.png');
-% img = imread('../assets/img_tests/aruco.jpg');
+% img1 = imread('../assets/img_tests/test2/images1_01.png');
+% img2 = imread('../assets/img_tests/test2/images2_01.png');
+% img1 = imread('../assets/img_tests/test3/images1_01.png');
+% img2 = imread('../assets/img_tests/test3/images2_01.png');
+% img1 = imread('../assets/img_tests/aruco.jpg');
 
 % Load examples of markers
 load('aruco_markers_7x7.mat');
+% load('aruco_markers_8x8.mat');
+% load('aruco_markers_8x8_web.mat');
 
 %-----------------------------------------------------------------
 
@@ -41,7 +43,7 @@ for i=1:n_aruco_markers
 end
 
 fprintf('------- Processing 1st image -------\n');
-[roi1, i_arucos1, k_rots1] = aruco_detection(...
+[rois_found1, i_rois1, i_arucos1, k_rots1] = aruco_detection(...
     img1, aruco_markers, ...
     'canny_th_low', CANNY_TH_LOW, ...
     'canny_th_high', CANNY_TH_HIGH, ...
@@ -55,7 +57,7 @@ fprintf('------- Processing 1st image -------\n');
 );
 
 fprintf('------- Processing 2nd image -------\n');
-[roi2, i_arucos2, k_rots2] = aruco_detection(...
+[rois_found2, i_rois2, i_arucos2, k_rots2] = aruco_detection(...
     img2, aruco_markers, ...
     'canny_th_low', CANNY_TH_LOW, ...
     'canny_th_high', CANNY_TH_HIGH, ...
@@ -68,5 +70,4 @@ fprintf('------- Processing 2nd image -------\n');
     'match_roi_verbose', MATCH_ROI_VERBOSE ...
 );
 
-% [i_rois1; i_arucos1; k_rots1]'
-% [i_rois2; i_arucos2; k_rots2]'
+% TRIANGULATION ????

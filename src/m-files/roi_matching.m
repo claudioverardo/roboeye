@@ -1,4 +1,4 @@
-function [i_rois, i_arucos, k_rots] = roi_matching(img, rois, aruco_markers, varargin)
+function [rois_matched, i_rois, i_arucos, k_rots] = roi_matching(img, rois, aruco_markers, varargin)
 % ARUCO_MATCHING  Matching of aruco markers in an image.
 %   ARUCO_MATCHING(IMG, ROIS, ARUCO_MARKERS) match the ARUCO_MARKERS with the ROIS of IMG 
 %
@@ -57,6 +57,7 @@ function [i_rois, i_arucos, k_rots] = roi_matching(img, rois, aruco_markers, var
         end
     end
     
+    rois_matched = zeros(4,2,0);
     i_rois   = [];
     i_arucos = [];
     k_rots   = [];
@@ -71,9 +72,9 @@ function [i_rois, i_arucos, k_rots] = roi_matching(img, rois, aruco_markers, var
         if check_cvx_quadrilateral(roi) == 1
 
             % Identify the boundary box of the ROI
-            bb_idx_top    = max( min(roi(:,2)) - BB_PADDING, 0 );
+            bb_idx_top    = max( min(roi(:,2)) - BB_PADDING, 1 );
             bb_idx_bottom = min( max(roi(:,2)) + BB_PADDING, size(img,1) );
-            bb_idx_left   = max( min(roi(:,1)) - BB_PADDING, 0 );
+            bb_idx_left   = max( min(roi(:,1)) - BB_PADDING, 1 );
             bb_idx_right  = min( max(roi(:,1)) + BB_PADDING, size(img,2) );
             bb_height     = bb_idx_bottom - bb_idx_top;
             bb_width      = bb_idx_right - bb_idx_left;
@@ -90,15 +91,15 @@ function [i_rois, i_arucos, k_rots] = roi_matching(img, rois, aruco_markers, var
                 % NOTE: coordinates in the x,y frame, not in the px frame!
                 bb_vertices = [ roi(:,1)-bb_idx_left roi(:,2)-bb_idx_top ];
     
-                % ensure that bb_vertices are sorted in a clockwise order, from top-left
+                % ensure that bb_vertices are sorted in a clockwise order, from top-left in the bounding box
                 % example of problematic case:
                 % bb_vertices = [ [20 5]; [16 27]; [5 32]; [14 6] ]
-                bb_vertices_norm = vecnorm(bb_vertices');
-                [~, bb_vertices_norm_argmin] = min(bb_vertices_norm);
-                bb_vertices = [ 
-                    bb_vertices(bb_vertices_norm_argmin:end,:)
-                    bb_vertices(1:bb_vertices_norm_argmin-1,:) 
-                ];
+                % bb_vertices_norm = vecnorm(bb_vertices');
+                % [~, bb_vertices_norm_argmin] = min(bb_vertices_norm);
+                % bb_vertices = [ 
+                %     bb_vertices(bb_vertices_norm_argmin:end,:)
+                %     bb_vertices(1:bb_vertices_norm_argmin-1,:) 
+                % ];
 
                 % Compute homography to the side x side square
                 % NOTE: coordinates in the x,y frame, not in the px frame!
@@ -145,17 +146,33 @@ function [i_rois, i_arucos, k_rots] = roi_matching(img, rois, aruco_markers, var
                 for i_aruco = 1:n_aruco_markers
                     for k_rot=1:4
                         aruco_marker = aruco_markers_rot(:,:,k_rot,i_aruco);
+                        
+                        % Hamming distance between rotated Aruco and ROI content
                         D = pdist( ...
                             cast([proposed_aruco(:) aruco_marker(:)]','double'), ...
                             'hamming' ...
                         );
+                    
+                        % Matching ?
                         if D <= HAMMING_TH / (marker_side*marker_side)
                             detected_aruco = 1;
+                            
+                            % sort ROI vertices to have the Aruco control point in 1st position
+                            % the other points follow the clockwise ordering of the ROI vertices in the image plane
+                            roi_sorted = zeros(size(roi));
+                            for i_vertex = 1:4
+                                roi_sorted(i_vertex,:) = roi(mod(i_vertex-k_rot,4)+1,:);
+                            end
+                            
+                            % save results
+                            rois_matched(:,:,end+1) = roi_sorted;
                             i_rois   = [i_rois, i_roi];
                             i_arucos = [i_arucos, i_aruco];
                             k_rots   = [k_rots, k_rot];
+                            
                             break
                         end
+                        
                     end
                     if detected_aruco == 1
                         break
@@ -165,7 +182,7 @@ function [i_rois, i_arucos, k_rots] = roi_matching(img, rois, aruco_markers, var
                 % Plots
                 if VERBOSE > 1 || (VERBOSE== 1 && detected_aruco ==1)
                     
-                    % Plot original image with the component highlighted
+                    % Plot original image with the ROI highlighted
                     figure;
                     subplot(2,4,[1,2]);
                     imshow(img);
@@ -174,9 +191,13 @@ function [i_rois, i_arucos, k_rots] = roi_matching(img, rois, aruco_markers, var
                          [roi(:,2); roi(1,2)], ...
                          'color','r','linestyle','-','linewidth',1.5, ...
                          'marker','o','markersize',5);
+                    plot(roi(1,1), roi(1,2), 'co', 'MarkerFaceColor', 'c');
+                    if detected_aruco == 1
+                        plot(rois_matched(1,1,end), rois_matched(1,2,end), 'go', 'MarkerFaceColor', 'g')
+                    end
                     title(sprintf('original i=%d', i_roi));
 
-                    % Plot the bw image with the component highlighted
+                    % Plot the bw image with the ROI highlighted
                     subplot(2,4,[3,4]);
                     imshow(img_bw);
                     hold on;
@@ -219,12 +240,22 @@ function [i_rois, i_arucos, k_rots] = roi_matching(img, rois, aruco_markers, var
                     % Plot the content of the vertices downsampled to marker_side x marker_side px
                     subplot(2,4,7);
                     imshow(proposed_aruco);
+                    hold on;
+                    plot(1, 1, 'co', 'MarkerFaceColor', 'c')
                     title('proposal');
 
                     % Plot the content of the vertices downsampled to marker_side x marker_side px
                     subplot(2,4,8);
                     if detected_aruco == 1
                         imshow(aruco_markers_rot(:,:,k_rot,i_aruco));
+                        hold on;
+                        coltrol_point_aruco = [
+                                      1           1
+                                      1 marker_side
+                            marker_side marker_side
+                            marker_side           1
+                        ];
+                        plot(coltrol_point_aruco(k_rot,1), coltrol_point_aruco(k_rot,2), 'go', 'MarkerFaceColor', 'g')
                         title(sprintf('detected %d %d°',i_aruco,(k_rot-1)*90));
                     else
                         imshow(zeros(marker_side, marker_side));
