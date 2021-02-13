@@ -4,7 +4,7 @@ function components = roi_extraction(VERBOSE)
     global visited;
     global img_result;
     global components;
-    components = cell(0, 3);
+    components = cell(0, 2);
     
     for i = 1:size(img_canny,1)
         for j = 1:size(img_canny,2)

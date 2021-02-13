@@ -51,6 +51,7 @@ function [roi, i_arucos, k_rots] = aruco_detection(img, aruco_markers, varargin)
     % Edge detection image
     global img_canny;
     img_canny = edge(img_gray, 'canny', [CANNY_TH_LOW, CANNY_TH_HIGH]);
+    % imshow(img_canny);
 
     % Memory for the dfs process (visited)
     global visited;
@@ -63,18 +64,14 @@ function [roi, i_arucos, k_rots] = aruco_detection(img, aruco_markers, varargin)
 
     % Extract morphological components
     components = roi_extraction(EXTRACT_ROI_VERBOSE);
-
-    % Calculate polyfit Douglas Pecker Algorithm
-    for i = 1:size(components, 1)
-        p_reduced = reducepoly(components{size(components, 1), 1}, RDP_TH);  
-        p_reduced(end,:) = [];
-        components{size(components, 1), 3} = p_reduced;
-    end
+    rois_raw = components(:,1);
     
     % Print results
     imshow(img_result);
-    % imshow(img_canny);
     hold on;
+    
+    % Select only valid ROIs
+    rois = roi_refinement(rois_raw, RDP_TH);
     
     image = zeros(size(img_canny));
     for i = 1:size(components, 1)
@@ -84,33 +81,47 @@ function [roi, i_arucos, k_rots] = aruco_detection(img, aruco_markers, varargin)
         end
         image = cast(image, 'uint8');
     end
+    
+    figure;
     imshow(image);
     hold on;
-    
     for i = 1:size(components, 1)
         % Print tails
         for j = 1:size(components{i, 2}, 1)
             plot(components{i, 2}(j, 1), components{i, 2}(j, 2), "ro");
             hold on;
         end
+        % Print raw ROIs
+        line([rois_raw{i}(:,1); rois_raw{i}(1,1)], ...
+             [rois_raw{i}(:,2); rois_raw{i}(1,2)], ...
+             'color','r','linestyle','-','linewidth',1.5, ...
+             'marker','o','markersize',5);
     end
-
+    
+    figure;
+    imshow(image);
+    hold on;
+    for i = 1:size(rois, 1)
+        % Print refined ROIs
+        line([rois{i}(:,1); rois{i}(1,1)], ...
+             [rois{i}(:,2); rois{i}(1,2)], ...
+             'color','g','linestyle','-','linewidth',1.5, ...
+             'marker','o','markersize',5);
+    end
+         
     % Launch Aruco matching
     % verbose = 2;
     % rois = components(1:8, 3);
-%     rois = components(:, 3);
-%     [i_rois, i_arucos, k_rots] = roi_matching(...
-%         img, rois, aruco_markers, ...
-%         'bb_padding', BB_PADDING, ...
-%         'roi_th_size', ROI_TH_SIZE, ...
-%         'roi_h_side', ROI_H_SIDE, ...
-%         'hamming_th', HAMMING_TH, ...
-%         'verbose', MATCH_ROI_VERBOSE ...
-%     );
-% 
-%     roi = rois{i_rois};
-      roi = [];
-      i_arucos = [];
-      k_rots = [];
+    % rois = components(:, 3);
+    [i_rois, i_arucos, k_rots] = roi_matching(...
+        img, rois, aruco_markers, ...
+        'bb_padding', BB_PADDING, ...
+        'roi_th_size', ROI_TH_SIZE, ...
+        'roi_h_side', ROI_H_SIDE, ...
+        'hamming_th', HAMMING_TH, ...
+        'verbose', MATCH_ROI_VERBOSE ...
+    );
+
+    roi = rois{i_rois};
 
 end
