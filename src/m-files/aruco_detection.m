@@ -61,13 +61,16 @@ function [roi, i_arucos, k_rots] = aruco_detection(img, aruco_markers, varargin)
     img_result = zeros(size(img));
     img_result = cast(img_result, 'uint8');
 
-    % Connected components with tails
-    global components;
-    components = cell(0, 3);
-
     % Extract morphological components
-    roi_extraction(RDP_TH, EXTRACT_ROI_VERBOSE);
+    components = roi_extraction(EXTRACT_ROI_VERBOSE);
 
+    % Calculate polyfit Douglas Pecker Algorithm
+    for i = 1:size(components, 1)
+        p_reduced = reducepoly(components{size(components, 1), 1}, RDP_TH);  
+        p_reduced(end,:) = [];
+        components{size(components, 1), 3} = p_reduced;
+    end
+    
     % Print results
     imshow(img_result);
     % imshow(img_canny);
@@ -79,10 +82,11 @@ function [roi, i_arucos, k_rots] = aruco_detection(img, aruco_markers, varargin)
         for j = 1:size(components{i, 1}, 1)
             image(components{i, 1}(j, 2), components{i, 1}(j, 1)) = 255;
         end
+        image = cast(image, 'uint8');
     end
-    image = cast(image, 'uint8');
     imshow(image);
     hold on;
+    
     for i = 1:size(components, 1)
         % Print tails
         for j = 1:size(components{i, 2}, 1)
