@@ -72,22 +72,17 @@ function [roi, i_arucos, k_rots] = aruco_detection(img, aruco_markers, varargin)
     imshow(img_result);
     % imshow(img_canny);
     hold on;
-    
     image = zeros(size(img_canny));
     for i = 1:size(components, 1)
-        % Print points
-        for j = 1:size(components{i, 1}, 1)
-            image(components{i, 1}(j, 2), components{i, 1}(j, 1)) = 255;
+        % Print tails
+        for j = 1:size(components{i, 2}, 1)
+            plot(components{i, 1}(j, 1), components{i, 1}(j, 2), "ro");
         end
     end
-    image = cast(image, 'uint8');
-    imshow(image);
-    hold on;
     for i = 1:size(components, 1)
         % Print tails
         for j = 1:size(components{i, 2}, 1)
             plot(components{i, 2}(j, 1), components{i, 2}(j, 2), "ro");
-            hold on;
         end
     end
 

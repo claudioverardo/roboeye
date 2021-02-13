@@ -36,12 +36,12 @@ function roi_extraction(RDP_TH, VERBOSE)
                 end
                 
                 % If component is valid, apply polyfit
-                if invalid_component == 0
-                    components{size(components, 1), 1}(end+1,:) = components{size(components, 1), 1}(1,:);
-                    p_reduced = reducepoly(components{size(components, 1), 1}, RDP_TH);  
-                    p_reduced(end,:) = [];
-                    components{size(components, 1), 3} = p_reduced;
-                end
+%                 if invalid_component == 0
+%                     components{size(components, 1), 1}(end+1,:) = components{size(components, 1), 1}(1,:);
+%                     p_reduced = reducepoly(components{size(components, 1), 1}, RDP_TH);  
+%                     p_reduced(end,:) = [];
+%                     components{size(components, 1), 3} = p_reduced;
+%                 end
                 
             end
         end
