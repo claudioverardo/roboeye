@@ -21,7 +21,19 @@ function is_cvx_quad = check_cvx_quadrilateral(points)
         tot_angle = sum(angles);
         
         if tot_angle > 0.97*2*pi && tot_angle < 1.03*2*pi
-            is_cvx_quad = 1;
+            
+            parallel_sides_angles = zeros(2,1);
+            for i=1:2
+                parallel_sides_angles(i) = acos(...
+                    abs( vectors(i+2,:) * vectors(i,:)' ) ...
+                    ./ norm(vectors(i+2,:)) ./ norm( vectors(i,:)) ...
+                ); 
+            end
+                
+            if parallel_sides_angles(1) < pi/10 && parallel_sides_angles(2) < pi/10
+                is_cvx_quad = 1;
+            end
+            
         end
         
     end
