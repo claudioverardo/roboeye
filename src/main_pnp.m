@@ -17,15 +17,13 @@ EXTRACT_ROI_VERBOSE = 0;
 MATCH_ROI_VERBOSE   = 1;
 ARUCO_POSE_ESTIMATION_PNP_VERBOSE = 1;
 
-% Real world length of the aruco
-aruco_real_side = 0.06; % [m]
-
 
 %---------- TEST iPhone ----------
 % img = imread('../assets/img_tests/test6/images1_01.png');
 % img = imread('../assets/img_tests/test7/images1_01.png');
 img = imread('../assets/img_tests/test8/images1_01.png');
 
+aruco_real_side = 0.03; % [m]
 load('aruco_markers_8x8.mat');
 load('data/K_P1.mat', 'K');
 
@@ -42,6 +40,7 @@ load('data/K_P1.mat', 'K');
 % img = imread('../assets/img_tests/test_iPhone/File_007.jpeg');
 % img = imresize(img, [900 1200]);
 
+% aruco_real_side = 0.06; % [m]
 % load('aruco_markers_8x8_iPhone.mat');
 % load('data/K_iPhone.mat');
 
