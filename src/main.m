@@ -32,13 +32,13 @@ load('aruco_markers_7x7.mat');
 
 %-----------------------------------------------------------------
 
-aruco_markers = logical(aruco_markers);
-n_aruco_markers = size(aruco_markers,3);
+% aruco_markers = logical(aruco_markers);
+n_aruco_markers = size(aruco_markers,1);
 
 figure;
 for i=1:n_aruco_markers
     subplot(1,n_aruco_markers,i)
-    imshow(aruco_markers(:,:,i));
+    imshow(aruco_markers{i});
     title(sprintf('query %d', i));
 end
 
