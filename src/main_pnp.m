@@ -20,6 +20,16 @@ ARUCO_POSE_ESTIMATION_PNP_VERBOSE = 1;
 % Real world length of the aruco
 aruco_real_side = 0.06; % [m]
 
+
+%---------- TEST iPhone ----------
+% img = imread('../assets/img_tests/test6/images1_01.png');
+% img = imread('../assets/img_tests/test7/images1_01.png');
+img = imread('../assets/img_tests/test8/images1_01.png');
+
+load('aruco_markers_8x8.mat');
+load('data/K_P1.mat', 'K');
+
+
 %---------- TEST iPhone ----------
 
 % Load image
@@ -29,14 +39,11 @@ aruco_real_side = 0.06; % [m]
 % img = imread('../assets/img_tests/test_iPhone/File_004.jpeg');
 % img = imread('../assets/img_tests/test_iPhone/File_005.jpeg');
 % img = imread('../assets/img_tests/test_iPhone/File_006.jpeg');
-img = imread('../assets/img_tests/test_iPhone/File_007.jpeg');
-img = imresize(img, [900 1200]);
+% img = imread('../assets/img_tests/test_iPhone/File_007.jpeg');
+% img = imresize(img, [900 1200]);
 
-% Load markers
-load('aruco_markers_8x8_iPhone.mat');
-
-% Load camera intrinsics
-load('data/K_iPhone.mat');
+% load('aruco_markers_8x8_iPhone.mat');
+% load('data/K_iPhone.mat');
 
 %---------------------------------
 

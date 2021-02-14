@@ -65,8 +65,8 @@ function [rois, i_arucos, R, t] = aruco_pose_estimation_pnp(img, K, aruco_marker
             plot(centroid_proj(1),centroid_proj(2),'go');
             
             % Check projection of ROI points
-            % roi_proj = htx(P, roi_world')';
-            % plot(roi_proj(:,1),roi_proj(:,2),'go');
+            roi_proj = htx(P, roi_world')';
+            plot(roi_proj(:,1),roi_proj(:,2),'go');
 
             % Project the pose axes of the marker
             axes_world = 1.5*aruco_real_side * [

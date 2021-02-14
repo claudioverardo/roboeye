@@ -9,7 +9,7 @@ RDP_TH        = 0.1; % Ramer–Douglas–Peucker
 % Aruco matching parameters
 BB_PADDING  = 2;
 ROI_TH_SIZE = 0.5;
-ROI_H_SIDE  = 40;
+ROI_H_SIDE  = 80;
 HAMMING_TH  = 1;
 
 % Debug
@@ -17,17 +17,19 @@ EXTRACT_ROI_VERBOSE = 0;
 MATCH_ROI_VERBOSE   = 1;
 
 % Open image
-img1 = imread('../assets/img_tests/test1/images1_01.png');
-img2 = imread('../assets/img_tests/test1/images2_01.png');
+% img1 = imread('../assets/img_tests/test1/images1_01.png');
+% img2 = imread('../assets/img_tests/test1/images2_01.png');
 % img1 = imread('../assets/img_tests/test2/images1_01.png');
 % img2 = imread('../assets/img_tests/test2/images2_01.png');
 % img1 = imread('../assets/img_tests/test3/images1_01.png');
 % img2 = imread('../assets/img_tests/test3/images2_01.png');
+img1 = imread('../assets/img_tests/test8/images1_01.png');
+img2 = imread('../assets/img_tests/test8/images2_01.png');
 % img1 = imread('../assets/img_tests/aruco.jpg');
 
 % Load examples of markers
-load('aruco_markers_7x7.mat');
-% load('aruco_markers_8x8.mat');
+% load('aruco_markers_7x7.mat');
+load('aruco_markers_8x8.mat');
 % load('aruco_markers_8x8_web.mat');
 
 %-----------------------------------------------------------------
