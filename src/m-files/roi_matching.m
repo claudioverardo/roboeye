@@ -23,8 +23,8 @@ function [rois_matched, i_rois, i_arucos, k_rots] = roi_matching(img, rois, aruc
 
     img_size = size(img,1)*size(img,2);
     img_bw = imbinarize(rgb2gray(img));
-    marker_side = size(aruco_markers,1);
-    n_aruco_markers = size(aruco_markers,3);
+    marker_side = size(aruco_markers{1,1},1);
+    n_aruco_markers = size(aruco_markers,1);
 
     % Default values of parameters    
     default_bb_padding  = 2;
@@ -50,14 +50,14 @@ function [rois_matched, i_rois, i_arucos, k_rots] = roi_matching(img, rois, aruc
     VERBOSE     = p.Results.verbose;
     
     % Save the markers rotated by 0°, 90°, 180°, 270°
-    aruco_markers_rot = zeros(marker_side, marker_side, 4, n_aruco_markers);
+    aruco_markers_rot = cell(n_aruco_markers, 4);
     for i_aruco=1:n_aruco_markers
         for k_rot=1:4
-            aruco_markers_rot(:,:,k_rot,i_aruco) = rot90(aruco_markers(:,:,i_aruco),k_rot-1);
+            aruco_markers_rot{i_aruco, k_rot} = rot90(aruco_markers{i_aruco,1}, k_rot-1);
         end
     end
     
-    rois_matched = zeros(4,2,0);
+    rois_matched = cell(0);
     i_rois   = [];
     i_arucos = [];
     k_rots   = [];
@@ -145,7 +145,7 @@ function [rois_matched, i_rois, i_arucos, k_rots] = roi_matching(img, rois, aruc
                 detected_aruco = 0;
                 for i_aruco = 1:n_aruco_markers
                     for k_rot=1:4
-                        aruco_marker = aruco_markers_rot(:,:,k_rot,i_aruco);
+                        aruco_marker = aruco_markers_rot{i_aruco,k_rot};
                         
                         % Hamming distance between rotated Aruco and ROI content
                         D = pdist( ...
@@ -165,7 +165,7 @@ function [rois_matched, i_rois, i_arucos, k_rots] = roi_matching(img, rois, aruc
                             end
                             
                             % save results
-                            rois_matched(:,:,end+1) = roi_sorted;
+                            rois_matched{end+1,1} = roi_sorted;
                             i_rois   = [i_rois, i_roi];
                             i_arucos = [i_arucos, i_aruco];
                             k_rots   = [k_rots, k_rot];
@@ -180,7 +180,7 @@ function [rois_matched, i_rois, i_arucos, k_rots] = roi_matching(img, rois, aruc
                 end
 
                 % Plots
-                if VERBOSE > 1 || (VERBOSE== 1 && detected_aruco ==1)
+                if VERBOSE > 1 || (VERBOSE== 1 && detected_aruco == 1)
                     
                     % Plot original image with the ROI highlighted
                     figure;
@@ -193,7 +193,7 @@ function [rois_matched, i_rois, i_arucos, k_rots] = roi_matching(img, rois, aruc
                          'marker','o','markersize',5);
                     plot(roi(1,1), roi(1,2), 'co', 'MarkerFaceColor', 'c');
                     if detected_aruco == 1
-                        plot(rois_matched(1,1,end), rois_matched(1,2,end), 'go', 'MarkerFaceColor', 'g')
+                        plot(rois_matched{end,1}(1,1), rois_matched{end,1}(1,2), 'go', 'MarkerFaceColor', 'g')
                     end
                     title(sprintf('original i=%d', i_roi));
 
@@ -247,7 +247,7 @@ function [rois_matched, i_rois, i_arucos, k_rots] = roi_matching(img, rois, aruc
                     % Plot the content of the vertices downsampled to marker_side x marker_side px
                     subplot(2,4,8);
                     if detected_aruco == 1
-                        imshow(aruco_markers_rot(:,:,k_rot,i_aruco));
+                        imshow(aruco_markers_rot{i_aruco,k_rot});
                         hold on;
                         coltrol_point_aruco = [
                                       1           1
