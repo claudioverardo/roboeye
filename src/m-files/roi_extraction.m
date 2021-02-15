@@ -16,10 +16,10 @@ function components = roi_extraction(VERBOSE)
                 % Create new empty connected component (points, tails, polyfit)
                 components{size(components, 1) + 1, 1} = [];
                 components{size(components, 1), 2} = [];
-                components{size(components, 1), 3} = [];
                 
                 % Explore that component
-                dfs(i, j, color);
+                [components{size(components, 1), 1}, components{size(components, 1), 2}] = bfs_c(img_canny, size(img_canny, 1), size(img_canny, 2), i-1, j-1);
+                %dfs(i, j, color);
                 
                 % Add to components tails the startpoint if there is a tail
                 if (check_tail(i, j) == 1)
