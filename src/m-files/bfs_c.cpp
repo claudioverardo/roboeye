@@ -11,7 +11,7 @@ typedef std::pair<int, int> ii;
 
 class MexFunction : public matlab::mex::Function {
     bool* image;    // Binary input image pointer
-    bool** visited; // Visited dinamic matrix
+    bool* visited;  // Visited input logical matrix pointer
     std::vector<ii> components; 
     std::vector<ii> tails;
     int sizeI;      // Width pixel dimension
@@ -23,42 +23,52 @@ class MexFunction : public matlab::mex::Function {
             // checkArguments(outputs, inputs);
             
             // Assign the input image
-            TypedArray<bool> matrix = std::move(inputs[0]);
-            this->image = getPointer(matrix);
-            
-            // Assign the input image size
-            this->sizeI = std::move(inputs[1])[0];
-            this->sizeJ = std::move(inputs[2])[0];
-            
-            // Save startI and startJ coords
-            int startI = std::move(inputs[3])[0];
-            int startJ = std::move(inputs[4])[0];
+            TypedArray<bool> inputImage = std::move(inputs[0]);
+            this->image = getPointer(inputImage);
             
             // Initialize the visited matrix
-            this->visited = new bool*[this->sizeI];
-            for(int i = 0; i < this->sizeI; i++) {
-                this->visited[i] = new bool[this->sizeJ];
-            }
+            TypedArray<bool> inputVisited = std::move(inputs[1]);
+            this->visited = getPointer(inputVisited);
             
-            bfs(startI, startJ);
+            // Assign the input image size
+            this->sizeI = std::move(inputs[2])[0];
+            this->sizeJ = std::move(inputs[3])[0];
+            
+            // Save startI and startJ coords
+            int startI = std::move(inputs[4])[0];
+            int startJ = std::move(inputs[5])[0];
+            
+            // Push -1 to zero base indexs (difference beetween matlab and C++)
+            bfs(startI - 1, startJ - 1);
             
             ArrayFactory factory;
             
             // Populate components for matlab output array
             TypedArray<int> componentsMatlab = factory.createArray<int>({ this->components.size(), 2 });
             for (int i = 0; i < this->components.size(); i++) {
-                componentsMatlab[i][0] = this->components[i].first;
-                componentsMatlab[i][1] = this->components[i].second;
-            }
+                // Push point 1-based matlab reference
+                componentsMatlab[i][0] = this->components[i].first + 1;
+                componentsMatlab[i][1] = this->components[i].second + 1;
+            }            
             outputs[0] = componentsMatlab;
             
             // Populate tails for matlab output array
             TypedArray<int> tailsMatlab = factory.createArray<int>({ this->tails.size(), 2 });
             for (int i = 0; i < this->tails.size(); i++) {
-                tailsMatlab[i][0] = this->tails[i].first;
-                tailsMatlab[i][1] = this->tails[i].second;
+                // Push point 1-based matlab reference
+                tailsMatlab[i][0] = this->tails[i].first + 1;
+                tailsMatlab[i][1] = this->tails[i].second + 1;
             }
             outputs[1] = tailsMatlab;
+            
+            /*TypedArray<int> test = factory.createArray<int>({ 5, 1 });
+            test[0][0] = *(this->image + getImageIndex(0, 0));
+            test[1][0] = *(this->image + getImageIndex(0, 1));
+            outputs[2] = test;*/
+            
+            // Reset for next cycle
+            this->components.clear();
+            this->tails.clear();
         }
         
         void bfs(int start_i, int start_j) {
@@ -70,7 +80,8 @@ class MexFunction : public matlab::mex::Function {
             std::queue<ii> q;
             
             // Push start node
-            q.push({ start_i, start_j });
+            q.push({ start_i, start_j});
+            *(visited + getImageIndex(start_i, start_j)) = 1;
             
             // Until queue is empty
             while (!q.empty()) {
@@ -82,8 +93,7 @@ class MexFunction : public matlab::mex::Function {
                 // Remove the first element
                 q.pop();
                 
-                // Signed that pixel as visited
-                visited[u_i][u_j] = true;
+                // Add that point to the connected components set
                 this->components.push_back({ u_j, u_i });
                 
                 bool possibleTail = true;
@@ -92,11 +102,14 @@ class MexFunction : public matlab::mex::Function {
                     int v_i = u_i + add_i[i];
                     int v_j = u_j + add_j[i];
                     
-                    if (checkBoundaries(v_i, v_j) &&
-                        !visited[v_i][v_j] &&
-                        *(this->image + getImageIndex(v_i, v_j)) == true) {
+                    if (checkBoundaries(v_i, v_j) &&                            // Inside the image bounds
+                        *(visited + getImageIndex(v_i, v_j)) == false &&        // Not visited anymore
+                        *(this->image + getImageIndex(v_i, v_j)) == true) {     // There is a white pixel
+                        
+                        *(visited + getImageIndex(v_i, v_j)) = 1;
                         possibleTail = false;
                         q.push({ v_i, v_j });
+                        
                     }
                 }
                 

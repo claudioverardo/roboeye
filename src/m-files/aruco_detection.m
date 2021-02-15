@@ -55,7 +55,7 @@ function [roi, i_arucos, k_rots] = aruco_detection(img, aruco_markers, varargin)
 
     % Memory for the dfs process (visited)
     global visited;
-    visited = zeros(size(img_gray));
+    visited = imbinarize(zeros(size(img_gray)));
 
     % Connected components image result
     global img_result;
