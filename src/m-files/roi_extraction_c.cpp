@@ -25,8 +25,12 @@ class MexFunction : public matlab::mex::Function {
     bool** visited;  // Visited input logical matrix pointer
     
     // Crosses and then diagonals
-    const int add_i[8] = {  0, +1,  0, -1, -1, +1, +1, -1 };
-    const int add_j[8] = { +1,  0, -1,  0, +1, +1, -1, -1 };
+    /*const int add_i[8] = {  0, +1,  0, -1, -1, +1, +1, -1 };
+    const int add_j[8] = { +1,  0, -1,  0, +1, +1, -1, -1 };*/
+    
+    // Diagonal and then diagonals
+    const int add_i[8] = { -1, +1, +1, -1, 0, +1,  0, -1 };
+    const int add_j[8] = { +1, +1, -1, -1, +1, 0, -1,  0 };
     
     public:
         void operator()(ArgumentList outputs, ArgumentList inputs) {
