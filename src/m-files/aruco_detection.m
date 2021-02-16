@@ -49,39 +49,20 @@ function [roi, i_arucos, k_rots] = aruco_detection(img, aruco_markers, varargin)
     n_aruco_markers = size(aruco_markers,3);
 
     % Edge detection image
-    global img_canny;
     img_canny = edge(img_gray, 'canny', [CANNY_TH_LOW, CANNY_TH_HIGH]);
 
-    % Memory for the dfs process (visited)
-    global visited;
-    visited = zeros(size(img_gray));
-
-    % Connected components image result
-    global img_result;
-    img_result = zeros(size(img));
-    img_result = cast(img_result, 'uint8');
-
-    % Connected components with tails
-    global components;
-    components = cell(0, 3);
-
     % Extract morphological components
-    roi_extraction(RDP_TH, EXTRACT_ROI_VERBOSE);
-
-    % Print results
-    % imshow(img_result);
-    % imshow(img_canny);
-    % hold on;
-    % for i = 1:size(components, 1)
-    %     for j = 1:size(components{i, 2}, 1)
-    %         plot(components{i, 2}(j, 1), components{i, 2}(j, 2), "ro");
-    %     end
-    % end
-
+    %components = roi_extraction(EXTRACT_ROI_VERBOSE);
+    [components, tails] = roi_extraction_c(img_canny, size(img_canny, 1), size(img_canny, 2));
+    rois_raw = components;
+    
+    % Select only valid ROIs
+    rois = roi_refinement(rois_raw, RDP_TH);
+         
     % Launch Aruco matching
     % verbose = 2;
     % rois = components(1:8, 3);
-    rois = components(:, 3);
+    % rois = components(:, 3);
     [i_rois, i_arucos, k_rots] = roi_matching(...
         img, rois, aruco_markers, ...
         'bb_padding', BB_PADDING, ...
