@@ -29,8 +29,8 @@ class MexFunction : public matlab::mex::Function {
     const int add_j[8] = { +1,  0, -1,  0, +1, +1, -1, -1 };*/
     
     // Diagonal and then diagonals
-    const int add_i[8] = { -1, +1, +1, -1, 0, +1,  0, -1 };
-    const int add_j[8] = { +1, +1, -1, -1, +1, 0, -1,  0 };
+    const int add_i[8] = { -1, +1, +1, -1, -1,  0, +1,  0 };
+    const int add_j[8] = { -1, -1, +1, +1,  0, -1,  0, +1 };
     
     public:
         void operator()(ArgumentList outputs, ArgumentList inputs) {
