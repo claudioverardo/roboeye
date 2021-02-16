@@ -56,8 +56,28 @@ function [rois_found, i_rois, i_arucos, k_rots] = aruco_detection(img, aruco_mar
     [components, tails] = roi_extraction_c(img_canny, size(img_canny, 1), size(img_canny, 2));
     rois_raw = components;
     
+    figure;
+    imshow(img);
+    for k=1:size(rois_raw,1)
+       hold on;
+       line([rois_raw{k,1}(:,1); rois_raw{k,1}(1,1)], ...
+            [rois_raw{k,1}(:,2); rois_raw{k,1}(1,2)], ...
+            'color','r','linestyle','-','linewidth',1.5, ...
+            'marker','o','markersize',5);
+    end
+    
     % Select only valid ROIs
     rois = roi_refinement(rois_raw, RDP_TH);
+    
+    figure;
+    imshow(img);
+    for k=1:size(rois,1)
+       hold on;
+       line([rois{k,1}(:,1); rois{k,1}(1,1)], ...
+            [rois{k,1}(:,2); rois{k,1}(1,2)], ...
+            'color','r','linestyle','-','linewidth',1.5, ...
+            'marker','o','markersize',5);
+    end
          
     % Launch Aruco matching
     % verbose = 2;
