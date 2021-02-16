@@ -242,7 +242,6 @@ class MexFunction : public matlab::mex::Function {
             
             // Push start node
             q.push({ start_i, start_j});
-            visited[start_i][start_j] = true;
             
             // Until queue is empty
             while (!q.empty()) {
@@ -254,8 +253,14 @@ class MexFunction : public matlab::mex::Function {
                 // Remove the first element
                 q.pop();
                 
+                // If I have alredy visited I skip that nodeS
+                if (visited[u_i][u_j]) {
+                    continue;
+                }
+                
                 // Add that point to the connected components set
                 this->components[this->componentsSize].push_back({ u_j, u_i });
+                visited[u_i][u_j] = true;
                 
                 bool possibleTail = true;
                 
@@ -267,7 +272,6 @@ class MexFunction : public matlab::mex::Function {
                         !visited[v_i][v_j] &&                                   // Not visited anymore
                         *(this->image + getImageIndex(v_i, v_j)) == true) {     // There is a white pixel
                         
-                        visited[v_i][v_j] = true;
                         possibleTail = false;
                         q.push({ v_i, v_j });
                     }
