@@ -23,6 +23,10 @@ class MexFunction : public matlab::mex::Function {
     
     bool** visited;  // Visited input logical matrix pointer
     
+    // Crosses and then diagonals
+    const int add_i[8] = {  0, +1,  0, -1, -1, +1, +1, -1 };
+    const int add_j[8] = { +1,  0, -1,  0, +1, +1, -1, -1 };
+    
     public:
         void operator()(ArgumentList outputs, ArgumentList inputs) {
             // Validate input arguments
@@ -127,7 +131,8 @@ class MexFunction : public matlab::mex::Function {
                         !visited[i][j]) {
                       
                         // Explore that new connected component and save points and tails
-                        bfs(i, j);
+                        // bfs(i, j);
+                        dfs(i, j);
                         
                         // Add to components tails the startpoint if there is a tail
                         if (checkTail(i, j)) {
@@ -152,11 +157,35 @@ class MexFunction : public matlab::mex::Function {
             }
         }
         
+        void dfs(int u_i, int u_j) {
+            visited[u_i][u_j] = true;
+            this->components[this->componentsSize].push_back({ u_j, u_i });
+            
+            bool possibleTail = true;
+            
+            for (int i = 0; i < 8; i++) {
+                int v_i = u_i + this->add_i[i];
+                int v_j = u_j + this->add_j[i];
+
+                if (checkBoundaries(v_i, v_j) &&                            // Inside the image bounds
+                    !visited[v_i][v_j] &&                                   // Not visited anymore
+                    *(this->image + getImageIndex(v_i, v_j)) == true) {     // There is a white pixel
+
+                    visited[v_i][v_j] = true;
+                    possibleTail = false;
+                    dfs(v_i, v_j);
+                }
+            }
+            
+            if (possibleTail) {
+                // Check boundaries conditions
+                if (checkTail(u_i, u_j)) {
+                    this->tails[this->componentsSize].push_back({ u_j, u_i });
+                }
+            }
+        }
+        
         void bfs(int start_i, int start_j) {
-            // Crosses and then diagonals
-            int add_i[8] = {  0, +1,  0, -1, -1, +1, +1, -1 };
-            int add_j[8] = { +1,  0, -1,  0, +1, +1, -1, -1 };
-    
             // Create queue
             std::queue<ii> q;
             
@@ -180,8 +209,8 @@ class MexFunction : public matlab::mex::Function {
                 bool possibleTail = true;
                 
                 for (int i = 0; i < 8; i++) {
-                    int v_i = u_i + add_i[i];
-                    int v_j = u_j + add_j[i];
+                    int v_i = u_i + this->add_i[i];
+                    int v_j = u_j + this->add_j[i];
                     
                     if (checkBoundaries(v_i, v_j) &&                            // Inside the image bounds
                         !visited[v_i][v_j] &&                                   // Not visited anymore
@@ -190,7 +219,6 @@ class MexFunction : public matlab::mex::Function {
                         visited[v_i][v_j] = true;
                         possibleTail = false;
                         q.push({ v_i, v_j });
-                        
                     }
                 }
                 
