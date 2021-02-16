@@ -1,4 +1,5 @@
 #include <queue>
+#include <stack>
 
 #include "mex.hpp"
 #include "mexAdapter.hpp"
@@ -157,7 +158,7 @@ class MexFunction : public matlab::mex::Function {
             }
         }
         
-        void dfs(int u_i, int u_j) {
+        void dfs_rec(int u_i, int u_j) {
             visited[u_i][u_j] = true;
             this->components[this->componentsSize].push_back({ u_j, u_i });
             
@@ -173,7 +174,7 @@ class MexFunction : public matlab::mex::Function {
 
                     visited[v_i][v_j] = true;
                     possibleTail = false;
-                    dfs(v_i, v_j);
+                    dfs_rec(v_i, v_j);
                 }
             }
             
@@ -197,6 +198,52 @@ class MexFunction : public matlab::mex::Function {
             while (!q.empty()) {
                 // Extract the front coords
                 ii u = q.front();
+                int u_i = u.first;
+                int u_j = u.second;
+                
+                // Remove the first element
+                q.pop();
+                
+                // Add that point to the connected components set
+                this->components[this->componentsSize].push_back({ u_j, u_i });
+                
+                bool possibleTail = true;
+                
+                for (int i = 0; i < 8; i++) {
+                    int v_i = u_i + this->add_i[i];
+                    int v_j = u_j + this->add_j[i];
+                    
+                    if (checkBoundaries(v_i, v_j) &&                            // Inside the image bounds
+                        !visited[v_i][v_j] &&                                   // Not visited anymore
+                        *(this->image + getImageIndex(v_i, v_j)) == true) {     // There is a white pixel
+                        
+                        visited[v_i][v_j] = true;
+                        possibleTail = false;
+                        q.push({ v_i, v_j });
+                    }
+                }
+                
+                if (possibleTail) {
+                    // Check boundaries conditions
+                    if (checkTail(u_i, u_j)) {
+                        this->tails[this->componentsSize].push_back({ u_j, u_i });
+                    }
+                }
+            }
+        }
+        
+         void dfs(int start_i, int start_j) {
+            // Create queue
+            std::stack<ii> q;
+            
+            // Push start node
+            q.push({ start_i, start_j});
+            visited[start_i][start_j] = true;
+            
+            // Until queue is empty
+            while (!q.empty()) {
+                // Extract the front coords
+                ii u = q.top();
                 int u_i = u.first;
                 int u_j = u.second;
                 
