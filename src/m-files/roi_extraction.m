@@ -1,9 +1,10 @@
-function roi_extraction(RDP_TH, VERBOSE)
+function components = roi_extraction(VERBOSE)
 
     global img_canny;
     global visited;
     global img_result;
     global components;
+    components = cell(0, 2);
     
     for i = 1:size(img_canny,1)
         for j = 1:size(img_canny,2)
@@ -15,10 +16,28 @@ function roi_extraction(RDP_TH, VERBOSE)
                 % Create new empty connected component (points, tails, polyfit)
                 components{size(components, 1) + 1, 1} = [];
                 components{size(components, 1), 2} = [];
-                components{size(components, 1), 3} = [];
                 
                 % Explore that component
-                dfs(i, j, color);
+                [tmp_components, tmp_tails] = ...
+                   bfs_c(img_canny, visited, size(img_canny, 1), size(img_canny, 2), i, j);
+                % dfs(i, j, color); % Matlab implementation
+                
+                components{size(components, 1), 1} = [components{size(components, 1), 1}; tmp_components];
+                components{size(components, 1), 2} = [components{size(components, 1), 2}; tmp_tails];
+                
+                for idx=1:size(components{size(components, 1), 1}, 1)
+                    visited(components{size(components, 1), 1}(idx, 2), components{size(components, 1), 1}(idx, 1)) = 1;
+                end
+                
+%                 figure;
+%                 imshow(img_canny);
+%                 hold on;
+%                 plot(comp(:, 1), comp(:, 2), "ro");
+%                 
+%                 figure;
+%                 imshow(visited);
+%                 hold on;
+%                 plot(comp(:, 1), comp(:, 2), "ro");
                 
                 % Add to components tails the startpoint if there is a tail
                 if (check_tail(i, j) == 1)
@@ -36,17 +55,12 @@ function roi_extraction(RDP_TH, VERBOSE)
                 end
                 
                 % If component is valid, apply polyfit
-                if invalid_component == 0
+                if (invalid_component == 0)
                     components{size(components, 1), 1}(end+1,:) = components{size(components, 1), 1}(1,:);
-                    p_reduced = reducepoly(components{size(components, 1), 1}, RDP_TH);  
-                    p_reduced(end,:) = [];
-                    components{size(components, 1), 3} = p_reduced;
                 end
-                
             end
         end
     end
-    
     
     if VERBOSE > 0
         I = zeros(size(img_result));

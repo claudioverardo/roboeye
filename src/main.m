@@ -4,7 +4,7 @@ close all;
 % ROIs extraction parameters
 CANNY_TH_LOW  = 0.01;
 CANNY_TH_HIGH = 0.10;
-RDP_TH        = 0.1; % Ramer–Douglas–Peucker
+RDP_TH        = 0.1; % Ramerï¿½Douglasï¿½Peucker
 
 % Aruco matching parameters
 BB_PADDING  = 2;
