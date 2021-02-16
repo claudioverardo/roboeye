@@ -49,65 +49,15 @@ function [roi, i_arucos, k_rots] = aruco_detection(img, aruco_markers, varargin)
     n_aruco_markers = size(aruco_markers,3);
 
     % Edge detection image
-    global img_canny;
     img_canny = edge(img_gray, 'canny', [CANNY_TH_LOW, CANNY_TH_HIGH]);
-    % imshow(img_canny);
-
-    % Memory for the dfs process (visited)
-    global visited;
-    visited = imbinarize(zeros(size(img_gray)));
-
-    % Connected components image result
-    global img_result;
-    img_result = zeros(size(img));
-    img_result = cast(img_result, 'uint8');
 
     % Extract morphological components
-    components = roi_extraction(EXTRACT_ROI_VERBOSE);
-    rois_raw = components(:,1);
-    
-    % Print results
-    imshow(img_result);
-    hold on;
+    %components = roi_extraction(EXTRACT_ROI_VERBOSE);
+    [components, tails] = roi_extraction_c(img_canny, size(img_canny, 1), size(img_canny, 2));
+    rois_raw = components;
     
     % Select only valid ROIs
     rois = roi_refinement(rois_raw, RDP_TH);
-    
-    image = zeros(size(img_canny));
-    for i = 1:size(components, 1)
-        % Print points
-        for j = 1:size(components{i, 1}, 1)
-            image(components{i, 1}(j, 2), components{i, 1}(j, 1)) = 255;
-        end
-        image = cast(image, 'uint8');
-    end
-    
-    figure;
-    imshow(image);
-    hold on;
-    for i = 1:size(components, 1)
-        % Print tails
-        for j = 1:size(components{i, 2}, 1)
-            plot(components{i, 2}(j, 1), components{i, 2}(j, 2), "ro");
-            hold on;
-        end
-        % Print raw ROIs
-        line([rois_raw{i}(:,1); rois_raw{i}(1,1)], ...
-             [rois_raw{i}(:,2); rois_raw{i}(1,2)], ...
-             'color','r','linestyle','-','linewidth',1.5, ...
-             'marker','o','markersize',5);
-    end
-    
-    figure;
-    imshow(image);
-    hold on;
-    for i = 1:size(rois, 1)
-        % Print refined ROIs
-        line([rois{i}(:,1); rois{i}(1,1)], ...
-             [rois{i}(:,2); rois{i}(1,2)], ...
-             'color','g','linestyle','-','linewidth',1.5, ...
-             'marker','o','markersize',5);
-    end
          
     % Launch Aruco matching
     % verbose = 2;

@@ -48,7 +48,7 @@ function bfs(start_i, start_j, color)
 
             if (check_boundaries(v_i, v_j) == 1 && ...
                 visited(v_i, v_j) == 0 && ...
-                img_canny(v_i, v_j) == 1)
+                    img_canny(v_i, v_j) == 1)
                 possible_tail = 0;
                 
                 % Push inside the queue
