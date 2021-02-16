@@ -80,7 +80,7 @@ class MexFunction : public matlab::mex::Function {
             // Map components output matlab array
             CellArray componentsMatlab = factory.createCellArray({ this->componentsSize, 1 });
             for (int i = 0; i < this->componentsSize; i++) {
-                TypedArray<int> singleComponent = factory.createArray<int>({ this->components[i].size(), 2 });
+                TypedArray<double> singleComponent = factory.createArray<double>({ this->components[i].size(), 2 });
                 for (int j = 0; j < this->components[i].size(); j++) {
                     singleComponent[j][0] = this->components[i][j].first;
                     singleComponent[j][1] = this->components[i][j].second;
@@ -92,7 +92,7 @@ class MexFunction : public matlab::mex::Function {
             // Populate tails for matlab output array
             CellArray tailsMatlab = factory.createCellArray({ this->componentsSize, 1 });
             for (int i = 0; i < this->componentsSize; i++) {
-                TypedArray<int> singleTail = factory.createArray<int>({ this->tails[i].size(), 2 });
+                TypedArray<double> singleTail = factory.createArray<double>({ this->tails[i].size(), 2 });
                 for (int j = 0; j < this->tails[i].size(); j++) {
                     singleTail[j][0] = this->tails[i][j].first;
                     singleTail[j][1] = this->tails[i][j].second;
