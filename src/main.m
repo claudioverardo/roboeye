@@ -1,5 +1,5 @@
 clear;
-close all;
+% close all;
 
 % ROIs extraction parameters
 CANNY_TH_LOW  = 0.01;
@@ -23,8 +23,9 @@ MATCH_ROI_VERBOSE   = 1;
 % img2 = imread('../assets/img_tests/test2/images2_01.png');
 % img1 = imread('../assets/img_tests/test3/images1_01.png');
 % img2 = imread('../assets/img_tests/test3/images2_01.png');
-img1 = imread('../assets/img_tests/test8/images1_01.png');
-img2 = imread('../assets/img_tests/test8/images2_01.png');
+img1 = imread('../assets/img_tests/test7/images1_01.png');
+% img1 = imread('../assets/img_tests/test8/images1_01.png');
+% img2 = imread('../assets/img_tests/test8/images2_01.png');
 % img1 = imread('../assets/img_tests/aruco.jpg');
 
 % Load examples of markers

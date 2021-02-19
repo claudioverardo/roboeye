@@ -18,12 +18,12 @@ function components = roi_extraction(VERBOSE)
                 components{size(components, 1), 2} = [];
                 
                 % Explore that component
-                [tmp_components, tmp_tails] = ...
-                   bfs_c(img_canny, visited, size(img_canny, 1), size(img_canny, 2), i, j);
-                % dfs(i, j, color); % Matlab implementation
+                % [tmp_components, tmp_tails] = ...
+                %   bfs_c(img_canny, visited, size(img_canny, 1), size(img_canny, 2), i, j);
+                dfs(i, j, color); % Matlab implementation
                 
-                components{size(components, 1), 1} = [components{size(components, 1), 1}; tmp_components];
-                components{size(components, 1), 2} = [components{size(components, 1), 2}; tmp_tails];
+                % components{size(components, 1), 1} = [components{size(components, 1), 1}; tmp_components];
+                % components{size(components, 1), 2} = [components{size(components, 1), 2}; tmp_tails];
                 
                 for idx=1:size(components{size(components, 1), 1}, 1)
                     visited(components{size(components, 1), 1}(idx, 2), components{size(components, 1), 1}(idx, 1)) = 1;
@@ -40,24 +40,24 @@ function components = roi_extraction(VERBOSE)
 %                 plot(comp(:, 1), comp(:, 2), "ro");
                 
                 % Add to components tails the startpoint if there is a tail
-                if (check_tail(i, j) == 1)
-                    components{size(components, 1), 2} = [components{size(components, 1), 2}; [j, i]];
-                end
-                
-                % Check if component is not closed and delete it (minimum 100 pixels)
-                invalid_component = 0;
-                component = cell(0, 2);
-                component{1, 1} = components{size(components, 1), 1};
-                component{1, 2} = components{size(components, 1), 2};
-                if (check_connected_component(component) == 0)
-                    components(size(components, 1), :) = [];
-                    invalid_component = 1;
-                end
-                
-                % If component is valid, apply polyfit
-                if (invalid_component == 0)
-                    components{size(components, 1), 1}(end+1,:) = components{size(components, 1), 1}(1,:);
-                end
+%                 if (check_tail(i, j) == 1)
+%                     components{size(components, 1), 2} = [components{size(components, 1), 2}; [j, i]];
+%                 end
+%                 
+%                 % Check if component is not closed and delete it (minimum 100 pixels)
+%                 invalid_component = 0;
+%                 component = cell(0, 2);
+%                 component{1, 1} = components{size(components, 1), 1};
+%                 component{1, 2} = components{size(components, 1), 2};
+%                 if (check_connected_component(component) == 0)
+%                     components(size(components, 1), :) = [];
+%                     invalid_component = 1;
+%                 end
+%                 
+%                 % If component is valid, apply polyfit
+%                 if (invalid_component == 0)
+%                     components{size(components, 1), 1}(end+1,:) = components{size(components, 1), 1}(1,:);
+%                 end
             end
         end
     end

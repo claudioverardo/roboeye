@@ -1,5 +1,6 @@
 #include <queue>
 #include <stack>
+#include <math.h>
 
 #include "mex.hpp"
 #include "mexAdapter.hpp"
@@ -25,12 +26,12 @@ class MexFunction : public matlab::mex::Function {
     bool** visited;  // Visited input logical matrix pointer
     
     // Crosses and then diagonals
-    /*const int add_i[8] = {  0, +1,  0, -1, -1, +1, +1, -1 };
-    const int add_j[8] = { +1,  0, -1,  0, +1, +1, -1, -1 };*/
+    const int add_i[8] = {  0, +1,  0, -1, -1, +1, +1, -1 };
+    const int add_j[8] = { +1,  0, -1,  0, +1, +1, -1, -1 };
     
     // Diagonal and then diagonals
-    const int add_i[8] = { -1, +1, +1, -1, -1,  0, +1,  0 };
-    const int add_j[8] = { -1, -1, +1, +1,  0, -1,  0, +1 };
+    // const int add_i[8] = { -1, +1, +1, -1, -1,  0, +1,  0 };
+    // const int add_j[8] = { -1, -1, +1, +1,  0, -1,  0, +1 };
     
     public:
         void operator()(ArgumentList outputs, ArgumentList inputs) {
@@ -107,7 +108,7 @@ class MexFunction : public matlab::mex::Function {
             (*outputs)[1] = std::move(tailsMatlab);
         }
         
-        void clearMemory() {
+        void clearMemory() {            
             // Release components memory to prevent memory leaks
             for (int i = 0; i < this->componentsSize; i++) {
                 this->components[i].clear();
@@ -137,8 +138,10 @@ class MexFunction : public matlab::mex::Function {
                       
                         // Explore that new connected component and save points and tails
                         // bfs(i, j);
-                        dfs(i, j);
-                        
+                        // dfs(i, j);
+                        dfs_rec(i, j);
+                        this->componentsSize++;
+                        /*
                         // Add to components tails the startpoint if there is a tail
                         if (checkTail(i, j)) {
                            this->tails[this->componentsSize].push_back({ j, i });
@@ -146,7 +149,7 @@ class MexFunction : public matlab::mex::Function {
                         
                         // Check if component is not closed and delete it (minimum 100 pixels)
                         bool valid_component = true;
-                        if (!checkConnectedComponent()) {
+                        if (!checkConnectedComponent(this->componentsSize)) {
                             // Delete the lastest invalid component and tails
                             this->components[this->componentsSize].clear();
                             this->tails[this->componentsSize].clear();
@@ -155,8 +158,9 @@ class MexFunction : public matlab::mex::Function {
 
                         // If is a valid component I can increse the number of connected components founded
                         if (valid_component) {
+                            this->components[this->componentsSize].push_back(this->components[this->componentsSize][0]);
                             this->componentsSize++;
-                        }
+                        } */
                     }
                 }
             }
@@ -295,18 +299,29 @@ class MexFunction : public matlab::mex::Function {
             return i + j * this->sizeI;
         }
         
-        bool checkConnectedComponent() {
-             if (this->tails[this->componentsSize].size() > 2 ||        // Tails Threshold
-                 this->tails[this->componentsSize].size() == 1 ||       // Tails Threeshold
-                 this->components[this->componentsSize].size() < 35   // Minumum Pixel Threeshold
-                 /* TODO: Manhattan distance ( 
-                    size(component{1, 2}, 1) == 2 &&
-                    sum(abs(component{1, 2}(1, :)' - component{1, 2}(2, :)')) > 8  // Manhattan distance Threeshold
-                 )*/) {
+        bool checkConnectedComponent(int componentIndex) {
+             if (this->tails[componentIndex].size() > 2 ||        // Tails Threshold
+                 this->tails[componentIndex].size() == 1 ||       // Tails Threshold
+                 this->components[componentIndex].size() < 35 ||  // Minumum Pixel Threshold
+                 (
+                     this->tails[componentIndex].size() == 2 &&
+                     manhattanDistance(this->tails[componentIndex][0], this->tails[componentIndex][1]) > 8  // Manhattan Threshold
+                 )
+                 ) {      
                 return false;
              }
              return true;
         }
+        
+        int manhattanDistance(ii pointA, ii pointB) {
+            int dist;
+            
+            dist = abs(pointA.first - pointB.first) + 
+                   abs(pointA.second - pointB.second);
+            
+            return dist;
+        }
+        
 
         bool checkTail(int pixel_i, int pixel_j) {
             int filled = 0;

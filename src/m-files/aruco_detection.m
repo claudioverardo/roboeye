@@ -50,9 +50,29 @@ function [rois_found, i_rois, i_arucos, k_rots] = aruco_detection(img, aruco_mar
 
     % Edge detection image
     img_canny = edge(img_gray, 'canny', [CANNY_TH_LOW, CANNY_TH_HIGH]);
+    
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%     % Edge detection image
+%     global img_canny;
+%     img_canny = edge(img_gray, 'canny', [CANNY_TH_LOW, CANNY_TH_HIGH]);
+%     % imshow(img_canny);
+% 
+%     % Memory for the dfs process (visited)
+%     global visited;
+%     visited = imbinarize(zeros(size(img_gray)));
+% 
+%     % Connected components image result
+%     global img_result;
+%     img_result = zeros(size(img));
+%     img_result = cast(img_result, 'uint8');
+
+%     % Extract morphological components
+%     components = roi_extraction(EXTRACT_ROI_VERBOSE);
+%     rois_raw = components(:,1);
+    
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
     % Extract morphological components
-    %components = roi_extraction(EXTRACT_ROI_VERBOSE);
     [components, tails] = roi_extraction_c(img_canny, size(img_canny, 1), size(img_canny, 2));
     rois_raw = components;
     
