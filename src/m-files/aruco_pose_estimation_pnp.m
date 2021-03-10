@@ -10,7 +10,7 @@ function [rois, i_arucos, R, t] = aruco_pose_estimation_pnp(img, K, aruco_marker
     
     % Parse function parameters
     VERBOSE = p.Results.verbose;
-
+    
     % Launch Aruco Detection
     fprintf('-------- Aruco Detection --------\n');
     [rois, ~, i_arucos, ~] = aruco_detection(...
@@ -35,8 +35,7 @@ function [rois, i_arucos, R, t] = aruco_pose_estimation_pnp(img, K, aruco_marker
     R = cell(n_rois,1);
     t = cell(n_rois,1);
     for i=1:n_rois
-        [R{i}, t{i}] = exterior_lin(rois{i}', roi_world', K);
-        [R{i}, t{i}] = exterior_nonlin(R{i}, t{i}, rois{i}', roi_world', K);
+        [R{i}, t{i}] = roi_pnp(rois{i}, roi_world, K);
     end
     
     % Plots
