@@ -1,4 +1,4 @@
-function is_cvx_quad = check_cvx_quadrilateral(points, varargin)
+function is_cvx_quad = check_quadrilateral(points, varargin)
     % points contain the vertices of a 2D figure
     % points = [ [x1,y1]; [x2,y2]; ...; [xN,yN] ]
     
