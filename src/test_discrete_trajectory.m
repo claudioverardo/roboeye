@@ -9,7 +9,7 @@ global A_target
 startingpos=[0 0 0 0 0];
 startingpos=[89.95285    90.37269   -78.13193  -192.18695   -45.09429];
 startingpos=[90.00001     -42.05283     -57.27621      11.09545      91.25148];
-npoints=20;
+npoints=100;
 
 %Posizioni end effector
 
