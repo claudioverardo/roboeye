@@ -28,10 +28,11 @@ function rois = roi_refinement(rois_raw, varargin)
     for i = 1:size(rois_raw, 1)
         
         % Calculate polyfit Ramer–Douglas-Pecker Algorithm
-        roi = reducepoly(rois_raw{i}, RDP_TH);  % MATLAB >= 2019b
+        % NOTE: MATLAB >= 2019b
+        roi = reducepoly(rois_raw{i}, RDP_TH);  
 
         % Remove last point (= to the first one)
-        roi(end,:) = [];  % MATLAB >= 2019b
+        roi(end,:) = [];
         
         % Find the ROI bounding box
         bb_idx_top    = min(roi(:,2));

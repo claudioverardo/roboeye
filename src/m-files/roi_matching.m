@@ -1,4 +1,4 @@
-function [rois_matched, i_rois, i_arucos, k_rots] = roi_matching(img, rois, aruco_markers, varargin)
+function [rois_matched, i_rois, i_arucos, k_rots] = roi_matching(img, img_bw, rois, aruco_markers, varargin)
 % ARUCO_MATCHING  Matching of aruco markers in an image.
 %   ARUCO_MATCHING(IMG, ROIS, ARUCO_MARKERS) match the ARUCO_MARKERS with the ROIS of IMG 
 %
@@ -20,7 +20,7 @@ function [rois_matched, i_rois, i_arucos, k_rots] = roi_matching(img, rois, aruc
 %   See also GET_MORPHOLOGICAL_COMPONENTS
 
     img_size = size(img,1)*size(img,2);
-    img_bw = imbinarize(rgb2gray(img));
+    % img_bw = imbinarize(rgb2gray(img)); % use the adaptive thresholding result
     marker_side = size(aruco_markers{1,1},1);
     n_aruco_markers = size(aruco_markers,1);
 
@@ -92,7 +92,7 @@ function [rois_matched, i_rois, i_arucos, k_rots] = roi_matching(img, rois, aruc
         %     bb_vertices(1:bb_vertices_norm_argmin-1,:) 
         % ];
 
-        % Compute homography to the side x side square
+        % Create the ROI control points (a side x side square)
         % NOTE: coordinates in the x,y frame, not in the px frame!
         bb_vertices_H = ROI_H_SIDE * [
             0, 0
@@ -100,25 +100,17 @@ function [rois_matched, i_rois, i_arucos, k_rots] = roi_matching(img, rois, aruc
             1, 1
             0, 1
         ];
-        H_est = hom_lin(bb_vertices_H', bb_vertices');
-        H_est = hom_nonlin(H_est, bb_vertices_H', bb_vertices');
-
-        %--------------------------------------------------------------
-        % Change path to use Matlab imwarp
-        path = which('imwarp','-all');
-        [changedFolder,~,~] = fileparts(path{end});
-        currentFolder = pwd;
-        cd(changedFolder);
-        %--------------------------------------------------------------
+    
+        % Compute the homography transformation [Fusiello]
+        % H_est = hom_lin(bb_vertices_H', bb_vertices');
+        % H_est = hom_nonlin(H_est, bb_vertices_H', bb_vertices');
+        % H_est_tform = projective2d(H_est');
+        
+        % Compute the homography transformation [Matlab]
+        H_est_tform = fitgeotrans(bb_vertices, bb_vertices_H, 'projective');
 
         % Transform the content of the bounding box with the homography
-        tform = projective2d(H_est');
-        [bb_bw_H, R_bb_bw_H] = imwarp(bb_bw, R_bb_bw, tform);
-
-        %--------------------------------------------------------------
-        % Back to original path for imwarp
-        cd(currentFolder);
-        %--------------------------------------------------------------
+        [bb_bw_H, R_bb_bw_H] = imwarp(bb_bw, R_bb_bw, H_est_tform);
 
         % Retrieve the top-left vertex of the transformed ROI in the px frame
         [bb_vertexTL_H_i, bb_vertexTL_H_j] = worldToSubscript(R_bb_bw_H, bb_vertices_H(1,1), bb_vertices_H(1,2));

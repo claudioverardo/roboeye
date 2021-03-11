@@ -47,26 +47,6 @@ function is_cvx_quad = check_quadrilateral(points, varargin)
                 is_cvx_quad = 1;
             end
             
-            % OLD IMPLEMENTATION, JUST AS BACKUP
-            % V_old = zeros(4,2);
-            % angles_old = zeros(4,1);
-            % parallel_sides_angles_old = zeros(2,1);
-            % for i=1:4
-            %     V_old(i,:) = points(mod(i,4)+1,:) - points(i,:);
-            % end
-            % for i=1:4
-            %     angles_old(i) = pi - acos(...
-            %         V_old(mod(i,4)+1,:) * V_old(i,:)' ...
-            %         ./ norm(V_old(mod(i,4)+1,:)) ./ norm( V_old(i,:)) ...
-            %     );
-            % end
-            % for i=1:2
-            %     parallel_sides_angles_old(i) = acos(...
-            %         abs( V_old(i+2,:) * V_old(i,:)' ) ...
-            %         ./ norm(V_old(i+2,:)) ./ norm( V_old(i,:)) ...
-            %     ); 
-            % end
-            
         end
         
     end

@@ -1,14 +1,25 @@
-function components = roi_extraction(VERBOSE)
-
+function components = roi_extraction(img_canny_local, VERBOSE)
+    
+    % Edge detection image
     global img_canny;
+    img_canny = img_canny_local;
+    
+    % Memory for the dfs process (visited)
     global visited;
+    visited = imbinarize(zeros(size(img_canny)));
+
+    % Connected components image result
     global img_result;
+    img_result = zeros([size(img_canny) 3]);
+    img_result = cast(img_result, 'uint8');
+    
+    % Raw ROIs, tails
     global components;
     components = cell(0, 2);
     
     for i = 1:size(img_canny,1)
         for j = 1:size(img_canny,2)
-            if (visited(i, j) == 0 && ....
+            if (visited(i, j) == 0 && ...
                 img_canny(i, j) == 1) 
                 % Generate random color fot the connected component
                 color = [rand(1), rand(1), rand(1)] * 255;
@@ -29,35 +40,35 @@ function components = roi_extraction(VERBOSE)
                     visited(components{size(components, 1), 1}(idx, 2), components{size(components, 1), 1}(idx, 1)) = 1;
                 end
                 
-%                 figure;
-%                 imshow(img_canny);
-%                 hold on;
-%                 plot(comp(:, 1), comp(:, 2), "ro");
-%                 
-%                 figure;
-%                 imshow(visited);
-%                 hold on;
-%                 plot(comp(:, 1), comp(:, 2), "ro");
+                % figure;
+                % imshow(img_canny);
+                % hold on;
+                % plot(comp(:, 1), comp(:, 2), "ro");
+                % 
+                % figure;
+                % imshow(visited);
+                % hold on;
+                % plot(comp(:, 1), comp(:, 2), "ro");
                 
                 % Add to components tails the startpoint if there is a tail
-%                 if (check_tail(i, j) == 1)
-%                     components{size(components, 1), 2} = [components{size(components, 1), 2}; [j, i]];
-%                 end
-%                 
-%                 % Check if component is not closed and delete it (minimum 100 pixels)
-%                 invalid_component = 0;
-%                 component = cell(0, 2);
-%                 component{1, 1} = components{size(components, 1), 1};
-%                 component{1, 2} = components{size(components, 1), 2};
-%                 if (check_connected_component(component) == 0)
-%                     components(size(components, 1), :) = [];
-%                     invalid_component = 1;
-%                 end
-%                 
-%                 % If component is valid, apply polyfit
-%                 if (invalid_component == 0)
-%                     components{size(components, 1), 1}(end+1,:) = components{size(components, 1), 1}(1,:);
-%                 end
+                % if (check_tail(i, j) == 1)
+                %     components{size(components, 1), 2} = [components{size(components, 1), 2}; [j, i]];
+                % end
+                % 
+                % % Check if component is not closed and delete it (minimum 100 pixels)
+                % invalid_component = 0;
+                % component = cell(0, 2);
+                % component{1, 1} = components{size(components, 1), 1};
+                % component{1, 2} = components{size(components, 1), 2};
+                % if (check_connected_component(component) == 0)
+                %     components(size(components, 1), :) = [];
+                %     invalid_component = 1;
+                % end
+                % 
+                % % If component is valid, apply polyfit
+                % if (invalid_component == 0)
+                %     components{size(components, 1), 1}(end+1,:) = components{size(components, 1), 1}(1,:);
+                % end
             end
         end
     end
@@ -76,8 +87,8 @@ function components = roi_extraction(VERBOSE)
         end
         % I = [img, img_result, I];
         figure;
-        imshow(I);
-        title('ROI extraction');
+        imshow(img_result);
+        title('Components');
     end
     
 end
