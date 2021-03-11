@@ -30,4 +30,4 @@ function sol=inv_kin_prob(q)
   %sol=[Asol([1 2 3],4)' Asol(inndex(1,1),inndex(1,1)) Asol(inndex(2,1),inndex(2,1))];
 
   
-endfunction
+end

@@ -14,4 +14,4 @@ function [qloc, fval, info]=inverse_kin(transl,eulr,startingpos)
   
   %info gives information about the solution (i.e. if it converged or not)
   
-endfunction
+end

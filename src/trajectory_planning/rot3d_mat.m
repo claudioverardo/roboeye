@@ -8,4 +8,4 @@ function R=rot3d_mat(alpha,dir)
   end
   R=eye(3);
   R([ipos],[ipos])=rot_mat(alpha);
-endfunction
+end

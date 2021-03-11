@@ -1,4 +1,4 @@
-#### convert angles from model convention to robot conv 
+% convert angles from model convention to robot conv 
 function out=braccio_angles(in)
 
 in(4)=-in(4);

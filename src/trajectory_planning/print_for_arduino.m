@@ -15,4 +15,4 @@ function done=print_for_arduino(Q,numtraj)
   
   done=1;
   
-endfunction
+end
