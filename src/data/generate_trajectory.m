@@ -1,7 +1,5 @@
 %%%% TEST TRAJECTORY
 
-cd ./trajectory_planning
-
 global A_target
 
 %define starting position of solver
@@ -52,26 +50,7 @@ Q(:,1)=X(:,1);
 %contains information about the quality of the solver's output (i.e convergence)
 controlvec=zeros(length(X(:,1)),2);
 
-tic
-
-##for i=1:length(X(:,1))
-##  
-##  transl=X(i,[2 3 4]);
-##  eulr=[atan2(transl(2),transl(1)) X(i,[5 6])*pi/180]; %input in radiants
-##  A_target=roto_transl_mat(transl,eulr);
-##  
-##  [qloc, fval, info] = fsolve ("inv_kin_prob", startingpos);
-##  
-##  Q(i,[2 3 4 5 6])=qloc%+[0 90 0 -90 0];
-##  %Q(i,[2 3 4 5 6])=qloc;
-##
-##  Qrob(i,:)=[braccio_angles(Q(i,[2 3 4 5 6])) 50];
-##  
-##  controlvec(i,:)=[sum(sum(fval.^2)) info];
-## 
-##  startingpos=qloc;
-##end
-   
+tic   
 
 for i=1:length(X(:,1))
   
@@ -92,6 +71,11 @@ for i=1:length(X(:,1))
 end
 
 toc
+
+Q_final = Qrob(:,[2:1:end]);
+Q_final = uint8(mod(round(Q_final),360));
+
+save('./data/test_trajectory.mat','Q_final');
 
 fig=plot_config(Q);
 
