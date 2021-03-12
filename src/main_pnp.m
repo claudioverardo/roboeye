@@ -5,7 +5,7 @@ clear
 CANNY_TH_LOW  = 0.01;
 CANNY_TH_HIGH = 0.10;
 RDP_TH        = 0.1; % Ramer–Douglas–Peucker
-ROI_SIZE_TH_LOW  = 10*10;   % [pixels^2]
+ROI_SIZE_TH_LOW  = 20*20;   % [pixels^2]
 ROI_SIZE_TH_HIGH = 700*700; % [pixels^2]
 SUM_ANGLES_TOLERANCE  = 10; % [degrees]
 PARALLELISM_TOLERANCE = 15; % [degrees]
@@ -21,9 +21,9 @@ MATCH_ROI_VERBOSE   = 1;
 ARUCO_DETECTION_VERBOSE = 2;
 ARUCO_POSE_ESTIMATION_PNP_VERBOSE = 1;
 
-img = imread('../assets/img_tests/test6/images1_01.png');
+% img = imread('../assets/img_tests/test6/images1_01.png');
 % img = imread('../assets/img_tests/test7/images1_01.png');
-% img = imread('../assets/img_tests/test8/images1_01.png');
+img = imread('../assets/img_tests/test8/images1_01.png');
 
 aruco_real_side = 0.03; % [m]
 load('aruco_markers_8x8.mat');

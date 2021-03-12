@@ -54,39 +54,40 @@ function [rois_found, i_rois, i_arucos, k_rots] = aruco_detection(img, aruco_mar
     img_gray = rgb2gray(img);
 
     % Conveter image to binary
-    img_th = adaptthresh(img_gray, 1, 'Statistic', 'gaussian'); % mean, gaussian, median
-    img_bw = imbinarize(img_gray, img_th);
+%     img_th = adaptthresh(img_gray, 1, 'Statistic', 'gaussian'); % mean, gaussian, median
+%     img_bw = imbinarize(img_gray, img_th);
+    img_bw = imbinarize(img_gray);
     
     % Plot binarization output
-    if VERBOSE > 1
-        figure;
-        imshow(img_bw);
-        title('Binarized image');
-    end
+%     if VERBOSE > 1
+%         figure;
+%         imshow(img_bw);
+%         title('Binarized image');
+%     end
 
     % Canny edge detector
-    % img_canny = edge(img_gray, 'canny', [CANNY_TH_LOW, CANNY_TH_HIGH]);
+    img_canny = edge(img_gray, 'canny', [CANNY_TH_LOW, CANNY_TH_HIGH]);
     
     % Plot Canny output
-    % if VERBOSE > 1
-    %    figure;
-    %    imshow(img_canny);
-    %    title('Canny Edge Detector');
-    % end
+    if VERBOSE > 1
+       figure;
+       imshow(img_canny);
+       title('Canny Edge Detector');
+    end
 
     % Extract morphological components - DFS [C-implementation]
     % [components, tails] = roi_extraction_c(img_canny, size(img_canny, 1), size(img_canny, 2));
     % rois_raw = components;
 
     % Extract morphological components - DFS [MATLAB-implementation]
-    % components = roi_extraction(img_canny, EXTRACT_ROI_VERBOSE);
-    % rois_raw = components(:,1);
+    components = roi_extraction(img_canny, EXTRACT_ROI_VERBOSE);
+    rois_raw = components(:,1);
     
     % Extract morphological components - Moore-Neighbor tracing
-    rois_raw = bwboundaries(1-img_bw,'noholes');
-    for k=1:size(rois_raw,1)
-        rois_raw{k} = circshift(rois_raw{k},1,2);
-    end
+%     rois_raw = bwboundaries(1-img_bw,'noholes');
+%     for k=1:size(rois_raw,1)
+%         rois_raw{k} = circshift(rois_raw{k},1,2);
+%     end
     
     % Plot extracted ROIs
     if VERBOSE > 1
