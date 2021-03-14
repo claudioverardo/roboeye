@@ -1,15 +1,19 @@
-function [rois_matched, i_rois, i_arucos, k_rots] = roi_matching(img, img_bw, rois, aruco_markers, varargin)
+function [rois_matched, i_rois_matched, i_arucos, k_rots] = roi_matching(img, img_bw, rois, aruco_markers, varargin)
 % ARUCO_MATCHING  Matching of aruco markers in an image.
-%   ARUCO_MATCHING(IMG, ROIS, ARUCO_MARKERS) match the ARUCO_MARKERS with the ROIS of IMG 
+%   ARUCO_MATCHING(IMG, IMG_BW, ROIS, ARUCO_MARKERS) match the ARUCO_MARKERS with the ROIS of IMG 
+%
+%   TODO
+%   rois_matched:   matched rois among the rois
+%   i_rois_matched: indices of the rois_matched in the rois cell array
 %
 %   Parameters:
 %   --------
 %
-%   'bb_padding'        padding value of bounding boxes
+%   'roi_bb_padding'    padding value of bounding boxes
 %
 %   'roi_h_side'        side value of ROI after homography
 %
-%   'hamming_th'        max value of hamming distance to detect a marker
+%   'roi_hamming_th'    max value of hamming distance to detect a marker
 %
 %   'verbose'           launch function in verbose mode
 %
@@ -19,30 +23,30 @@ function [rois_matched, i_rois, i_arucos, k_rots] = roi_matching(img, img_bw, ro
 %
 %   See also GET_MORPHOLOGICAL_COMPONENTS
 
-    img_size = size(img,1)*size(img,2);
-    % img_bw = imbinarize(rgb2gray(img)); % use the adaptive thresholding result
+    % img_bw = imbinarize(rgb2gray(img)); % use the already computed one in aruco_detection
+    
     marker_side = size(aruco_markers{1,1},1);
     n_aruco_markers = size(aruco_markers,1);
 
     % Default values of parameters    
-    default_bb_padding  = 2;
-    default_roi_h_side  = 40;
-    default_hamming_th  = 0;
-    default_verbose     = 1;
+    default_roi_bb_padding = 2;
+    default_roi_h_side = 40;
+    default_roi_hamming_th = 0;
+    default_verbose = 1;
     
     % Input parser
     p = inputParser;
-    addParameter(p, 'bb_padding', default_bb_padding, @(x) x>=0);
+    addParameter(p, 'roi_bb_padding', default_roi_bb_padding, @(x) x>=0);
     addParameter(p, 'roi_h_side', default_roi_h_side, @(x) x>=marker_side);
-    addParameter(p, 'hamming_th', default_hamming_th, @(x) x>=0);
+    addParameter(p, 'roi_hamming_th', default_roi_hamming_th, @(x) x>=0);
     addParameter(p, 'verbose', default_verbose, @(x) x>=0);
     parse(p, varargin{:});
     
     % Parse function parameters
-    BB_PADDING  = p.Results.bb_padding; 
-    ROI_H_SIDE  = p.Results.roi_h_side;
-    HAMMING_TH  = p.Results.hamming_th;
-    VERBOSE     = p.Results.verbose;
+    ROI_BB_PADDING = p.Results.roi_bb_padding; 
+    ROI_H_SIDE = p.Results.roi_h_side;
+    ROI_HAMMING_TH = p.Results.roi_hamming_th;
+    VERBOSE = p.Results.verbose;
     
     % Save the markers rotated by 0°, 90°, 180°, 270°
     aruco_markers_rot = cell(n_aruco_markers, 4);
@@ -52,8 +56,8 @@ function [rois_matched, i_rois, i_arucos, k_rots] = roi_matching(img, img_bw, ro
         end
     end
     
-    rois_matched = cell(0);
-    i_rois   = [];
+    rois_matched   = cell(0);
+    i_rois_matched = [];
     i_arucos = [];
     k_rots   = [];
     
@@ -66,10 +70,10 @@ function [rois_matched, i_rois, i_arucos, k_rots] = roi_matching(img, img_bw, ro
         roi = rois{i_roi};
 
         % Identify the boundary box of the ROI
-        bb_idx_top    = max( min(roi(:,2)) - BB_PADDING, 1 );
-        bb_idx_bottom = min( max(roi(:,2)) + BB_PADDING, size(img,1) );
-        bb_idx_left   = max( min(roi(:,1)) - BB_PADDING, 1 );
-        bb_idx_right  = min( max(roi(:,1)) + BB_PADDING, size(img,2) );
+        bb_idx_top    = max( min(roi(:,2)) - ROI_BB_PADDING, 1 );
+        bb_idx_bottom = min( max(roi(:,2)) + ROI_BB_PADDING, size(img,1) );
+        bb_idx_left   = max( min(roi(:,1)) - ROI_BB_PADDING, 1 );
+        bb_idx_right  = min( max(roi(:,1)) + ROI_BB_PADDING, size(img,2) );
         bb_height     = bb_idx_bottom - bb_idx_top;
         bb_width      = bb_idx_right - bb_idx_left;
         bb_size       = bb_width * bb_height;
@@ -81,16 +85,6 @@ function [rois_matched, i_rois, i_arucos, k_rots] = roi_matching(img, img_bw, ro
         % Set the origin of the ROI vertices to the top-left of the bounding box
         % NOTE: coordinates in the x,y frame, not in the px frame!
         bb_vertices = [ roi(:,1)-bb_idx_left roi(:,2)-bb_idx_top ];
-
-        % ensure that bb_vertices are sorted in a clockwise order, from top-left in the bounding box
-        % example of problematic case:
-        % bb_vertices = [ [20 5]; [16 27]; [5 32]; [14 6] ]
-        % bb_vertices_norm = vecnorm(bb_vertices');
-        % [~, bb_vertices_norm_argmin] = min(bb_vertices_norm);
-        % bb_vertices = [ 
-        %     bb_vertices(bb_vertices_norm_argmin:end,:)
-        %     bb_vertices(1:bb_vertices_norm_argmin-1,:) 
-        % ];
 
         % Create the ROI control points (a side x side square)
         % NOTE: coordinates in the x,y frame, not in the px frame!
@@ -137,7 +131,7 @@ function [rois_matched, i_rois, i_arucos, k_rots] = roi_matching(img, img_bw, ro
                 );
 
                 % Matching ?
-                if D <= HAMMING_TH / (marker_side*marker_side)
+                if D <= ROI_HAMMING_TH / (marker_side*marker_side)
                     detected_aruco = 1;
 
                     % sort ROI vertices to have the Aruco control point in 1st position
@@ -149,9 +143,9 @@ function [rois_matched, i_rois, i_arucos, k_rots] = roi_matching(img, img_bw, ro
 
                     % save results
                     rois_matched{end+1,1} = roi_sorted;
-                    i_rois   = [i_rois, i_roi];
-                    i_arucos = [i_arucos, i_aruco];
-                    k_rots   = [k_rots, k_rot];
+                    i_rois_matched(end+1) = i_roi;
+                    i_arucos(end+1) = i_aruco;
+                    k_rots(end+1)   = k_rot;
 
                     break
                 end

@@ -1,25 +1,29 @@
 close all
 clear
 
-% ROIs extraction parameters
+% ROI extraction parameters
+ROI_EXTRACTION_METHOD = 'adaptth-moore'; % canny-dfs, adaptth-moore
 CANNY_TH_LOW  = 0.01;
 CANNY_TH_HIGH = 0.10;
-RDP_TH        = 0.1; % Ramer–Douglas–Peucker
-ROI_SIZE_TH_LOW  = 20*20;   % [pixels^2]
-ROI_SIZE_TH_HIGH = 700*700; % [pixels^2]
-SUM_ANGLES_TOLERANCE  = 10; % [degrees]
-PARALLELISM_TOLERANCE = 15; % [degrees]
 
-% Aruco matching parameters
-BB_PADDING  = 2;
-ROI_H_SIDE  = 80;
-HAMMING_TH  = 1;
+% ROI refinement parameters
+ROI_REFINEMENT_METHOD = 'geometric'; % rdp, geometric
+RDP_TH = 0.1;  % Ramer–Douglas–Peucker threshold
+ROI_SUM_ANGLES_TOL  = 10; % [degrees]
+ROI_PARALLELISM_TOL = 15; % [degrees]
+ROI_SIDE_TH_LOW  = 20;    % [pixels]
+ROI_SIDE_TH_HIGH = 700;   % [pixels]
+
+% ROI matching parameters
+ROI_BB_PADDING  = 2;
+ROI_H_SIDE = 80;
+ROI_HAMMING_TH  = 1;
 
 % Debug
-EXTRACT_ROI_VERBOSE = 0;
-MATCH_ROI_VERBOSE   = 1;
+ROI_EXTRACTION_VERBOSE = 0;
+ROI_MATCHING_VERBOSE   = 1;
 ARUCO_DETECTION_VERBOSE = 2;
-ARUCO_POSE_ESTIMATION_PNP_VERBOSE = 1;
+ARUCO_POSE_ESTIMATION_VERBOSE = 1;
 
 % img = imread('../assets/img_tests/test6/images1_01.png');
 % img = imread('../assets/img_tests/test7/images1_01.png');
@@ -28,7 +32,6 @@ img = imread('../assets/img_tests/test8/images1_01.png');
 aruco_real_side = 0.03; % [m]
 load('aruco_markers_8x8.mat');
 load('data/K_P1.mat', 'K');
-
 
 %---------- TEST iPhone ----------
 
@@ -50,25 +53,27 @@ load('data/K_P1.mat', 'K');
 
 % Wrap parameters
 aruco_detection_parameters = {
+    'roi_extraction_method' ROI_EXTRACTION_METHOD
     'canny_th_low' CANNY_TH_LOW
     'canny_th_high' CANNY_TH_HIGH
+    'roi_refinement_method' ROI_REFINEMENT_METHOD
     'rdp_th' RDP_TH
-    'roi_size_th_low' ROI_SIZE_TH_LOW
-    'roi_size_th_high' ROI_SIZE_TH_HIGH
-    'sum_angles_tolerance' SUM_ANGLES_TOLERANCE
-    'parallelism_tolerance' PARALLELISM_TOLERANCE
-    'bb_padding' BB_PADDING
+    'roi_sum_angles_tol' ROI_SUM_ANGLES_TOL
+    'roi_parallelism_tol' ROI_PARALLELISM_TOL
+    'roi_side_th_low' ROI_SIDE_TH_LOW
+    'roi_side_th_high' ROI_SIDE_TH_HIGH
+    'roi_bb_padding' ROI_BB_PADDING
     'roi_h_side' ROI_H_SIDE
-    'hamming_th' HAMMING_TH
-    'extract_roi_verbose' EXTRACT_ROI_VERBOSE
-    'match_roi_verbose' MATCH_ROI_VERBOSE
+    'roi_hamming_th' ROI_HAMMING_TH
+    'roi_extraction_verbose' ROI_EXTRACTION_VERBOSE
+    'roi_matching_verbose' ROI_MATCHING_VERBOSE
     'verbose', ARUCO_DETECTION_VERBOSE
 }';
 
 % Launch Pose Estimation w/ PnP
-[rois, i_arucos, R, t] = aruco_pose_estimation_pnp( ...
+[rois, i_arucos, R, t] = aruco_pose_estimation( ...
     img, K, aruco_markers, aruco_real_side, ...
     aruco_detection_parameters, ...
-    'verbose', ARUCO_POSE_ESTIMATION_PNP_VERBOSE ...
+    'verbose', ARUCO_POSE_ESTIMATION_VERBOSE ...
 );
 
