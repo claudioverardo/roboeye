@@ -54,6 +54,13 @@ K(2,2) = -K(2,2);
 
 %---------------------------------
 
+% Camera intrinsics object
+focal_length    = [K(1,1) K(2,2)]; 
+principal_point = [K(3,1) K(3,2)];
+image_size      = [size(img,2), size(img,1)];
+skew            = K(2,1);
+K_obj = cameraIntrinsics(focal_length, principal_point, image_size, 'Skew', skew);
+
 % Wrap parameters
 aruco_detection_parameters = {
     'roi_extraction_method' ROI_EXTRACTION_METHOD
@@ -75,7 +82,7 @@ aruco_detection_parameters = {
 
 % Launch Pose Estimation w/ PnP
 [rois, i_arucos, R, t] = aruco_pose_estimation( ...
-    img, K, aruco_markers, aruco_real_side, ...
+    img, K_obj, aruco_markers, aruco_real_side, ...
     aruco_detection_parameters, ...
     'verbose', ARUCO_POSE_ESTIMATION_VERBOSE ...
 );

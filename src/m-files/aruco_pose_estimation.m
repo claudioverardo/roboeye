@@ -1,4 +1,4 @@
-function [rois, i_arucos, R, t] = aruco_pose_estimation(img, K, aruco_markers, aruco_real_side, aruco_detection_parameters, varargin)
+function [rois, i_arucos, R, t] = aruco_pose_estimation(img, K_obj, aruco_markers, aruco_real_side, aruco_detection_parameters, varargin)
     
     % NB: points and K with Matlab convention
 
@@ -37,8 +37,9 @@ function [rois, i_arucos, R, t] = aruco_pose_estimation(img, K, aruco_markers, a
     R = cell(n_rois,1);
     t = cell(n_rois,1);
     for i=1:n_rois
-        [R{i}, t{i}] = roi_pnp(rois{i}, roi_world, K);
+        [R{i}, t{i}] = roi_pnp(rois{i}, roi_world, K_obj);
     end
+    K = K_obj.IntrinsicMatrix;
     
     % Plots
     if VERBOSE > 0
