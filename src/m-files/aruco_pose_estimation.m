@@ -1,5 +1,7 @@
 function [rois, i_arucos, R, t] = aruco_pose_estimation(img, K, aruco_markers, aruco_real_side, aruco_detection_parameters, varargin)
     
+    % NB: points and K with Matlab convention
+
     % Default values of parameters
     default_verbose = 1;
 
@@ -49,11 +51,12 @@ function [rois, i_arucos, R, t] = aruco_pose_estimation(img, K, aruco_markers, a
             roi = rois{i};
 
             % Projective matrix
-            P = K*[R{i} t{i}];
+            P = [R{i}; t{i}]*K;
         
             % Project the centroid of the marker
             centroid_world = mean(roi_world);
-            centroid_proj = htx(P, centroid_world')';
+            % centroid_proj = htx(P', centroid_world')'; % [Fusiello]
+            centroid_proj = homography(centroid_world, P);
             
             % Plot the projected centroid of the marker
             line([roi(:,1); roi(1,1)], ...
@@ -64,7 +67,8 @@ function [rois, i_arucos, R, t] = aruco_pose_estimation(img, K, aruco_markers, a
             plot(centroid_proj(1),centroid_proj(2),'go');
             
             % Check projection of ROI points
-            roi_proj = htx(P, roi_world')';
+            % roi_proj = htx(P', roi_world')'; % [Fusiello]
+            roi_proj = homography(roi_world, P);
             plot(roi_proj(:,1),roi_proj(:,2),'go');
 
             % Project the pose axes of the marker
@@ -73,7 +77,8 @@ function [rois, i_arucos, R, t] = aruco_pose_estimation(img, K, aruco_markers, a
                 0 1 0
                 0 0 1
             ];
-            axes_proj = htx(P, axes_world')';
+            % axes_proj = htx(P', axes_world')'; % [Fusiello]
+            axes_proj = homography(axes_world, P);
 
             % Plot the projected pose axes of the marker
             colors = ['r', 'g', 'b'];

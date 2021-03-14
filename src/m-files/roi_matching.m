@@ -98,7 +98,8 @@ function [rois_matched, i_rois_matched, i_arucos, k_rots] = roi_matching(img, im
         % Compute the homography transformation [Fusiello]
         % H_est = hom_lin(bb_vertices_H', bb_vertices');
         % H_est = hom_nonlin(H_est, bb_vertices_H', bb_vertices');
-        % H_est_tform = projective2d(H_est');
+        % H_est = H_est';
+        % H_est_tform = projective2d(H_est);
         
         % Compute the homography transformation [Matlab]
         H_est_tform = fitgeotrans(bb_vertices, bb_vertices_H, 'projective');

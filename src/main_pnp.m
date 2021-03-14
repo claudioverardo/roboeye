@@ -21,17 +21,20 @@ ROI_HAMMING_TH  = 1;
 
 % Debug
 ROI_EXTRACTION_VERBOSE = 0;
-ROI_MATCHING_VERBOSE   = 1;
-ARUCO_DETECTION_VERBOSE = 2;
+ROI_MATCHING_VERBOSE   = 0;
+ARUCO_DETECTION_VERBOSE = 0;
 ARUCO_POSE_ESTIMATION_VERBOSE = 1;
 
 % img = imread('../assets/img_tests/test6/images1_01.png');
-% img = imread('../assets/img_tests/test7/images1_01.png');
-img = imread('../assets/img_tests/test8/images1_01.png');
+img = imread('../assets/img_tests/test7/images1_01.png');
+% img = imread('../assets/img_tests/test8/images1_01.png');
 
 aruco_real_side = 0.03; % [m]
 load('aruco_markers_8x8.mat');
 load('data/K_P1.mat', 'K');
+K = K'; % intrinsics from Fusiello toolkit
+K(1,1) = -K(1,1);
+K(2,2) = -K(2,2);
 
 %---------- TEST iPhone ----------
 
