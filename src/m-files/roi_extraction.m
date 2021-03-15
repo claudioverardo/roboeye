@@ -1,94 +1,106 @@
-function components = roi_extraction(img_canny_local, VERBOSE)
-    
-    % Edge detection image
-    global img_canny;
-    img_canny = img_canny_local;
-    
-    % Memory for the dfs process (visited)
-    global visited;
-    visited = imbinarize(zeros(size(img_canny)));
+function rois_raw = roi_extraction(img, img_bw, img_gray, varargin)
 
-    % Connected components image result
-    global img_result;
-    img_result = zeros([size(img_canny) 3]);
-    img_result = cast(img_result, 'uint8');
+    % Default values of parameters
+    default_method = 'adaptth-moore';
+    default_canny_th_low = 0.01;
+    default_canny_th_high = 0.10;
+    default_verbose = 0;
     
-    % Raw ROIs, tails
-    global components;
-    components = cell(0, 2);
+    % Input parser
+    p = inputParser;
+    addParameter(p, 'method', default_method);
+    addParameter(p, 'canny_th_low', default_canny_th_low);
+    addParameter(p, 'canny_th_high', default_canny_th_high);
+    addParameter(p, 'verbose', default_verbose);
+    parse(p, varargin{:});
     
-    for i = 1:size(img_canny,1)
-        for j = 1:size(img_canny,2)
-            if (visited(i, j) == 0 && ...
-                img_canny(i, j) == 1) 
-                % Generate random color fot the connected component
-                color = [rand(1), rand(1), rand(1)] * 255;
-                
-                % Create new empty connected component (points, tails, polyfit)
-                components{size(components, 1) + 1, 1} = [];
-                components{size(components, 1), 2} = [];
-                
-                % Explore that component
-                % [tmp_components, tmp_tails] = ...
-                %   bfs_c(img_canny, visited, size(img_canny, 1), size(img_canny, 2), i, j);
-                dfs(i, j, color); % Matlab implementation
-                
-                % components{size(components, 1), 1} = [components{size(components, 1), 1}; tmp_components];
-                % components{size(components, 1), 2} = [components{size(components, 1), 2}; tmp_tails];
-                
-                for idx=1:size(components{size(components, 1), 1}, 1)
-                    visited(components{size(components, 1), 1}(idx, 2), components{size(components, 1), 1}(idx, 1)) = 1;
-                end
-                
-                % figure;
-                % imshow(img_canny);
-                % hold on;
-                % plot(comp(:, 1), comp(:, 2), "ro");
-                % 
-                % figure;
-                % imshow(visited);
-                % hold on;
-                % plot(comp(:, 1), comp(:, 2), "ro");
-                
-                % Add to components tails the startpoint if there is a tail
-                % if (check_tail(i, j) == 1)
-                %     components{size(components, 1), 2} = [components{size(components, 1), 2}; [j, i]];
-                % end
-                % 
-                % % Check if component is not closed and delete it (minimum 100 pixels)
-                % invalid_component = 0;
-                % component = cell(0, 2);
-                % component{1, 1} = components{size(components, 1), 1};
-                % component{1, 2} = components{size(components, 1), 2};
-                % if (check_connected_component(component) == 0)
-                %     components(size(components, 1), :) = [];
-                %     invalid_component = 1;
-                % end
-                % 
-                % % If component is valid, apply polyfit
-                % if (invalid_component == 0)
-                %     components{size(components, 1), 1}(end+1,:) = components{size(components, 1), 1}(1,:);
-                % end
-            end
+    % Parse function parameters
+    METHOD = p.Results.method;
+    CANNY_TH_LOW = p.Results.canny_th_low;
+    CANNY_TH_HIGH = p.Results.canny_th_high;
+    VERBOSE = p.Results.verbose;
+
+    if strcmp(METHOD, 'adaptth-moore')
+        
+        % Binarization already performed in aruco_detection
+        % img_th = adaptthresh(img_gray, 1, 'Statistic', 'gaussian');
+        % img_bw = imbinarize(img_gray, img_th);
+    
+        % Plot binarization output
+        if VERBOSE > 1
+            figure;
+            imshow(img_bw);
+            title('Binarized image');
         end
+        
+        % Extract morphological components - Moore-Neighbor tracing
+        rois_raw = bwboundaries(1-img_bw,'noholes');
+        
+        for k=1:size(rois_raw,1)
+            % ij --> xy coordinates
+            rois_raw{k} = circshift(rois_raw{k},1,2);
+            % remove the last point (equal to the first one)
+            rois_raw{k}(end,:) = [];
+            % NOTE: the output of bwboundaries may contain repeated points (pay attention with roi_refinement_geometric)
+        end
+        
+    elseif strcmp(METHOD, 'canny-dfs')
+        
+        % Grayscale converion already performed in aruco_detection
+        % img_gray = rgb2gray(img);
+
+        % Canny edge detector
+        img_canny = edge(img_gray, 'canny', [CANNY_TH_LOW, CANNY_TH_HIGH]);
+
+        % Plot Canny output
+        if VERBOSE > 1
+           figure;
+           imshow(img_canny);
+           title('Canny Edge Detector');
+        end
+
+        % Extract morphological components - DFS [MATLAB-implementation]
+        components = roi_extraction_dfs(img_canny);
+        rois_raw = components(:,1);
+        
+    elseif strcmp(METHOD, 'canny-dfs-c')
+        
+        % Grayscale converion already performed in aruco_detection
+        % img_gray = rgb2gray(img);
+
+        % Canny edge detector
+        img_canny = edge(img_gray, 'canny', [CANNY_TH_LOW, CANNY_TH_HIGH]);
+
+        % Plot Canny output
+        if VERBOSE > 1
+           figure;
+           imshow(img_canny);
+           title('Canny Edge Detector');
+        end
+
+        % Extract morphological components - DFS [C-implementation]
+        [components, tails] = roi_extraction_dfs_c(img_canny, size(img_canny, 1), size(img_canny, 2));
+        rois_raw = components;
+    
+    else
+        
+        % Invalid ROI_EXTRACTION_METHOD
+        error('Error: Invalid ROI_EXTRACTION_METHOD = \"%s\"', METHOD);
+    
     end
     
+    % Plot extracted ROIs
     if VERBOSE > 0
-        I = zeros(size(img_result));
-        for i = 1:size(components, 1)
-            % plot component points
-            for j = 1:size(components{i, 1}, 1)
-                I(components{i, 1}(j, 2), components{i, 1}(j, 1), :) = [255, 255, 255];
-            end
-            % plot tails
-            for j = 1:size(components{i, 2}, 1)
-                I(components{i, 2}(j, 2), components{i, 2}(j, 1), :) = [255, 0, 0];
-            end
-        end
-        % I = [img, img_result, I];
         figure;
-        imshow(img_result);
-        title('Components');
+        imshow(img);
+        for k=1:size(rois_raw,1)
+           hold on;
+           line([rois_raw{k,1}(:,1); rois_raw{k,1}(1,1)], ...
+                [rois_raw{k,1}(:,2); rois_raw{k,1}(1,2)], ...
+                'color','r','linestyle','-','linewidth',1.5, ...
+                'marker','o','markersize',5);
+        end
+        title(sprintf('Extracted ROIs N=%d', size(rois_raw,1)));
     end
-    
+
 end

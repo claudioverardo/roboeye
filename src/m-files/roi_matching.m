@@ -158,7 +158,7 @@ function [rois_matched, i_rois_matched, i_arucos, k_rots] = roi_matching(img, im
         end
 
         % Plots
-        if VERBOSE > 1 || (VERBOSE == 1 && detected_aruco == 1)
+        if VERBOSE > 2 || (VERBOSE == 2 && detected_aruco == 1)
 
             figure;
 
@@ -172,9 +172,9 @@ function [rois_matched, i_rois_matched, i_arucos, k_rots] = roi_matching(img, im
                  'marker','o','markersize',5);
             plot(roi(1,1), roi(1,2), 'co', 'MarkerFaceColor', 'c');
             if detected_aruco == 1
-                plot(rois_matched{end,1}(1,1), rois_matched{end,1}(1,2), 'go', 'MarkerFaceColor', 'g')
+                plot(rois_matched{end,1}(1,1), rois_matched{end,1}(1,2), 'go', 'MarkerFaceColor', 'g');
             end
-            title(sprintf('original i=%d', i_roi));
+            title('original image');
 
             % Plot the bw image with the ROI highlighted
             subplot(2,4,[3,4]);
@@ -184,7 +184,7 @@ function [rois_matched, i_rois_matched, i_arucos, k_rots] = roi_matching(img, im
                  [roi(:,2); roi(1,2)], ...
                  'color','r','linestyle','-','linewidth',1.5, ...
                  'marker','o','markersize',5);
-            title('binary');
+            title('binary image');
 
             % Plot the bounding box of the ROI
             subplot(2,4,5);
@@ -203,7 +203,7 @@ function [rois_matched, i_rois_matched, i_arucos, k_rots] = roi_matching(img, im
                  [bb_vertices_H(:,2); bb_vertices_H(1,2)], ...
                  'color','r','linestyle','-','linewidth',1.5, ...
                  'marker','o','markersize',5);
-            title('after H');
+            title('homography');
             % further check: retrieve the bb_vertices_H as H_est * bb_vertices and plot
             % bb_vertices_H_check = htx(H_est, bb_vertices')';
             % line([bb_vertices_H_check(:,1); bb_vertices_H_check(1,1)], ...
@@ -220,7 +220,7 @@ function [rois_matched, i_rois_matched, i_arucos, k_rots] = roi_matching(img, im
             subplot(2,4,7);
             imshow(proposed_aruco);
             hold on;
-            plot(1, 1, 'co', 'MarkerFaceColor', 'c')
+            plot(1, 1, 'co', 'MarkerFaceColor', 'c');
             title('proposal');
 
             % Plot the content of the vertices downsampled to marker_side x marker_side px
@@ -234,17 +234,60 @@ function [rois_matched, i_rois_matched, i_arucos, k_rots] = roi_matching(img, im
                     marker_side marker_side
                     marker_side           1
                 ];
-                plot(coltrol_point_aruco(k_rot,1), coltrol_point_aruco(k_rot,2), 'go', 'MarkerFaceColor', 'g')
-                title(sprintf('detected %d %d°',i_aruco,(k_rot-1)*90));
+                plot(coltrol_point_aruco(k_rot,1), coltrol_point_aruco(k_rot,2), 'go', 'MarkerFaceColor', 'g');
+                title(sprintf('detected i=%d %d°',i_aruco,(k_rot-1)*90));
             else
                 imshow(zeros(marker_side, marker_side));
                 title(sprintf('detected NaN'));
             end
 
             suptitle(sprintf('ROI Matching %d / %d', i_roi, n_rois));
+            annotation( 'textbox', ...
+                'string', 'red: roi      cyan: detected control point      green: aruco control point', ...
+                'Position', [0, 0.5, 1, 0], ...
+                'HorizontalAlignment', 'center', ...
+                'LineStyle', 'none' ...
+            );
 
         end
 
+    end
+
+    % Plot Aruco Markers
+    if VERBOSE > 0
+        figure;
+        for i=1:n_aruco_markers
+            subplot(1,n_aruco_markers,i)
+            imshow(aruco_markers{i});
+            title(sprintf('Aruco %d', i));
+        end
+        suptitle('Aruco Markers');
+    end
+    
+    n_rois_matched = size(rois_matched,1);
+
+    % Plot matched ROIs
+    if VERBOSE > 0
+        figure;
+        imshow(img);
+        
+        colors = autumn(n_aruco_markers);
+        lines_obj = gobjects(1,n_rois_matched);
+        lines_str = cell(1,n_rois_matched);
+        for k=1:n_rois_matched
+           hold on;
+           lines_obj(k) = line( ...
+                [rois_matched{k,1}(:,1); rois_matched{k,1}(1,1)], ...
+                [rois_matched{k,1}(:,2); rois_matched{k,1}(1,2)], ...
+                'color', colors(i_arucos(k),:), ...
+                'linestyle', '-', 'linewidth', 1.5, ...
+                'marker', 'o', 'markersize', 5 ...
+           );
+           lines_str{k} = sprintf('ROI=%d, Aruco=%d', k, i_arucos(k));
+           point_obj = plot(rois_matched{k,1}(1,1), rois_matched{k,1}(1,2), 'go', 'MarkerFaceColor', 'g');
+        end
+        title(sprintf('Matched ROIs N=%d', size(rois_matched,1)));
+        legend([lines_obj point_obj], lines_str{:}, 'Control points');
     end
     
 end

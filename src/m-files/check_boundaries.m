@@ -1,11 +1,10 @@
-function ans = check_boundaries(i, j)
-    global img_canny;
+function check_ans = check_boundaries(i, j, img_size)
+% check if the ij coordinates of a point are valid
+
+    check_ans = 0;
     
-    if (i >= 1 && i <= size(img_canny, 1)) && ...
-       (j >= 1 && j <= size(img_canny, 2))
-       ans = 1;
-       return;
+    if (i >= 1 && i <= img_size(1)) && (j >= 1 && j <= img_size(2))
+       check_ans = 1;
     end
     
-    ans = 0;
 end

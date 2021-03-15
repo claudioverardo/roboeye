@@ -1,4 +1,4 @@
-function [rois_refined, i_rois_refined] = roi_refinement(rois_raw, varargin)
+function [rois_refined, i_rois_refined] = roi_refinement(img, rois_raw, varargin)
     % rois_refined:   valid rois among the rois_raw
     % i_rois_refined: indices of the rois_refined in the rois_raw cell array
 
@@ -9,6 +9,7 @@ function [rois_refined, i_rois_refined] = roi_refinement(rois_raw, varargin)
     default_roi_side_th_high = 700;
     default_roi_sum_angles_tol = 10;
     default_roi_parallelism_tol = 15;
+    default_verbose = 1;
     
     % Input parser
     p = inputParser;
@@ -18,6 +19,7 @@ function [rois_refined, i_rois_refined] = roi_refinement(rois_raw, varargin)
     addParameter(p, 'roi_parallelism_tol', default_roi_parallelism_tol);
     addParameter(p, 'roi_side_th_low', default_roi_side_th_low);
     addParameter(p, 'roi_side_th_high', default_roi_side_th_high);
+    addParameter(p, 'verbose', default_verbose);
     parse(p, varargin{:});
     
     % Parse function parameters
@@ -27,6 +29,7 @@ function [rois_refined, i_rois_refined] = roi_refinement(rois_raw, varargin)
     ROI_PARALLELISM_TOL = p.Results.roi_parallelism_tol;
     ROI_SIDE_TH_LOW = p.Results.roi_side_th_low; 
     ROI_SIDE_TH_HIGH = p.Results.roi_side_th_high; 
+    VERBOSE = p.Results.verbose;
     
     if strcmp(METHOD, 'rdp')
         % Ramer–Douglas–Peucker refinement
@@ -56,6 +59,20 @@ function [rois_refined, i_rois_refined] = roi_refinement(rois_raw, varargin)
         
         end
         
+    end
+    
+    % Plot refined ROIs
+    if VERBOSE > 0
+        figure;
+        imshow(img);
+        for k=1:size(rois_refined,1)
+           hold on;
+           line([rois_refined{k,1}(:,1); rois_refined{k,1}(1,1)], ...
+                [rois_refined{k,1}(:,2); rois_refined{k,1}(1,2)], ...
+                'color','g','linestyle','-','linewidth',1.5, ...
+                'marker','o','markersize',5);
+        end
+        title(sprintf('Refined ROIs N=%d', size(rois_refined,1)));
     end
 
 end
