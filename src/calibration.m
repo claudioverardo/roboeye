@@ -14,4 +14,4 @@ load('../assets/calibration/01/P.mat'); P1 = P; clear('P');
 load('../assets/calibration/02/P.mat'); P2 = P; clear('P');
 load('../assets/calibration/01/K.mat'); K1 = K; clear('K');
 load('../assets/calibration/02/K.mat'); K2 = K; clear('K');
-[deltaT, E, F] = calibration_stereo(P1, K1, P2, K2);
+[F, E, deltaT] = calibration_stereo(P1, K1, P2, K2);
