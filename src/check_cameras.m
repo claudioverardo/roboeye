@@ -1,17 +1,18 @@
+%% Create camera objects
 % webcamlist
-
-%% Test camera 1
 cam1 = webcam(1);
 % cam1.AvailableResolutions
 % cam1.Resolution = '1280x720';
 % cam1.Brightness = 50;
-preview(cam1);
-
-%% Test camera 2
 cam2 = webcam(2);
 % cam2.AvailableResolutions
 % cam2.Resolution = '1280x720';
 % cam2.Brightness = 50;
+
+%% Test camera 1
+preview(cam1);
+
+%% Test camera 2
 preview(cam2);
 
 %% Test stereo acquisition 

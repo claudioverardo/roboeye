@@ -1,12 +1,15 @@
 %% Acquire calibration images
-num_images  = 3;
-cameras     = {webcam(1), webcam(2)};
+% cam1 = webcam(1);
+% cam2 = webcam(2);
+num_images  = 20;
+cameras     = {cam1, cam2};
 dirs_images = {'../assets/calibration/01', '../assets/calibration/02'};
 images = acquire_calibration_images(num_images, cameras, dirs_images);
 
 %% Calculate P and K matrices of the two cameras
-[P1, K1] = calibration_camera('../assets/calibration/01', 5);
-% [P2, K2] = calibration_camera('../assets/calibration/02', 15);
+close all;
+[P1, K1, intrinsics1] = calibration_camera(20, '../assets/calibration/01');
+[P2, K2, intrinsics2] = calibration_camera(20, '../assets/calibration/02');
 
 %% Calculate stereo calibration paramenters
 % [F, E, deltaT] = calibration_stereo(P1, P2);

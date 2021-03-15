@@ -13,7 +13,7 @@ function images = acquire_calibration_images(num_images, cameras, dirs_images)
     end
     
     fprintf('START in');
-    print_countdown(5);
+    print_countdown(8);
     
     for i = 1:num_images
         
@@ -22,7 +22,7 @@ function images = acquire_calibration_images(num_images, cameras, dirs_images)
         for j = 1:num_cameras
             
             images{i,j} = snapshot(cameras{j});
-            filename_image = sprintf('images%d_%02d.jpg', j, i);
+            filename_image = sprintf('%02d.png', i);
             imwrite(images{i,j}, fullfile(dirs_images{j}, filename_image));
             
         end

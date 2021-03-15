@@ -1,38 +1,66 @@
-function [P, K] = calibration_camera(image_folder, image_number)
-    % Define constats
-    calibration_image_path = strcat(image_folder, '/%02d.png');
+function [P, K, intrinsics] = calibration_camera(num_images, dir_images)
 
-    % Create coords calibration array
-    coords_calibration = cell(1, image_number);
+    fprintf('-------- Camera Calibration --------\n');
+    fprintf('%s\n', dir_images);
+    
+    % Path to backup of calibraton points
+    m4_path = fullfile(dir_images, 'm4.mat');
+    
+    % Check if
+    if isfile(m4_path)
+        
+        fprintf('Found m4 on disk\n');
+        
+    else
+        
+        fprintf('Acquiring m4...\n');
 
-    % Populate array coords with input points from developer
-    for idx = 1:image_number
-        image = imread(sprintf(calibration_image_path, idx));
-        imshow(image);
+        % Create array of calibration points
+        points_calibration = cell(1, num_images);
 
-        points = [];
+        % Populate points_calibration with points chosen by the user
+        for idx = 1:num_images
 
-        for k = 1:4
-            zoom on;
-            pause();
-            zoom off;
-            [local_j, local_i] = ginput(1);
-            points = [points; [local_j, local_i]];
-            zoom out; 
-
+            image_filename = sprintf('%02d.png', idx);
+            image_path = fullfile(dir_images, image_filename);
+            
+            fprintf('File %2d: %s\n', idx, image_path);
+            
+            image = imread(image_path);
+            imshow(image);
             hold on;
 
-            % Plot calibration point
-            plot(local_j, local_i, "r*");
-        end
+            % Acquire 4 calibration points from a single image
+            points = [];
+            for k = 1:4
 
-        coords_calibration{1, idx} = points';
+                zoom on;
+                pause();
+                zoom off;
+                [local_j, local_i] = ginput(1);
+                points = [points; [local_j, local_i]];
+                zoom out; 
+
+                % Plot calibration point
+                plot(local_j, local_i, "r*");
+            end
+
+            points_calibration{1, idx} = points';
+            
+        end
+    
+        % Save coords on disk
+        m4 = points_calibration; % Fusiello library
+        save(m4_path, 'm4');
+    
     end
     
-    % Save coords on disk
-    m4 = coords_calibration;
-    save(strcat(image_folder, '/m4'), 'm4');
-    
     % Calculate the P and K camera matrices
-    [P, K] = runCalibChecker(image_folder, image_number);
+    fprintf('----- Starting runCalibChecker -----\n');
+    [P, K, intrinsics] = runCalibChecker(num_images, dir_images);
+    
+    save(fullfile(dir_images, 'P'), 'P');
+    save(fullfile(dir_images, 'K'), 'K');
+    save(fullfile(dir_images, 'intrinsics'), 'intrinsics');
+    
 end

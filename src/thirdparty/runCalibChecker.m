@@ -1,4 +1,6 @@
-function [P, K] = runCalibChecker(datadir, num_imgs)
+function [P, K, internal] = runCalibChecker(num_imgs, datadir)
+% Calibrate camera from checkerboard images (SMZ calibration)
+
     NumIntPar  = 4; % # of internal parameters (typ. 4 or 5)
     NumRadDist = 1; % # of radial distortion coefficients (typ. 1 or 2).
 
@@ -42,7 +44,7 @@ function [P, K] = runCalibChecker(datadir, num_imgs)
 
     end
 
-    %% All the homographies computed, ready to run calibSMZ
+    % All the homographies computed, ready to run calibSMZ
     [P_est, K_est] = calibSMZ(H);
 
     fprintf('CalibSMZ reproj RMS error:\t %0.5g \n',...
@@ -82,4 +84,5 @@ function [P, K] = runCalibChecker(datadir, num_imgs)
     bb  = [1;1;size(I,2);size(I,1)];
     I_out = imwarp(double(I), @(x)rdx(kappa{1},x,K), bb);
     figure, imshow(I_out, []); title('Undistorted');
+    
 end 
