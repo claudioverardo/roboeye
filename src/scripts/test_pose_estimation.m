@@ -38,7 +38,7 @@ img = imread('../assets/img_tests/test8/images1_01.png');
 
 aruco_real_side = 0.03; % [m]
 load('aruco_markers_8x8.mat');
-load('data/K_P1.mat', 'K');
+load('data/K.mat', 'K');
 
 %---------- TEST iPhone ----------
 
