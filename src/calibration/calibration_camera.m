@@ -34,5 +34,5 @@ function [P, K] = calibration_camera(image_folder, image_number)
     save(strcat(image_folder, '/m4'), 'm4');
     
     % Calculate the P and K camera matrices
-    [P, K] = run_calib_checker(image_folder, image_number);
+    [P, K] = runCalibChecker(image_folder, image_number);
 end

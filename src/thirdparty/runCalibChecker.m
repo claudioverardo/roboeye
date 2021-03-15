@@ -1,4 +1,4 @@
-function [P, K] = run_calib_checker(datadir, num_imgs)
+function [P, K] = runCalibChecker(datadir, num_imgs)
     NumIntPar  = 4; % # of internal parameters (typ. 4 or 5)
     NumRadDist = 1; % # of radial distortion coefficients (typ. 1 or 2).
 
