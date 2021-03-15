@@ -55,10 +55,11 @@ function [P, K, intrinsics] = calibration_camera(num_images, dir_images)
     
     end
     
-    % Calculate the P and K camera matrices
+    % Calculate the P camera matrices and the K intrinsic matrices
     fprintf('----- Starting runCalibChecker -----\n');
     [P, K, intrinsics] = runCalibChecker(num_images, dir_images);
     
+    % Save results
     save(fullfile(dir_images, 'P'), 'P');
     save(fullfile(dir_images, 'K'), 'K');
     save(fullfile(dir_images, 'intrinsics'), 'intrinsics');
