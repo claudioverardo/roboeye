@@ -7,7 +7,8 @@ global A_target
 startingpos=[0 0 0 0 0];
 startingpos=[89.95285    90.37269   -78.13193  -192.18695   -45.09429];
 startingpos=[90.00001     -42.05283     -57.27621      11.09545      91.25148];
-npoints=100;
+npoints=20;
+npoints_first=150;
 
 %Posizioni end effector
 
@@ -39,12 +40,17 @@ X=[linspace(0,3,npoints)' linspace(120,130,npoints)' ones(npoints,1)*1 ones(npoi
 X=[linspace(0,3,npoints)' ones(npoints,1)*(0) linspace(120,130,npoints)'+ones(npoints,1) ones(npoints,1)*30 ones(npoints,1)*180 ones(npoints,1)*45];
 
 %test 6
-X=[linspace(0,3,npoints)' ones(npoints,1)*(0) ones(npoints,1)*270 linspace(60,130,npoints)'  ones(npoints,1)*135 ones(npoints,1)*45];
+X=[linspace(0,3,npoints)' ones(npoints,1)*250 ones(npoints,1)*(0) linspace(40,-6,npoints)'  ones(npoints,1)*150 linspace(0,90,npoints)'*0];
 
-grabberalgle=ones(npoints,1)*50;
+%test 7
+X=[linspace(0,3,npoints)' ones(npoints,1)*250 linspace(0,40,npoints)' linspace(40,-6,npoints)'  ones(npoints,1)*150 linspace(0,90,npoints)'*0];
 
-Q=zeros(size(X));
+grabberalgle=ones(npoints,1)*72; %angle position of the grabber
+
+Q=zeros(size(X)+[0 1]);
 Qrob=zeros(size(X)+[0 1]);
+%Q_first=zeros(npoints_first,7);
+Qrob_first=zeros(npoints_first,7);
 Q(:,1)=X(:,1);
 
 %contains information about the quality of the solver's output (i.e convergence)
@@ -61,8 +67,10 @@ for i=1:length(X(:,1))
   
   %Q(i,[2 3 4 5 6])=qloc+[0 90 0 -90 0]; %test for different angles rf
   Q(i,[2 3 4 5 6])=qloc;
+  
+  Q(i,7)=grabberalgle(i);
 
-  Qrob(i,:)=[Q(i,1) braccio_angles(Q(i,[2 3 4 5 6])) grabberalgle(i)]; %adapt output to braccio's convention
+  Qrob(i,:)=[Q(i,1) braccio_angles(Q(i,[2 3 4 5 6])) Q(i,7)]; %adapt output to braccio's convention
   
   controlvec(i,:)=[sum(sum(fval.^2)) info];
   
@@ -70,15 +78,32 @@ for i=1:length(X(:,1))
   
 end
 
+%%%%    COMPUTE FIRST PART TRAJECTORY
+
+Q_first=[zeros(npoints_first,1)...            %time (does not matters)
+         linspace(0,Q(1,2),npoints_first)'...  %M1
+         linspace(0,Q(1,3),npoints_first)'...  %M2
+         linspace(0,Q(1,4),npoints_first)'...  %M3
+         linspace(0,Q(1,5),npoints_first)'...  %M4
+         linspace(0,Q(1,6),npoints_first)'...  %M5
+         linspace(10,Q(1,7),npoints_first)'...  %M6
+         ];
+     
+for i=1:npoints_first
+    Qrob_first(i,:)=[Q_first(i,1) braccio_angles(Q_first(i,[2 3 4 5 6])) Q_first(i,7)];
+end
+
 toc
 
-Q_final = Qrob(:,[2:1:end]);
+Qtot = [Q_first; Q];
+
+Q_final = [Qrob_first(:,[2:1:end]); Qrob(:,[2:1:end])];
 Q_final = uint8(mod(round(Q_final),360));
 
-save('./data/test_trajectory.mat','Q_final');
+%save('./data/test_trajectory.mat','Q_final');
 
-fig=plot_config(Q);
+jointpos=plot_config(Qtot);
 
-print_for_arduino(Qrob,1);
+print_for_arduino(Q_final,2);
 
 
