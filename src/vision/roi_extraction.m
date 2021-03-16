@@ -1,7 +1,11 @@
-function rois_raw = roi_extraction(img, img_bw, img_gray, varargin)
+function rois_raw = roi_extraction(img, img_gray, varargin)
+% Extract ROIs from input image
 
     % Default values of parameters
     default_method = 'adaptth-moore';
+    default_adaptth_sensitivity = 1;
+    default_adaptth_statistic = 'gaussian';
+    default_adaptth_neighborhood = 2*floor(size(img_gray)/16)+1;
     default_canny_th_low = 0.01;
     default_canny_th_high = 0.10;
     default_verbose = 0;
@@ -9,6 +13,9 @@ function rois_raw = roi_extraction(img, img_bw, img_gray, varargin)
     % Input parser
     p = inputParser;
     addParameter(p, 'method', default_method);
+    addParameter(p, 'adaptth_sensitivity', default_adaptth_sensitivity);
+    addParameter(p, 'adaptth_statistic', default_adaptth_statistic);
+    addParameter(p, 'adaptth_neighborhood', default_adaptth_neighborhood);
     addParameter(p, 'canny_th_low', default_canny_th_low);
     addParameter(p, 'canny_th_high', default_canny_th_high);
     addParameter(p, 'verbose', default_verbose);
@@ -16,15 +23,21 @@ function rois_raw = roi_extraction(img, img_bw, img_gray, varargin)
     
     % Parse function parameters
     METHOD = p.Results.method;
+    ADAPTTH_SENSITIVITY = p.Results.adaptth_sensitivity;
+    ADAPTTH_STATISTIC = p.Results.adaptth_statistic;
+    ADAPTTH_NEIGHBORHOOD = p.Results.adaptth_neighborhood;
     CANNY_TH_LOW = p.Results.canny_th_low;
     CANNY_TH_HIGH = p.Results.canny_th_high;
     VERBOSE = p.Results.verbose;
 
     if strcmp(METHOD, 'adaptth-moore')
-        
-        % Binarization already performed in aruco_detection
-        % img_th = adaptthresh(img_gray, 1, 'Statistic', 'gaussian');
-        % img_bw = imbinarize(img_gray, img_th);
+    
+        % Conveter image to binary
+        % sensitivity -> [0,1]
+        % Statistic -> mean, gaussian, median
+        % NeighborhoodSize -> [height, width,], odd values, default 2*floor(size(img_gray)/16)+1
+        img_th = adaptthresh(img_gray, ADAPTTH_SENSITIVITY, 'Statistic', ADAPTTH_STATISTIC, 'NeighborhoodSize', ADAPTTH_NEIGHBORHOOD); 
+        img_bw = imbinarize(img_gray, img_th);
     
         % Plot binarization output
         if VERBOSE > 1
@@ -97,7 +110,7 @@ function rois_raw = roi_extraction(img, img_bw, img_gray, varargin)
            hold on;
            line([rois_raw{k,1}(:,1); rois_raw{k,1}(1,1)], ...
                 [rois_raw{k,1}(:,2); rois_raw{k,1}(1,2)], ...
-                'color','r','linestyle','-','linewidth',1.5, ...
+                'color',[rand rand rand],'linestyle','-','linewidth',1.5, ...
                 'marker','o','markersize',5);
         end
         title(sprintf('Extracted ROIs N=%d', size(rois_raw,1)));

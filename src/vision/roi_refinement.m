@@ -1,9 +1,12 @@
 function [rois_refined, i_rois_refined] = roi_refinement(img, rois_raw, varargin)
-    % rois_refined:   valid rois among the rois_raw
-    % i_rois_refined: indices of the rois_refined in the rois_raw cell array
+% Select candidate ROIs for matching
+%
+% rois_refined:   valid rois among the rois_raw
+% i_rois_refined: indices of the rois_refined in the rois_raw cell array
 
     % Default values of parameters
     default_method = 'rdp';
+    default_roi_size_th = 20;
     default_rdp_th = 0.1;
     default_roi_side_th_low = 10;
     default_roi_side_th_high = 700;
@@ -14,6 +17,7 @@ function [rois_refined, i_rois_refined] = roi_refinement(img, rois_raw, varargin
     % Input parser
     p = inputParser;
     addParameter(p, 'method', default_method);
+    addParameter(p, 'roi_size_th', default_roi_size_th);
     addParameter(p, 'rdp_th', default_rdp_th);
     addParameter(p, 'roi_sum_angles_tol', default_roi_sum_angles_tol);
     addParameter(p, 'roi_parallelism_tol', default_roi_parallelism_tol);
@@ -24,6 +28,7 @@ function [rois_refined, i_rois_refined] = roi_refinement(img, rois_raw, varargin
     
     % Parse function parameters
     METHOD = p.Results.method;
+    ROI_SIZE_TH = p.Results.roi_size_th;
     RDP_TH = p.Results.rdp_th;
     ROI_SUM_ANGLES_TOL = p.Results.roi_sum_angles_tol;
     ROI_PARALLELISM_TOL = p.Results.roi_parallelism_tol;
@@ -44,35 +49,78 @@ function [rois_refined, i_rois_refined] = roi_refinement(img, rois_raw, varargin
     
     rois_refined = cell(0);
     i_rois_refined = [];
+    rois_discarded = cell(0);
 
     for i = 1:size(rois_raw, 1)
         
-        % Refine ROI with the chosen method
-        roi_refined = roi_refinement_core(rois_raw{i});
+        roi = rois_raw{i};
         
-        % Check if the ROI is a valid quadrilateral
-        if check_quadrilateral(roi_refined, ROI_SUM_ANGLES_TOL, ROI_PARALLELISM_TOL, ROI_SIDE_TH_LOW, ROI_SIDE_TH_HIGH) == 1
+        % Discard a priori ROIs with only few points
+        if size(roi,1) > ROI_SIZE_TH
+        
+            % Refine ROI with the chosen method
+            roi_refined = roi_refinement_core(roi);
+
+            % Check if the ROI is a valid quadrilateral
+            if check_quadrilateral(roi_refined, ROI_SUM_ANGLES_TOL, ROI_PARALLELISM_TOL, ROI_SIDE_TH_LOW, ROI_SIDE_TH_HIGH) == 1
+
+                % ROI ok, add to rois
+                rois_refined{end+1,1} = roi_refined;
+                i_rois_refined(end+1) = i;
                 
-            % ROI ok, add to rois
-            rois_refined{end+1,1} = roi_refined;
-            i_rois_refined(end+1) = i;
+            else
+                
+                % ROI not valid, discard
+                rois_discarded{end+1,1} = roi_refined;
+
+            end
         
         end
         
     end
     
+    n_rois_refined = size(rois_refined,1);
+    n_rois_discarded = size(rois_discarded,1);
+    
     % Plot refined ROIs
     if VERBOSE > 0
+        
         figure;
         imshow(img);
-        for k=1:size(rois_refined,1)
-           hold on;
-           line([rois_refined{k,1}(:,1); rois_refined{k,1}(1,1)], ...
+        hold on;
+        
+        colors = winter(n_rois_refined);
+        lines_refined_obj = gobjects(1,n_rois_refined);
+        lines_refined_str = cell(1,n_rois_refined);
+        for k=1:n_rois_refined
+           lines_refined_obj(k) = line([rois_refined{k,1}(:,1); rois_refined{k,1}(1,1)], ...
                 [rois_refined{k,1}(:,2); rois_refined{k,1}(1,2)], ...
-                'color','g','linestyle','-','linewidth',1.5, ...
-                'marker','o','markersize',5);
+                'color', colors(k,:), ...
+                'linestyle', '-', 'linewidth', 1.5, ...
+                'marker', 'o', 'markersize', 5);
+           lines_refined_str{k} = sprintf('i raw=%3d', i_rois_refined(k));
         end
-        title(sprintf('Refined ROIs N=%d', size(rois_refined,1)));
+        
+        % Plot discarded ROIs
+        if VERBOSE > 1
+            lines_discarded_str = 'discarded';
+            for k=1:n_rois_discarded
+                line_discarded_obj = line([rois_discarded{k,1}(:,1); rois_discarded{k,1}(1,1)], ...
+                    [rois_discarded{k,1}(:,2); rois_discarded{k,1}(1,2)], ...
+                    'color', 'r', ...
+                    'linestyle', '-', 'linewidth', 1.5, ...
+                    'marker', 'o', 'markersize', 5);
+            end
+        end
+        
+        title(sprintf('Refined ROIs N=%d', n_rois_refined));
+        if n_rois_refined > 0
+            legend(lines_refined_obj, lines_refined_str{:});
+            if n_rois_discarded > 0 && VERBOSE > 1
+                legend([lines_refined_obj line_discarded_obj], lines_refined_str{:}, lines_discarded_str);
+            end
+        end
+        
     end
 
 end

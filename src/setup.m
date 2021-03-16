@@ -1,10 +1,10 @@
-%restoredefaultpath;
+% restoredefaultpath;
+% pathtool
 
-root = pwd;
-
-addpath(fullfile(root, 'vision'));
-addpath(fullfile(root, 'calibration'));
-addpath(fullfile(root, 'data'));
-addpath(fullfile(root, 'thirdparty'));
+addpath(fullfile(pwd, 'vision'));
+addpath(fullfile(pwd, 'calibration'));
+addpath(fullfile(pwd, 'data'));
+addpath(fullfile(pwd, 'thirdparty'));
+addpath(fullfile(pwd, 'scripts'));
 
 savepath;

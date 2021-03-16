@@ -1,6 +1,6 @@
-function [rois_matched, i_rois_matched, i_arucos, k_rots] = roi_matching(img, img_bw, rois, aruco_markers, varargin)
-% ARUCO_MATCHING  Matching of aruco markers in an image.
-%   ARUCO_MATCHING(IMG, IMG_BW, ROIS, ARUCO_MARKERS) match the ARUCO_MARKERS with the ROIS of IMG 
+function [rois_matched, i_rois_matched, i_arucos, k_rots] = roi_matching(img, img_gray, rois, aruco_markers, varargin)
+% ROI_MATCHING  Match Aruco markers with candidate ROIs.
+%   ROI_MATCHING(IMG, IMG_GRAY, ROIS, ARUCO_MARKERS) match the ARUCO_MARKERS with the ROIS of IMG 
 %
 %   TODO
 %   rois_matched:   matched rois among the rois
@@ -22,8 +22,6 @@ function [rois_matched, i_rois_matched, i_arucos, k_rots] = roi_matching(img, im
 %   TODO TODO
 %
 %   See also GET_MORPHOLOGICAL_COMPONENTS
-
-    % img_bw = imbinarize(rgb2gray(img)); % use the already computed one in aruco_detection
     
     marker_side = size(aruco_markers{1,1},1);
     n_aruco_markers = size(aruco_markers,1);
@@ -63,6 +61,14 @@ function [rois_matched, i_rois_matched, i_arucos, k_rots] = roi_matching(img, im
     
     n_rois = size(rois, 1);
     
+    %---------------------------------------------------------------------
+    % Change path to avoid conflicts with Fusiello ComputerVisionToolkit
+    path = which('imwarp','-all');
+    [changedFolder,~,~] = fileparts(path{end});
+    currentFolder = pwd;
+    cd(changedFolder); % path of Matlab imwarp
+    %---------------------------------------------------------------------
+    
     % Iterate over all the regions of interest
     for i_roi = 1:n_rois
         
@@ -79,7 +85,7 @@ function [rois_matched, i_rois_matched, i_arucos, k_rots] = roi_matching(img, im
         bb_size       = bb_width * bb_height;
 
         % Binary content of the bounding box
-        bb_bw = img_bw(bb_idx_top:bb_idx_bottom,bb_idx_left:bb_idx_right,:);
+        bb_bw = imbinarize(img_gray(bb_idx_top:bb_idx_bottom,bb_idx_left:bb_idx_right,:));
         R_bb_bw = imref2d(size(bb_bw),[0 bb_width],[0 bb_height]);
 
         % Set the origin of the ROI vertices to the top-left of the bounding box
@@ -105,7 +111,7 @@ function [rois_matched, i_rois_matched, i_arucos, k_rots] = roi_matching(img, im
         H_est_tform = fitgeotrans(bb_vertices, bb_vertices_H, 'projective');
 
         % Transform the content of the bounding box with the homography
-        [bb_bw_H, R_bb_bw_H] = imwarp(bb_bw, R_bb_bw, H_est_tform);
+        [bb_bw_H, R_bb_bw_H] = imwarp(bb_bw, R_bb_bw, H_est_tform, 'interp', 'nearest');
 
         % Retrieve the top-left vertex of the transformed ROI in the px frame
         [bb_vertexTL_H_i, bb_vertexTL_H_j] = worldToSubscript(R_bb_bw_H, bb_vertices_H(1,1), bb_vertices_H(1,2));
@@ -178,13 +184,13 @@ function [rois_matched, i_rois_matched, i_arucos, k_rots] = roi_matching(img, im
 
             % Plot the bw image with the ROI highlighted
             subplot(2,4,[3,4]);
-            imshow(img_bw);
+            imshow(img_gray);
             hold on;
             line([roi(:,1); roi(1,1)], ...
                  [roi(:,2); roi(1,2)], ...
                  'color','r','linestyle','-','linewidth',1.5, ...
                  'marker','o','markersize',5);
-            title('binary image');
+            title('gray image');
 
             % Plot the bounding box of the ROI
             subplot(2,4,5);
@@ -253,6 +259,11 @@ function [rois_matched, i_rois_matched, i_arucos, k_rots] = roi_matching(img, im
 
     end
 
+    %--------------------------------------------------------------
+    % Back to original path
+    cd(currentFolder);
+    %--------------------------------------------------------------
+
     % Plot Aruco Markers
     if VERBOSE > 0
         figure;
@@ -287,7 +298,9 @@ function [rois_matched, i_rois_matched, i_arucos, k_rots] = roi_matching(img, im
            point_obj = plot(rois_matched{k,1}(1,1), rois_matched{k,1}(1,2), 'go', 'MarkerFaceColor', 'g');
         end
         title(sprintf('Matched ROIs N=%d', size(rois_matched,1)));
-        legend([lines_obj point_obj], lines_str{:}, 'Control points');
+        if n_rois_matched > 0
+            legend([lines_obj point_obj], lines_str{:}, 'Control points');
+        end
     end
     
 end

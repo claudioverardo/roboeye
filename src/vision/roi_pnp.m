@@ -1,4 +1,5 @@
 function [R, t] = roi_pnp(img, rois, aruco_real_side, K_obj, VERBOSE)
+% Compute pose of matched ROIs in the camera frame
 
     % NB: points and K with Matlab convention
     
@@ -18,10 +19,11 @@ function [R, t] = roi_pnp(img, rois, aruco_real_side, K_obj, VERBOSE)
     for i=1:n_rois
         [R{i}, t{i}] = pnp(rois{i}, roi_world, K_obj);
     end
-    K = K_obj.IntrinsicMatrix;
     
     % Plots
     if VERBOSE > 0
+        
+        K = K_obj.IntrinsicMatrix;
         
         figure;
         imshow(img);
@@ -53,7 +55,7 @@ function [R, t] = roi_pnp(img, rois, aruco_real_side, K_obj, VERBOSE)
             roi_proj = homography(roi_world, P);
             
             % Plot the projected marker contours
-            line_projected_roi = plot(roi_proj(:,1),roi_proj(:,2),'yo');
+            line_projected_roi = plot(roi_proj(:,1),roi_proj(:,2),'c+');
 
             % Projection of marker pose axes
             axes_world = 1.5*aruco_real_side * [
@@ -75,9 +77,11 @@ function [R, t] = roi_pnp(img, rois, aruco_real_side, K_obj, VERBOSE)
 
         end
         
+        title('Pose of ROIs');
+        if n_rois > 0
         legend( [line_roi, line_projected_roi, line_control_point, line_axis], ...
             'Detected ROIs', 'Projected ROIs', 'Control points', 'Pose x-axis', 'Pose y-axis', 'Pose z-axis');
-        title('PnP ROIs');
+        end
 
     end
     
