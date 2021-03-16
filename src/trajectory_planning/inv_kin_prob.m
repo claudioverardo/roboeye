@@ -10,7 +10,7 @@ function sol=inv_kin_prob(q)
   chosen_index=[1 4;
                2 4;
                3 4;
-               2 2;
+               1 1;
                3 3];
   
   

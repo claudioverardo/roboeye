@@ -1,4 +1,4 @@
-function fig=plot_config(Q)
+function jointpos=plot_config(Q)
   %GIVEN TRAJECTORY IN INPUT PLOT ROBOT CONFIGURATION
   
 
