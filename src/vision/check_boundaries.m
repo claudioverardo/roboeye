@@ -1,5 +1,18 @@
 function check_ans = check_boundaries(i, j, img_size)
-% check if the ij coordinates of a point are valid
+% CHECK_BOUNDARIES  Match Aruco markers with candidate ROIs.
+%   check_ans = CHECK_BOUNDARIES(i, j, img_size) the function returns 1 if
+%   the coordinates of the point (i, j) are inside the img_size. 
+%
+%   Input arguments:
+%   ------------------
+%   i:          i point coordinate (row)
+%   j:          j point coordinate (column)
+%   img_size:   1x2 (rows img limit, columns img limit)
+%
+%   Output arguments:
+%   ------------------
+%   check_ans:  1 if the point is inside the image size 0 otherwiae
+
 
     check_ans = 0;
     
