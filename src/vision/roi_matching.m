@@ -2,24 +2,27 @@ function [rois_matched, i_rois_matched, i_arucos, k_rots] = roi_matching(img, im
 % ROI_MATCHING  Match Aruco markers with candidate ROIs.
 %   ROI_MATCHING(IMG, IMG_GRAY, ROIS, ARUCO_MARKERS) match the ARUCO_MARKERS with the ROIS of IMG 
 %
-%   TODO
-%   rois_matched:   matched rois among the rois
-%   i_rois_matched: indices of the rois_matched in the rois cell array
+%   Input arguments:
+%   ------------------
+%   img:                TODO
+%   img_gray:           TODO
+%   rois:               TODO
+%   aruco_markers:      TODO
+%   varargin
 %
 %   Parameters:
 %   --------
+%   'roi_bb_padding':   padding value of bounding boxes
+%   'roi_h_side':       side value of ROI after homography
+%   'roi_hamming_th':   max value of hamming distance to detect a marker
+%   'verbose:           launch function in verbose mode
 %
-%   'roi_bb_padding'    padding value of bounding boxes
-%
-%   'roi_h_side'        side value of ROI after homography
-%
-%   'roi_hamming_th'    max value of hamming distance to detect a marker
-%
-%   'verbose'           launch function in verbose mode
-%
-%   Examples
-%   --------
-%   TODO TODO
+%   Output arguments:
+%   ------------------
+%   rois_matched:   matched rois among the rois
+%   i_rois_matched: indices of the rois_matched in the rois cell array
+%   i_arucos:       TODO
+%   k_rots:         TODO
 %
 %   See also TODO
     
