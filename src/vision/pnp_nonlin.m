@@ -4,11 +4,24 @@ function [R, t, reproj_err] = pnp_nonlin(R0, t0, X_image, X_world, K)
 %   pose R0, t0 from a set of 2D-3D correspondences defined by X_image, X_world 
 %   respectively. The algorithm minimizes the reprojection errors.
 %
-%       X_image: Nx2 array
-%       X_world: Nx3 array
-%
 %   [R, t, reproj_err] = PNP_NONLIN(R0, t0, X_image, X_world, K) return also
 %   the RMS value of the reprojection errors of the 3D-2D correspondences.
+%
+%   Input arguments:
+%   ------------------
+%   R0:         Initial rotation matrix for the non-linear iterative method,
+%               typically calculate through the pnp_lin function
+%   t0:         Initial translate vector for the non-linear iterative method,
+%               typically calculate through the pnp_lin function
+%   X_image:    Nx2 array
+%   X_world:    Nx3 array
+%   K:          Intrisics matrix of the input camera
+%
+%   Output arguments:
+%   ------------------
+%   R:          rotation matrix 3x3
+%   t:          translate vector 3x1
+%   reproj_err: reprojection error (RMS value)
 %
 %   NOTE: points and K with Matlab conventions, X_image = X_world*[R;t]*K.
 %
