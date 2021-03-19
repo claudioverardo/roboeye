@@ -6,9 +6,19 @@ function [err, J_ext] = reprojection_error(m, M, K, R, t)
 %   [err, J_ext] = REPROJECTION_ERROR(m, M, K, R, t) returns the error and
 %   its Jacobian wrt to the external parameters R_ij, t_i (2x12 matrix).
 %
-%   NOTE: m, M, R, t and K with Matlab convention.
+%   Input arguments:
+%   ------------------
+%   m:          2D point (image point)
+%   M:          3D point (world point)
+%   K:          Intrisics matrix of the input camera
+%   R:          Rotation matrix 3x3
+%   t:          Translation vector 3x1
 %
-%   See also PNP_LIN, PNP_NONLIN
+%   Output arguments:
+%   ------------------
+%   err:        TODO
+%   J_ext:      TODO
+
     
     % Hereafter, fp denotes the perspective division.
     % It converts homogeneous coordinates to inhomogenous coordinates
