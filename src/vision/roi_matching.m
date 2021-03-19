@@ -21,7 +21,7 @@ function [rois_matched, i_rois_matched, i_arucos, k_rots] = roi_matching(img, im
 %   --------
 %   TODO TODO
 %
-%   See also GET_MORPHOLOGICAL_COMPONENTS
+%   See also TODO
     
     marker_side = size(aruco_markers{1,1},1);
     n_aruco_markers = size(aruco_markers,1);
@@ -269,7 +269,7 @@ function [rois_matched, i_rois_matched, i_arucos, k_rots] = roi_matching(img, im
         figure;
         for i=1:n_aruco_markers
             subplot(1,n_aruco_markers,i)
-            imshow(aruco_markers{i});
+            imshow(aruco_markers{i},'InitialMagnification','fit');
             title(sprintf('Aruco %d', i));
         end
         suptitle('Aruco Markers');
@@ -295,7 +295,7 @@ function [rois_matched, i_rois_matched, i_arucos, k_rots] = roi_matching(img, im
                 'marker', 'o', 'markersize', 5 ...
            );
            lines_str{k} = sprintf('ROI=%d, Aruco=%d', k, i_arucos(k));
-           point_obj = plot(rois_matched{k,1}(1,1), rois_matched{k,1}(1,2), 'go', 'MarkerFaceColor', 'g');
+           point_obj = plot(rois_matched{k,1}(1,1), rois_matched{k,1}(1,2), 'gs', 'MarkerSize', 10, 'LineWidth', 1); % 'MarkerFaceColor', 'g'
         end
         title(sprintf('Matched ROIs N=%d', size(rois_matched,1)));
         if n_rois_matched > 0

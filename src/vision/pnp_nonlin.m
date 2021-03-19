@@ -1,21 +1,27 @@
-function [R,t] = pnp_nonlin(R0, t0, X_image, X_world, K_obj)
-% PNP_NONLIN Non linear refinement of Perspective-n-Points (PnP) from 3D-2D correspondences
+function [R, t, reproj_err] = pnp_nonlin(R0, t0, X_image, X_world, K)
+% PNP_NONLIN Refinement of Perspective-n-Points (PnP) from 3D-2D correspondences.
+%   [R, t] = PNP_NONLIN(R0, t0, X_image, X_world, K) refines the input camera 
+%   pose R0, t0 from a set of 2D-3D correspondences defined by X_image, X_world 
+%   respectively. The algorithm minimizes the reprojection errors.
 %
-% X_image: Mx2 array
-% X_world: Mx3 array
+%       X_image: Nx2 array
+%       X_world: Nx3 array
 %
-% NB: points and K with Matlab convention, X_image = X_world*[R;t]*K
-
-    K = K_obj.IntrinsicMatrix;
+%   [R, t, reproj_err] = PNP_NONLIN(R0, t0, X_image, X_world, K) return also
+%   the RMS value of the reprojection errors of the 3D-2D correspondences.
+%
+%   NOTE: points and K with Matlab conventions, X_image = X_world*[R;t]*K.
+%
+%   See also PNP_LIN, REPROJECTION_ERROR
     
-    % Transfor world coordinates in order to have the axes origin at R0,t0
+    % Transform world point in order to have the axes origin at R0,t0
     % X_world0 = X_world * T0
     X_world0 = homography (X_world, [R0, zeros(3,1); t0 1]);
     
-    % Optimization residual (function handle)
+    % Optimization objective (function handle)
     % x = [roll, pitch, yaw, tx, ty, tz] is the optimization variable
     % cf. rpy2rot() for the parameterization of R with roll, pitch, yaw
-    fn_res = @(x) pnp_nonlin_objective(x, X_image, X_world0, K);
+    fn_obj = @(x) pnp_nonlin_objective(x, X_image, X_world0, K);
     
     % Optimization initial point 
     x0 = [0 0 0 0 0 0];
@@ -31,52 +37,57 @@ function [R,t] = pnp_nonlin(R0, t0, X_image, X_world, K_obj)
         'StepTolerance', StepTol, ...
         'FunctionTolerance', FunctionTol, ...
         'CheckGradients', false, ... % true to check the jacobians
-        'Display', 'off', ... % debugging 'iter'
+        'Display', 'none', ... % debugging 'iter'
         'FiniteDifferenceType', 'central' ...
     );
     
     % Launch optimization (PnP refinement)
-    [x,~,res,~,~,~,J] = lsqnonlin(fn_res, x0, [], [], options);
+    [x,~,reproj_errs,~,~,~,J] = lsqnonlin(fn_obj, x0, [], [], options);
     R_delta = rpy2rot(x(1:3));
     t_delta = x(4:6);
     
-    % Retrieve the refined pose in world coordinates
+    % Return the refined pose in world coordinates
     R = R0*R_delta;
     t = t0*R_delta + t_delta;
+    
+    % Return the overall reprojection error (RMS value)
+    reproj_err = rms(reproj_errs);
+    
+    % PnP refinement with Fusiello ComputerVisionToolkit (debug)
+    % [R, t] = exterior_nonlin(R, t, X_image', X_world', K');
+    % R = R';
+    % t = t';
 
 end
 
-function [res,J] = pnp_nonlin_objective(x, m, M, K)
+function [err,J] = pnp_nonlin_objective(x, m, M, K)
     
     % Retrieve the actual pose [R;t] (under optimization)
     [R, J_roll, J_pitch, J_yaw] = rpy2rot(x(1:3));
     t = x(4:6);
     
-    % Retrieve the Jacobians of R'
-    % NOTE: reprojection_error() computes the jacobian wrt R' (cf. below)
-    J_roll  = J_roll';
-    J_pitch = J_pitch';
-    J_yaw   = J_yaw';
+    % Retrieve the Jacobians of R_ij wrt roll, pitch, yaw
     J_R = [J_roll(:), J_pitch(:), J_yaw(:)];
     
-    % Reprojection errors and jacobians of each 3D-2D correspondence
-    res = []; J =[];
+    % Reprojection error and Jacobian of each 3D-2D correspondence
+    err = [];
+    J =[];
     for i = 1:size(M,1)
         
         % i-th 3D-2D correspondence
         M_i = M(i,:);
         m_i = m(i,:);
         
-        % Reprojection error and jacobian wrt external parameters [R',t']
-        % NOTE: reprojection_error() adopts the Fusiello convention
-        [res_i, J_ext_i] = reprojection_error(K', R', t', m_i', M_i');
+        % Reprojection error and Jacobian wrt external parameters
+        % external parameters = [R11,R21,R31,R12,R22,R32,R13,R23,R33,t1,t2,t3]
+        [err_i, J_ext_i] = reprojection_error(m_i, M_i, K, R, t);
         
-        % Jacobian wrt [alpha, beta, gamma, t1, t2, t2]
+        % Jacobian wrt x=[roll, pitch, yaw, t1, t2, t2]
         J_i = J_ext_i * blkdiag(J_R, eye(3));
         
         % Accumulate results
         J = [J; J_i];
-        res = [res; res_i];
+        err = [err; err_i];
 
     end
     

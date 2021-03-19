@@ -24,10 +24,10 @@ ROI_H_SIDE = 80;
 ROI_HAMMING_TH  = 3;
 
 % Debug/Analysis
-ROI_EXTRACTION_VERBOSE = 2; % 1: show roi_extracted  2: + adaptth/canny 
-ROI_REFINEMENT_VERBOSE = 2; % 1: show roi_refined    2: + roi_discarded
-ROI_MATCHING_VERBOSE   = 2; % 1: show roi_matched    2: + log roi_matched  3: + log roi_refined
-ROI_PNP_VERBOSE        = 1; % 1: show roi_pnp
+ROI_EXTRACTION_VERBOSE = 0; % 1: show roi_extracted  2: + adaptth/canny 
+ROI_REFINEMENT_VERBOSE = 0; % 1: show roi_refined    2: + roi_discarded
+ROI_MATCHING_VERBOSE   = 0; % 1: show roi_matched    2: + log roi_matched  3: + log roi_refined
+ROI_PNP_VERBOSE        = 2; % 1: show roi_pnp        2: + aruco id/error
 ARUCO_DETECTION_VERBOSE       = 0;
 ARUCO_POSE_ESTIMATION_VERBOSE = 0;
 
@@ -36,8 +36,8 @@ ARUCO_POSE_ESTIMATION_VERBOSE = 0;
 cam = webcam(1);
 img = snapshot(cam);
 
-aruco_real_side = 0.03; % [m]
-load('aruco_markers_8x8.mat');
+aruco_real_sides = [3 3 6 6]; % [cm]
+load('aruco_markers_8x8_camera.mat');
 load('../assets/calibration/01/K.mat', 'K');
 load('../assets/calibration/01/intrinsics.mat', 'intrinsics');
 
@@ -48,7 +48,7 @@ load('../assets/calibration/01/intrinsics.mat', 'intrinsics');
 % img = imread('../assets/img_tests/test8/images1_01.png');
 % img = imread('../assets/img_tests/test8/images2_01.png');
 
-% aruco_real_side = 0.03; % [m]
+% aruco_real_sides = [3 3]; % [cm]
 % load('aruco_markers_8x8.mat');
 % load('data/K.mat', 'K');
 
@@ -64,26 +64,26 @@ load('../assets/calibration/01/intrinsics.mat', 'intrinsics');
 % img = imread('../assets/img_tests/test_iPhone/File_007.jpeg');
 % img = imresize(img, [900 1200]);
 
-% aruco_real_side = 0.06; % [m]
+% aruco_real_sides = 6; % [cm]
 % load('aruco_markers_8x8_iPhone.mat');
 % load('data/K_iPhone.mat');
 
 %---------------------------------
 
 % Camera intrinsics object
-K(1,1) = -K(1,1);
-K(2,2) = -K(2,2);
-K(1,2) = -K(1,2);
 K = K'; % intrinsics from Fusiello toolkit
-focal_length    = [K(1,1) K(2,2)]; 
-principal_point = [K(3,1) K(3,2)];
-image_size      = [size(img,2), size(img,1)];
-skew            = K(2,1);
-K_obj = cameraIntrinsics(focal_length, principal_point, image_size, 'Skew', skew);
+% K(1,1) = -K(1,1);
+% K(2,2) = -K(2,2);
+% K(1,2) = -K(1,2);
+% focal_length    = [K(1,1) K(2,2)]; 
+% principal_point = [K(3,1) K(3,2)];
+% image_size      = [size(img,2), size(img,1)];
+% skew            = K(2,1);
+% K_obj = cameraIntrinsics(focal_length, principal_point, image_size, 'Skew', skew);
 
 % Launch Pose Estimation w/ PnP
 [rois, i_arucos, rois_R, rois_t] = aruco_pose_estimation( ...
-    img, aruco_markers, aruco_real_side, K_obj, ...
+    img, aruco_markers, aruco_real_sides, K, ...
     'roi_extraction_method', ROI_EXTRACTION_METHOD, ...
     'adaptth_sensitivity', ADAPTTH_SENSITIVITY, ...
     'adaptth_statistic', ADAPTTH_STATISTIC, ...
