@@ -1,7 +1,24 @@
 function [R, t] = roi_pnp(img, rois, i_arucos, aruco_real_sides, K, VERBOSE)
 % Compute pose of matched ROIs in the camera frame
 %
-% NOTE: points and K with Matlab conventions.
+%   [R, t] = roi_pnp(img, rois, i_arucos, aruco_real_sides, K, VERBOSE)
+%
+%   Input arguments:
+%   ------------------
+%   img:                TODO
+%   rois:               TODO
+%   i_arucos:           TODO
+%   aruco_real_sides:   TODO
+%   K:                  TODO
+%   VERBOSE:            TODO
+%
+%   Output arguments:
+%   ------------------
+%   R:                  TODO
+%   t:                  TODO
+%
+%   NOTE: points and K with Matlab conventions.
+%   See also TODO
     
     % Generate world points for PnP
     n_arucos_markers = length(aruco_real_sides);
