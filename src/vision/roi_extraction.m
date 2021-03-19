@@ -74,6 +74,25 @@ function rois_raw = roi_extraction(img, img_gray, varargin)
 
         % Extract morphological components - DFS [MATLAB-implementation]
         components = roi_extraction_dfs(img_canny);
+        
+        if VERBOSE > 0
+            I = zeros(size(img));
+            for i = 1:size(components, 1)
+                % plot component points
+                for j = 1:size(components{i, 1}, 1)
+                    I(components{i, 1}(j, 2), components{i, 1}(j, 1), :) = [255, 255, 255];
+                end
+                % plot tails
+                for j = 1:size(components{i, 2}, 1)
+                    I(components{i, 2}(j, 2), components{i, 2}(j, 1), :) = [255, 0, 0];
+                end
+            end
+
+            figure;
+            imshow(I);
+            title('Components');
+        end
+        
         rois_raw = components(:,1);
         
     elseif strcmp(METHOD, 'canny-dfs-c')

@@ -1,10 +1,24 @@
-function components = roi_extraction_dfs(img_canny_local)
-    
-    VERBOSE = 0;
-    
-    % Edge detection image
-    global img_canny;
-    img_canny = img_canny_local;
+function components = roi_extraction_dfs(img_canny)
+% ROI_EXTRACTION_DFS Extract the connected components (set of points, set of
+%   tails) from the image (2D-Graph)
+%
+%   Y = ROI_EXTRACTION_DFS(img_canny) apply the DFS algorithm on the
+%   picture and extract the connected components
+%
+%   The outpur cell array components are arranged in a cell array where each 
+%   cell is composed by two elements: the first one is the set of points 
+%   that rappresents the component awnd the second one is the of tails for 
+%   that component
+%   
+%   Input arguments:
+%   ------------------
+%   img_canny:      HEIGHT x WIDTH matrix fashion
+%
+%   Output arguments:
+%   ------------------
+%   components:     cell array of the connected components (points and tails)
+%
+%   See also ROI_EXTRACTION, ROI_EXTRACTION_DFS_C
     
     % Memory for the dfs process (visited)
     global visited;
@@ -26,94 +40,22 @@ function components = roi_extraction_dfs(img_canny_local)
                 % Generate random color fot the connected component
                 color = [rand(1), rand(1), rand(1)] * 255;
                 
-                % Create new empty connected component (points, tails, polyfit)
+                % Create new empty connected component (points, tails)
                 components{size(components, 1) + 1, 1} = [];
                 components{size(components, 1), 2} = [];
                 
-                % Explore that component
-                % [tmp_components, tmp_tails] = ...
-                %   bfs_c(img_canny, visited, size(img_canny, 1), size(img_canny, 2), i, j);
-                dfs(i, j, color); % Matlab implementation
-                
-                % components{size(components, 1), 1} = [components{size(components, 1), 1}; tmp_components];
-                % components{size(components, 1), 2} = [components{size(components, 1), 2}; tmp_tails];
-                
-                for idx=1:size(components{size(components, 1), 1}, 1)
-                    visited(components{size(components, 1), 1}(idx, 2), components{size(components, 1), 1}(idx, 1)) = 1;
-                end
-                
-                % figure;
-                % imshow(img_canny);
-                % hold on;
-                % plot(comp(:, 1), comp(:, 2), "ro");
-                % 
-                % figure;
-                % imshow(visited);
-                % hold on;
-                % plot(comp(:, 1), comp(:, 2), "ro");
-                
-                % Add to components tails the startpoint if there is a tail
-                % if (check_tail(i, j) == 1)
-                %     components{size(components, 1), 2} = [components{size(components, 1), 2}; [j, i]];
-                % end
-                % 
-                % % Check if component is not closed and delete it (minimum 100 pixels)
-                % invalid_component = 0;
-                % component = cell(0, 2);
-                % component{1, 1} = components{size(components, 1), 1};
-                % component{1, 2} = components{size(components, 1), 2};
-                % if (check_connected_component(component) == 0)
-                %     components(size(components, 1), :) = [];
-                %     invalid_component = 1;
-                % end
-                % 
-                % % If component is valid, apply polyfit
-                % if (invalid_component == 0)
-                %     components{size(components, 1), 1}(end+1,:) = components{size(components, 1), 1}(1,:);
-                % end
+                % Explore that component through the DFS algoritm
+                dfs(img_canny, i, j, color); 
             end
         end
-    end
-    
-    if VERBOSE > 0
-        I = zeros(size(img_result));
-        for i = 1:size(components, 1)
-            % plot component points
-            for j = 1:size(components{i, 1}, 1)
-                I(components{i, 1}(j, 2), components{i, 1}(j, 1), :) = [255, 255, 255];
-            end
-            % plot tails
-            for j = 1:size(components{i, 2}, 1)
-                I(components{i, 2}(j, 2), components{i, 2}(j, 1), :) = [255, 0, 0];
-            end
-        end
-        % I = [img, img_result, I];
-        figure;
-        imshow(img_result);
-        title('Components');
-    end
-    
+    end    
 end
 
+function dfs(img_canny, u_i, u_j, color)
 
-function dfs(u_i, u_j, color)
-
-    global img_canny;
     global visited;
     global img_result;
     global components;
-
-    % by row, from left
-    % add_i = [-1, -1, -1,  0,  0,  1,  1,  1];
-    % add_j = [-1,  0, +1, -1,  1, -1,  0,  1];
-    
-    % clockwise, from top-left
-    % add_i = [-1, -1, -1,  0, +1, +1, +1,  0];
-    % add_j = [-1,  0, +1, +1, +1,  0, -1, -1];
-    
-    % clockwise, from right
-    % add_i = [ 0, +1, +1, +1,  0, -1, -1, -1];
-    % add_j = [+1, +1,  0, -1, -1, -1,  0, +1];
     
     % crosses and then diagonals
     add_i = [ 0, +1,  0, -1, -1, +1, +1, -1];
@@ -123,6 +65,7 @@ function dfs(u_i, u_j, color)
     visited(u_i, u_j) = 1;
     img_result(u_i, u_j, :) = color;
     
+    % Push in the lastest new component this point
     components{size(components, 1), 1} = [components{size(components, 1), 1}; [u_j, u_i]];
         
     possible_tail = 1;
@@ -136,7 +79,7 @@ function dfs(u_i, u_j, color)
             visited(v_i, v_j) == 0 && ...
             img_canny(v_i, v_j) == 1)
             possible_tail = 0;
-            dfs(v_i, v_j, color);
+            dfs(img_canny, v_i, v_j, color);
         end
     end
     
@@ -264,47 +207,5 @@ function ans = check_tail(pixel_i, pixel_j)
     end
     
     ans = 0;
-    return;
-end
-
-
-function ans = check_connected_component(component)
-%     image = zeros(1080, 1920);
-    
-%     for j = 1:size(component{1, 1}, 1)
-%         image(component{1, 1}(j, 2), component{1, 1}(j, 1)) = 255;
-%     end
-%     image = cast(image, 'uint8');
-%     imshow(image);
-%     hold on;
-    
-    if (size(component{1, 2}, 1) > 2 || ...     % Tails Threshold
-        size(component{1, 2}, 1) == 1 || ...    % Tails Threeshold
-        size(component{1, 1}, 1) < 35 || ...    % Minumum Pixel Threeshold
-        ( ...
-            size(component{1, 2}, 1) == 2 && ...
-            sum(abs(component{1, 2}(1, :)' - component{1, 2}(2, :)')) > 8 ...   % Manhattan distance Threeshold
-        ))
-    
-           ans = 0;
-           return;
-        % Check distance beetween tails and point of the connected component
-%         for i = 1:size(component{1, 2}, 1)
-%             manhattan_distance = inf;
-%             for j = 1:size(component{1, 1}, 1)
-%                 tail = component{1, 2}(i, :);
-%                 point = component{1, 1}(j, :);
-%                 manhattan_distance = sum(abs(component{1, 2}(1, :)' - component{1, 2}(2, :)'))
-%             end
-%             if (manhattan_distance > 8) % Manhattan distance Threeshold
-%                 ans = 0;
-%                 return;
-%             end
-%         end
-%         
-%         return;
-    end
-    
-    ans = 1;
     return;
 end
