@@ -1,7 +1,46 @@
-function is_cvx_quad = check_quadrilateral(points, SUM_ANGLES_TOL, PARALLELISM_TOL, SIDE_TH_LOW, SIDE_TH_HIGH)
-    % points contain the vertices of a 2D figure
-    % points = [ [x1,y1]; [x2,y2]; ...; [xN,yN] ]
+function is_cvx_quad = check_quadrilateral(points, varargin)
+% CHECK_QUADRILATERAL Refinement of Perspective-n-Points (PnP) from 3D-2D correspondences.
+%   The points contain the vertices of a 2D figure
+%   points = [ [x1,y1]; [x2,y2]; ...; [xN,yN] ]
+%
+%   is_cvx_quad = CHECK_QUADRILATERAL(points, vargin)
+%
+%   Input arguments:
+%   ------------------
+%   points:     TODO
+%   vargin
+%
+%   Parameters:
+%   ------------------
+%   'sum_angles_tol':   TODO
+%   'parallelism_tol':  TODO
+%   'side_th_low':      TODO
+%   'side_th_high':     TODO
+%
+%   Output arguments:
+%   ------------------
+%   is_cvx_quad:        return 1 if this is a valid quadrilateral 0 otherwise
     
+    % Default values of parameters
+    default_sum_angles_tol = 10;
+    default_parallelism_tol = 15;
+    default_side_th_low = 10;
+    default_side_th_high = 700;
+    
+    % Input parser
+    p = inputParser;
+    addParameter(p, 'sum_angles_tol', default_sum_angles_tol);
+    addParameter(p, 'parallelism_tol', default_parallelism_tol);
+    addParameter(p, 'side_th_low', default_side_th_low);
+    addParameter(p, 'side_th_high', default_side_th_high);
+    parse(p, varargin{:});
+    
+    % Parse function parameters
+    SUM_ANGLES_TOL = p.Results.sum_angles_tol;
+    PARALLELISM_TOL = p.Results.parallelism_tol;
+    SIDE_TH_LOW = p.Results.side_th_low;
+    SIDE_TH_HIGH = p.Results.side_th_high;
+
     is_cvx_quad = 0;
     
     % Check if the points define a quadrilateral
