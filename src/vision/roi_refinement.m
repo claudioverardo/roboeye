@@ -1,8 +1,29 @@
 function [rois_refined, i_rois_refined] = roi_refinement(img, rois_raw, varargin)
 % Select candidate ROIs for matching
 %
-% rois_refined:   valid rois among the rois_raw
-% i_rois_refined: indices of the rois_refined in the rois_raw cell array
+%   [rois_refined, i_rois_refined] = ROI_REFINEMENT(img, rois_raw, varargin)
+%
+%   Input arguments:
+%   ------------------
+%   img:                    TODO
+%   rois_raw:               TODO
+%   varargin
+%
+%   Parameters:
+%   --------
+%   'method':               TODO
+%   'roi_size_th':          TODO
+%   'rdp_th':               TODO
+%   'roi_sum_angles_tol':   TODO	
+%   'roi_parallelism_tol':  TODO
+%   'roi_side_th_low':      TODO
+%   'roi_side_th_high':		TODO
+%   'verbose':              TODO
+%
+%   Output arguments:
+%   ------------------
+%   rois_refined:           valid rois among the rois_raw
+%   i_rois_refined:         indices of the rois_refined in the rois_raw cell array
 
     % Default values of parameters
     default_method = 'rdp';
@@ -62,7 +83,11 @@ function [rois_refined, i_rois_refined] = roi_refinement(img, rois_raw, varargin
             roi_refined = roi_refinement_core(roi);
 
             % Check if the ROI is a valid quadrilateral
-            if check_quadrilateral(roi_refined, ROI_SUM_ANGLES_TOL, ROI_PARALLELISM_TOL, ROI_SIDE_TH_LOW, ROI_SIDE_TH_HIGH) == 1
+            if check_quadrilateral(roi_refined, ...
+                'sum_angles_tol', ROI_SUM_ANGLES_TOL, ...
+                'parallelism_tol', ROI_PARALLELISM_TOL, ...
+                'side_th_low', ROI_SIDE_TH_LOW, ...
+                'side_th_high', ROI_SIDE_TH_HIGH) == 1
 
                 % ROI ok, add to rois
                 rois_refined{end+1,1} = roi_refined;
