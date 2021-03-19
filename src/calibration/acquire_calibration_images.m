@@ -1,8 +1,8 @@
-function images = acquire_calibration_images(num_images, cameras, dirs_images)
+function images = acquire_calibration_images(n_images, cameras, dirs_images)
     % images{i,j} the i-th image acquired from the j-th camera
 
     num_cameras = length(cameras);
-    images = cell(num_images,num_cameras);
+    images = cell(n_images,num_cameras);
 
     fprintf('---- Acquire calibration images [%d cameras] ----\n', num_cameras);
     
@@ -15,7 +15,7 @@ function images = acquire_calibration_images(num_images, cameras, dirs_images)
     fprintf('START in');
     print_countdown(8);
     
-    for i = 1:num_images
+    for i = 1:n_images
         
         fprintf('Acquisition %d ...', i);
         
@@ -27,7 +27,7 @@ function images = acquire_calibration_images(num_images, cameras, dirs_images)
             
         end
 
-        if i < num_images
+        if i < n_images
             fprintf(' next in');
             print_countdown(3);
         else

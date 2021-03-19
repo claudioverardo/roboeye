@@ -33,8 +33,11 @@ ARUCO_POSE_ESTIMATION_VERBOSE = 0;
 
 %--------- TEST from camera ----------
 
-cam = webcam(1);
-img = snapshot(cam);
+% cam = webcam(1);
+% img = snapshot(cam);
+% img = imread('../assets/img_tests/test9/img1.png'); % 2 aruco
+% img = imread('../assets/img_tests/test9/img2.png'); % 3 aruco
+img = imread('../assets/img_tests/test9/img3.png'); % 4 aruco
 
 aruco_real_sides = [3 3 6 6]; % [cm]
 load('aruco_markers_8x8_camera.mat');

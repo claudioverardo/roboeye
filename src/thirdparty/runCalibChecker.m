@@ -1,10 +1,11 @@
-function [P, K, internal] = runCalibChecker(num_imgs, datadir)
+function [P, K, internal] = runCalibChecker(files, NumIntPar, NumRadDist)
 % Calibrate camera from checkerboard images (SMZ calibration)
 
-    NumIntPar  = 4; % # of internal parameters (typ. 4 or 5)
-    NumRadDist = 1; % # of radial distortion coefficients (typ. 1 or 2).
+    % NumIntPar  = 5; % # of internal parameters (typ. 4 or 5)
+    % NumRadDist = 1; % # of radial distortion coefficients (typ. 1 or 2).
 
-    files = findImages(datadir);
+    % files = findImages(datadir);
+    num_imgs = numel(files);
 
     % Generate world point coordinates for the pattern
     stepSize = 30; % side of the squarein millimeters
