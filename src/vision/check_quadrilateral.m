@@ -1,25 +1,32 @@
 function is_valid_quad = check_quadrilateral(points, varargin)
-% CHECK_QUADRILATERAL Refinement of Perspective-n-Points (PnP) from 3D-2D correspondences.
-%   The points contain the vertices of a 2D figure
-%   points = [ [x1,y1]; [x2,y2]; ...; [xN,yN] ]
+% CHECK_QUADRILATERAL Check if the set of input points defines a
+% valid quadrilateral (close to a parallelogram shape)
 %
-%   is_valid_quad = CHECK_QUADRILATERAL(points, vargin)
+%   is_valid_quad = CHECK_QUADRILATERAL(points)
 %
 %   Input arguments:
 %   ------------------
-%   points:     TODO
-%   vargin
+%   points:             Array Nx2
+%                       Example [ [x1,y1]; [x2,y2]; ...; [xN,yN] ]
 %
 %   Parameters:
 %   ------------------
-%   'sum_angles_tol':   TODO
-%   'parallelism_tol':  TODO
-%   'side_th_low':      TODO
-%   'side_th_high':     TODO
+%   'sum_angles_tol':   tolerance on the sum of the internal angles [degrees]
+%   'parallelism_tol':  tolerance on the angle between opposite sides [degrees]
+%   'side_th_low':      lower threshold on the length of each side [pixels]
+%   'side_th_high':     higher threshold on the length of each side [pixels]
 %
 %   Output arguments:
 %   ------------------
 %   is_valid_quad:      return 1 if this is a valid quadrilateral 0 otherwise
+%
+%   NOTE shapes will be discarded when one of the following conditions is met
+%   - sum of the internal angles > 360° + sum_angles_tol 
+%   - angle between opposide sides > parallelism_tol
+%   - length of side lower than side_th_low
+%   - length of side greater than side_th_high
+%
+%   See also ROI_REFINEMENT
     
     % Default values of parameters
     default_sum_angles_tol = 10;

@@ -1,5 +1,6 @@
 function [R, t, reproj_err] = pnp_nonlin(R0, t0, X_image, X_world, K)
 % PNP_NONLIN Refinement of Perspective-n-Points (PnP) from 3D-2D correspondences.
+%
 %   [R, t] = PNP_NONLIN(R0, t0, X_image, X_world, K) refines the input camera 
 %   pose R0, t0 from a set of 2D-3D correspondences defined by X_image, X_world 
 %   respectively. The algorithm minimizes the reprojection errors.
@@ -13,17 +14,17 @@ function [R, t, reproj_err] = pnp_nonlin(R0, t0, X_image, X_world, K)
 %               typically calculate through the pnp_lin function
 %   t0:         Initial translate vector for the non-linear iterative method,
 %               typically calculate through the pnp_lin function
-%   X_image:    Nx2 array
-%   X_world:    Nx3 array
+%   X_image:    Nx2 array, 2D image points
+%   X_world:    Nx3 array, 3D world points
 %   K:          Intrisics matrix of the input camera
 %
 %   Output arguments:
 %   ------------------
-%   R:          rotation matrix 3x3
-%   t:          translate vector 3x1
+%   R:          rotation matrix 3x3 (Matlab convetion)
+%   t:          translate vector 1x3 (Matlab convetion)
 %   reproj_err: reprojection error (RMS value)
 %
-%   NOTE: points and K with Matlab conventions, X_image = X_world*[R;t]*K.
+%   NOTE: points and K with Matlab conventions, X_image = X_world*[R; t]*K.
 %
 %   See also PNP_LIN, REPROJECTION_ERROR
     

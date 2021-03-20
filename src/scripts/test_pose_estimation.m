@@ -10,7 +10,7 @@ CANNY_TH_LOW  = 0.01;
 CANNY_TH_HIGH = 0.10;
 
 % ROI refinement parameters
-ROI_REFINEMENT_METHOD = 'rdp'; % rdp, geometric
+ROI_REFINEMENT_METHOD = 'geometric'; % rdp, geometric
 ROI_SIZE_TH = 50;
 RDP_TH = 0.1;  % Ramer–Douglas–Peucker threshold
 ROI_SUM_ANGLES_TOL  = 10; % [degrees]
@@ -24,10 +24,10 @@ ROI_H_SIDE = 80;
 ROI_HAMMING_TH  = 3;
 
 % Debug/Analysis
-ROI_EXTRACTION_VERBOSE = 0; % 1: show roi_extracted  2: + adaptth/canny 
-ROI_REFINEMENT_VERBOSE = 0; % 1: show roi_refined    2: + roi_discarded
-ROI_MATCHING_VERBOSE   = 0; % 1: show roi_matched    2: + log roi_matched  3: + log roi_refined
-ROI_PNP_VERBOSE        = 2; % 1: show roi_pnp        2: + aruco id/error
+ROI_EXTRACTION_VERBOSE        = 0; % 1: show roi_extracted  2: + adaptth/canny 
+ROI_REFINEMENT_VERBOSE        = 0; % 1: show roi_refined    2: + roi_discarded
+ROI_MATCHING_VERBOSE          = 0; % 1: show roi_matched    2: + log roi_matched  3: + log roi_refined
+ROI_POSE_ESTIMATION_VERBOSE   = 2; % 1: show roi_pnp        2: + aruco id/error
 ARUCO_DETECTION_VERBOSE       = 0; % TODO
 ARUCO_POSE_ESTIMATION_VERBOSE = 0; % TODO
 
@@ -106,7 +106,7 @@ K = K'; % intrinsics from Fusiello toolkit
     'roi_extraction_verbose', ROI_EXTRACTION_VERBOSE, ...
     'roi_refinement_verbose', ROI_REFINEMENT_VERBOSE, ...
     'roi_matching_verbose', ROI_MATCHING_VERBOSE, ...
-    'roi_pnp_verbose', ROI_PNP_VERBOSE, ...
+    'roi_pose_estimation_verbose', ROI_POSE_ESTIMATION_VERBOSE, ...
     'aruco_detection_verbose', ARUCO_DETECTION_VERBOSE, ...
     'verbose', ARUCO_POSE_ESTIMATION_VERBOSE ...
 );

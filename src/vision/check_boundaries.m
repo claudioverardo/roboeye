@@ -1,5 +1,6 @@
 function check_ans = check_boundaries(i, j, img_size)
 % CHECK_BOUNDARIES  Match Aruco markers with candidate ROIs.
+%
 %   check_ans = CHECK_BOUNDARIES(i, j, img_size) the function returns 1 if
 %   the coordinates of the point (i, j) are inside the img_size. 
 %
@@ -12,6 +13,8 @@ function check_ans = check_boundaries(i, j, img_size)
 %   Output arguments:
 %   ------------------
 %   check_ans:  1 if the point is inside the image size 0 otherwiae
+%
+%   See also ROI_EXTRACTION_DFS
 
 
     check_ans = 0;

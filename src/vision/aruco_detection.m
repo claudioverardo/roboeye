@@ -1,4 +1,24 @@
 function [rois_matched, i_arucos] = aruco_detection(img, aruco_markers, varargin)
+% ARUCO_DETECTION Build Aruco detection pipeline. It executes in
+% order roi_extraction(...), roi_refinement(...), roi_matching(...)
+%
+%   [rois_matched, i_arucos] = ARUCO_DETECTION(img, aruco_markers)
+%
+%   Input arguments:
+%   ------------------
+%   img:            input image
+%   aruco_markers:  input marker dictionary
+%
+%   Parameters:
+%   ------------------
+%   Refers to roi_extraction(...), roi_refinement(...), roi_matching(...)
+%
+%   Output arguments:
+%   ------------------
+%   rois_matched:   matched rois among the rois
+%   i_arucos:       indices of the matched marker for every rois matched 
+%
+%   See also ROI_EXTRACTION, ROI_REFINEMENT, ROI_MATCHING
 
     % Conveter image to grayscale
     img_gray = rgb2gray(img);
@@ -103,7 +123,7 @@ function [rois_matched, i_arucos] = aruco_detection(img, aruco_markers, varargin
     % Match Aruco markers with candidate ROIs.
     % NB: rois_matched contains sorted vertices of ROIs
     fprintf('roi_matching...\n');
-    [rois_matched, i_rois_matched, i_arucos, k_rots] = roi_matching(...
+    [rois_matched, i_rois_matched, i_arucos] = roi_matching(...
         img, img_gray, rois_refined, aruco_markers, ...
         'roi_bb_padding', ROI_BB_PADDING, ...
         'roi_h_side', ROI_H_SIDE, ...

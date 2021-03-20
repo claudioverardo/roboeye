@@ -1,29 +1,36 @@
 function [rois_refined, i_rois_refined] = roi_refinement(img, rois_raw, varargin)
-% Select candidate ROIs for matching
+% ROI_REFINEMENT Select candidate ROIs for matching
 %
-%   [rois_refined, i_rois_refined] = ROI_REFINEMENT(img, rois_raw, varargin)
+%   [rois_refined, i_rois_refined] = ROI_REFINEMENT(img, rois_raw)
 %
 %   Input arguments:
 %   ------------------
-%   img:                    TODO
-%   rois_raw:               TODO
-%   varargin
+%   img:                    input image
+%   rois_raw:               extracted region of interests
 %
 %   Parameters:
-%   --------
-%   'method':               TODO
-%   'roi_size_th':          TODO
-%   'rdp_th':               TODO
-%   'roi_sum_angles_tol':   TODO	
-%   'roi_parallelism_tol':  TODO
-%   'roi_side_th_low':      TODO
-%   'roi_side_th_high':		TODO
-%   'verbose':              TODO
+%   ------------------
+%   'method':               Choose the roi refinement algorithm
+%                           'rdp': Ramer-Douglas–Peucker 
+%                           'geometric': Extreme corners for each quadrilateral side
+%   'roi_size_th':          minimun number of points require by each roi to be processed
+%   'rdp_th':               threshold of the Ramer-Douglas–Peucker algorithm
+%   'roi_sum_angles_tol':   tolerance on the sum of the internal angles [degrees]
+%   'roi_parallelism_tol':  tolerance on the angle between opposite sides [degrees]
+%   'roi_side_th_low':      lower threshold on the length of each side
+%                           (normalized wrt the diagonal of the image)
+%   'roi_side_th_high':     higher threshold on the length of each side
+%                           (normalized wrt the diagonal of the image)
+%   'verbose':              verbose level of the function (allowed values 0, 1, 2)
 %
 %   Output arguments:
 %   ------------------
 %   rois_refined:           valid rois among the rois_raw
 %   i_rois_refined:         indices of the rois_refined in the rois_raw cell array
+%
+%   NOTE to use the Ramer-Douglas–Peucker('rdp') you need Matlab >= 2019b
+%
+%   See also ARUCO_DETECTION
 
     % Default values of parameters
     default_method = 'rdp';
@@ -69,7 +76,7 @@ function [rois_refined, i_rois_refined] = roi_refinement(img, rois_raw, varargin
     end
     
     % Dimension of the diagonal of the image
-    diag_img = norm(size(img,1:2));
+    diag_img = norm([size(img, 1), size(img, 2)]);
     
     % Select only the valid ROIs among the rois_raw
     rois_refined = cell(0);
