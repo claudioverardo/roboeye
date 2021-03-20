@@ -1,4 +1,4 @@
-function [P, K, internal] = runCalibChecker(files, NumIntPar, NumRadDist)
+function [P, K, internal] = runCalibChecker(files, control_points, NumIntPar, NumRadDist, cm2px_scale)
 % Calibrate camera from checkerboard images (SMZ calibration)
 
     % NumIntPar  = 5; % # of internal parameters (typ. 4 or 5)
@@ -8,12 +8,13 @@ function [P, K, internal] = runCalibChecker(files, NumIntPar, NumRadDist)
     num_imgs = numel(files);
 
     % Generate world point coordinates for the pattern
-    stepSize = 30; % side of the squarein millimeters
+    stepSize = 3; % side of the square in centimeters
     gridArrangement = [8, 6];  % # rows by # columns
     M_grid = generateGridPoints(gridArrangement, stepSize, 'Checker');
 
     % read images
     for i=1:num_imgs
+        % pause(1);
         close all;
 
         fprintf('Processing img %d: %s ... \n', i, files(i).name);
@@ -24,7 +25,7 @@ function [P, K, internal] = runCalibChecker(files, NumIntPar, NumRadDist)
         figure(1), imshow(I,[],'InitialMagnification','fit');
 
         % detect grid points
-        m_grid{i} = findGridPoints(I, M_grid(1:2,:),'Checker',i,files(i));
+        m_grid{i} = findGridPoints(I, 'Checker', M_grid(1:2,:), control_points{i}, files(i), cm2px_scale);
 
         figure(1), hold on;
         % plot(m_grid{i}(1,:), m_grid{i}(2,:), 'oc','MarkerSize',15);
@@ -65,9 +66,9 @@ function [P, K, internal] = runCalibChecker(files, NumIntPar, NumRadDist)
     % 3D plot
     figure, plot3(M(1,:),M(2,:),M(3,:),'+k'), hold on
     for i = 1: length(P)
-        plotcam(P{i}, 50)
+        plotcam(P{i}, 5)
     end
-    xlabel('X'), ylabel('Y'), zlabel('Z')
+    xlabel('X (cm)'), ylabel('Y (cm)'), zlabel('Z (cm)')
 
     % Put the internal parameters in a table for pretty printing
     K = krt(P{1});

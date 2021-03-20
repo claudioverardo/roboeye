@@ -3,10 +3,10 @@ function M_grid = generateGridPoints(gridArrangement, stepSize, method)
     %
     % Input:
     %       - gridArrangement: rows, columns
-    %       - stepSize: side of the square in mm
+    %       - stepSize: side of the square in cm
     %       - method: {April, Checker, Rig}
     % Output:
-    %       - M_grid: grid points in 3D object-space (mm)
+    %       - M_grid: grid points in 3D object-space (cm)
     
     n_cols = gridArrangement(2);  % # of columns
     n_rows = gridArrangement(1);  % # of rows

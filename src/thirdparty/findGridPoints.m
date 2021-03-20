@@ -1,12 +1,13 @@
-function [m_grid,detected] = findGridPoints(I,M_grid,method,i,file)
+function [m_grid, detected] = findGridPoints(I, method, M_grid, control_points, file, cm2px_scale)
     % Find grid points in image I
     %
     % Input:
     %       - I: image
-    %       - M_grid: grid points in 2D object-space (mm)
     %       - method: {April, Checker, Rig}
-    %       - i: image index
+    %       - M_grid: grid points in 2D object-space (cm)
+    %       - control_points: grid delimiters in image space (pixels)
     %       - file: filename of the image being processed
+    %       - cm2px_scale: dimension in cm of 1 pixel of the rectified image
     % Output:
     %       - m_grid: grid points detected in image space (pixels)
     
@@ -23,11 +24,12 @@ function [m_grid,detected] = findGridPoints(I,M_grid,method,i,file)
         % positions determined by M_grid transformed according to the
         % homography H
         
-        scale = .5; % dimension in mm of 1 pixel of the rectified image
+        % scale = .05; % dimension in cm of 1 pixel of the rectified image
         % The larger the scale, the smaller the rectified image, the faster
         % the detection, the lower the accuray
+        scale = cm2px_scale;
         
-        % scale M_grid (mm) to pixels
+        % scale M_grid (cm) to pixels
         M_grid = M_grid(1:2,:)./scale;
         % step size in pixels
         size_pix = round(M_grid(1,2) - M_grid(1,1));
@@ -41,7 +43,8 @@ function [m_grid,detected] = findGridPoints(I,M_grid,method,i,file)
                 
                 % this is only for testing, normally the user should
                 % provide input here
-                load([file.folder,'/m4']);  m4 = m4{i};
+                % load([file.folder,'/m4']);  m4 = m4{i};
+                m4 = control_points;
                 % get points from the user anticlockwise fron the top-left
                 % figure(1),  m4 = ginput';
                 
@@ -57,7 +60,8 @@ function [m_grid,detected] = findGridPoints(I,M_grid,method,i,file)
                 
                 % this is only for testing, normally the user should
                 % provide input here
-                load([file.folder,'/m4']);  m4 = m4{i};
+                % load([file.folder,'/m4']);  m4 = m4{i};
+                m4 = control_points;
                 % get points from the user in a given sequence
                 % figure(1),  m4 = ginput';
                 
