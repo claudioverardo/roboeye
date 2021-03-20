@@ -1,4 +1,4 @@
-function [rois, i_arucos, rois_R, rois_t] = aruco_pose_estimation(img, aruco_markers, aruco_real_sides, K, R_cam, t_cam varargin)
+function [rois, i_arucos, rois_R, rois_t] = aruco_pose_estimation(img, aruco_markers, aruco_real_sides, K, R_cam, t_cam, varargin)
 % ARUCO_POSE_ESTIMATION Build Aruco pose estimation pipeline. It executes in
 % order aruco_detection(...), roi_pose_estimation(...)
 %

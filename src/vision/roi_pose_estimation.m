@@ -10,15 +10,17 @@ function [R, t] = roi_pose_estimation(img, rois, i_arucos, aruco_real_sides, K, 
 %   i_arucos:           indices of the matched marker for every rois matched 
 %   aruco_real_sides:   lengths of the markers in the dictionary [cm]
 %   K:                  intrisics matrix of the camera (Matlab convention)
+%   R_cam:              rotation matrix of the camera pose in the world frame (Matlab convention)
+%   t_cam:              translation matrix of the camera pose in the world frame (Matlab convention)
 %   
 %   Parameters:
 %   --------
-%   'verbose:           verbose level of the function (allowed values 0, 1, 2, 3)
+%   'verbose:           verbose level of the function (allowed values 0, 1, 2)
 %
 %   Output arguments:
 %   ------------------
-%   R:                  rotation matrix of the roi pose (Matlab convention)
-%   t:                  translation vector of the roi pose (Matlab convention)
+%   R:                  rotation matrix of the roi pose in the world frame (Matlab convention)
+%   t:                  translation vector of the roi pose in the world frame (Matlab convention)
 %
 %   See also ARUCO_POSE_ESTIMATION
 
@@ -52,20 +54,27 @@ function [R, t] = roi_pose_estimation(img, rois, i_arucos, aruco_real_sides, K, 
     R_rel = cell(n_rois,1);
     t_rel = cell(n_rois,1);
     P_rel = cell(n_rois,1);
+    R = cell(n_rois,1);
+    t = cell(n_rois,1);
+    P = cell(n_rois,1);
     for i=1:n_rois
         
-        % Pose (rotation + translation)
+        % Relative pose (wrt the camera) - rotation + translation
         [R_rel{i}, t_rel{i}, reproj_err_lin] = pnp_lin(rois{i}, rois_world{i_arucos(i)}, K);
-        % Non linear refinement of the pose
+        % Non linear refinement of the relative pose
         [R_rel{i}, t_rel{i}, reproj_err_nonlin] = pnp_nonlin(R_rel{i}, t_rel{i}, rois{i}, rois_world{i_arucos(i)}, K);
-        % Projective matrix
+        % Projective matrix with the camera as origin
         P_rel{i} = [R_rel{i}; t_rel{i}]*K;
         
         if VERBOSE > 1
             fprintf('ROI %d: reproj error (RMS) lin: %f -- nonlin: %f\n', i, reproj_err_lin, reproj_err_nonlin);
         end
         
-        % delta_T = T2*inv(T1);
+        % Pose in the world frame
+        R{i} = R_rel{i}*R_cam'; 
+        t{i} = t_rel{i}*R_cam' - t_cam*(R_cam');
+        % Projective matrix in the world frame
+        P{i} = [R{i}; t{i}]*K;
         
     end
     

@@ -76,8 +76,8 @@ load('../assets/calibration/extrinsics_cam1/t.mat', 't');
 %---------------------------------
 
 K = K'; % intrinsics from Fusiello toolkit
-R = R';
-t = t';
+% R = R';
+% t = t';
 
 % Camera intrinsics object
 % K(1,1) = -K(1,1);
