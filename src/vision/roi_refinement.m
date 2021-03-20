@@ -29,8 +29,8 @@ function [rois_refined, i_rois_refined] = roi_refinement(img, rois_raw, varargin
     default_method = 'rdp';
     default_roi_size_th = 20;
     default_rdp_th = 0.1;
-    default_roi_side_th_low = 10;
-    default_roi_side_th_high = 700;
+    default_roi_side_th_low = 1/100;
+    default_roi_side_th_high = 1/5;
     default_roi_sum_angles_tol = 10;
     default_roi_parallelism_tol = 15;
     default_verbose = 1;
@@ -68,10 +68,13 @@ function [rois_refined, i_rois_refined] = roi_refinement(img, rois_raw, varargin
         error('Error: Invalid ROI_REFINEMENT_METHOD = \"%s\"', METHOD);
     end
     
+    % Dimension of the diagonal of the image
+    diag_img = norm(size(img,1:2));
+    
+    % Select only the valid ROIs among the rois_raw
     rois_refined = cell(0);
     i_rois_refined = [];
     rois_discarded = cell(0);
-
     for i = 1:size(rois_raw, 1)
         
         roi = rois_raw{i};
@@ -86,8 +89,8 @@ function [rois_refined, i_rois_refined] = roi_refinement(img, rois_raw, varargin
             if check_quadrilateral(roi_refined, ...
                 'sum_angles_tol', ROI_SUM_ANGLES_TOL, ...
                 'parallelism_tol', ROI_PARALLELISM_TOL, ...
-                'side_th_low', ROI_SIDE_TH_LOW, ...
-                'side_th_high', ROI_SIDE_TH_HIGH) == 1
+                'side_th_low', ROI_SIDE_TH_LOW*diag_img, ...
+                'side_th_high', ROI_SIDE_TH_HIGH*diag_img) == 1
 
                 % ROI ok, add to rois
                 rois_refined{end+1,1} = roi_refined;
@@ -141,9 +144,9 @@ function [rois_refined, i_rois_refined] = roi_refinement(img, rois_raw, varargin
         title(sprintf('Refined ROIs N=%d', n_rois_refined));
         if n_rois_refined > 0
             legend(lines_refined_obj, lines_refined_str{:});
-            if n_rois_discarded > 0 && VERBOSE > 1
-                legend([lines_refined_obj line_discarded_obj], lines_refined_str{:}, lines_discarded_str);
-            end
+        end
+        if n_rois_discarded > 0 && VERBOSE > 1
+            legend([lines_refined_obj line_discarded_obj], lines_refined_str{:}, lines_discarded_str);
         end
         
     end

@@ -15,8 +15,8 @@ ROI_SIZE_TH = 50;
 RDP_TH = 0.1;  % Ramer–Douglas–Peucker threshold
 ROI_SUM_ANGLES_TOL  = 10; % [degrees]
 ROI_PARALLELISM_TOL = 20; % [degrees]
-ROI_SIDE_TH_LOW  = 15;    % [pixels]
-ROI_SIDE_TH_HIGH = 350;   % [pixels]
+ROI_SIDE_TH_LOW  = 1/100; % [% diag(img)]
+ROI_SIDE_TH_HIGH = 1/5;   % [% diag(img)]
 
 % ROI matching parameters
 ROI_BB_PADDING  = 2;
@@ -28,10 +28,10 @@ ROI_EXTRACTION_VERBOSE = 0; % 1: show roi_extracted  2: + adaptth/canny
 ROI_REFINEMENT_VERBOSE = 0; % 1: show roi_refined    2: + roi_discarded
 ROI_MATCHING_VERBOSE   = 0; % 1: show roi_matched    2: + log roi_matched  3: + log roi_refined
 ROI_PNP_VERBOSE        = 2; % 1: show roi_pnp        2: + aruco id/error
-ARUCO_DETECTION_VERBOSE       = 0;
-ARUCO_POSE_ESTIMATION_VERBOSE = 0;
+ARUCO_DETECTION_VERBOSE       = 0; % TODO
+ARUCO_POSE_ESTIMATION_VERBOSE = 0; % TODO
 
-%--------- TEST from camera ----------
+%--------- TEST img_tests9 (from camera) ----------
 
 % cam = webcam(1);
 % img = snapshot(cam);
@@ -40,11 +40,11 @@ ARUCO_POSE_ESTIMATION_VERBOSE = 0;
 img = imread('../assets/img_tests/test9/img3.png'); % 4 aruco
 
 aruco_real_sides = [3 3 6 6]; % [cm]
-load('aruco_markers_8x8_camera.mat');
-load('../assets/calibration/01/K.mat', 'K');
-load('../assets/calibration/01/intrinsics.mat', 'intrinsics');
+load('../assets/aruco_markers/aruco_markers_8x8_camera.mat');
+load('../assets/calibration/intrinsics_cam1/K.mat', 'K');
+load('../assets/calibration/intrinsics_cam1/intrinsics.mat', 'intrinsics');
 
-%---------- TEST img_tests -----------
+%---------- TEST img_tests6-8 (old setup) -----------
 
 % img = imread('../assets/img_tests/test6/images1_01.png');
 % img = imread('../assets/img_tests/test7/images1_01.png');
@@ -52,10 +52,10 @@ load('../assets/calibration/01/intrinsics.mat', 'intrinsics');
 % img = imread('../assets/img_tests/test8/images2_01.png');
 
 % aruco_real_sides = [3 3]; % [cm]
-% load('aruco_markers_8x8.mat');
-% load('data/K.mat', 'K');
+% load('../assets/aruco_markers/aruco_markers_8x8_camera.mat');
+% load('../assets/calibration/K_old.mat', 'K');
 
-%---------- TEST img_iPhone ----------
+%---------- TEST img_tests iPhone ----------
 
 % Load image
 % img = imread('../assets/img_tests/test_iPhone/File_001.jpeg');
@@ -68,8 +68,8 @@ load('../assets/calibration/01/intrinsics.mat', 'intrinsics');
 % img = imresize(img, [900 1200]);
 
 % aruco_real_sides = 6; % [cm]
-% load('aruco_markers_8x8_iPhone.mat');
-% load('data/K_iPhone.mat');
+% load('../assets/aruco_markers/aruco_markers_8x8_iPhone.mat');
+% load('../assets/calibration/K_iPhone.mat');
 
 %---------------------------------
 

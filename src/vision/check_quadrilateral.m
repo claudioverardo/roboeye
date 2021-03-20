@@ -1,9 +1,9 @@
-function is_cvx_quad = check_quadrilateral(points, varargin)
+function is_valid_quad = check_quadrilateral(points, varargin)
 % CHECK_QUADRILATERAL Refinement of Perspective-n-Points (PnP) from 3D-2D correspondences.
 %   The points contain the vertices of a 2D figure
 %   points = [ [x1,y1]; [x2,y2]; ...; [xN,yN] ]
 %
-%   is_cvx_quad = CHECK_QUADRILATERAL(points, vargin)
+%   is_valid_quad = CHECK_QUADRILATERAL(points, vargin)
 %
 %   Input arguments:
 %   ------------------
@@ -19,7 +19,7 @@ function is_cvx_quad = check_quadrilateral(points, varargin)
 %
 %   Output arguments:
 %   ------------------
-%   is_cvx_quad:        return 1 if this is a valid quadrilateral 0 otherwise
+%   is_valid_quad:      return 1 if this is a valid quadrilateral 0 otherwise
     
     % Default values of parameters
     default_sum_angles_tol = 10;
@@ -41,7 +41,7 @@ function is_cvx_quad = check_quadrilateral(points, varargin)
     SIDE_TH_LOW = p.Results.side_th_low;
     SIDE_TH_HIGH = p.Results.side_th_high;
 
-    is_cvx_quad = 0;
+    is_valid_quad = 0;
     
     % Check if the points define a quadrilateral
     if size(points,1) == 4
@@ -74,7 +74,7 @@ function is_cvx_quad = check_quadrilateral(points, varargin)
                 % Check if the points define very small or very large sides
                 if all(V_norm > SIDE_TH_LOW) && all(V_norm < SIDE_TH_HIGH)
            
-                    is_cvx_quad = 1;
+                    is_valid_quad = 1;
 
                 end
             
