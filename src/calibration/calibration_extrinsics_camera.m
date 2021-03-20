@@ -1,4 +1,26 @@
 function [R, t] = calibration_extrinsics_camera(cam, K, dir, cm2px_scale)
+% CALIBRATION_EXTRINSICS_CAMERA Retrive the camera rotation and the 
+%   translation vector of the camera pose in the world frame
+%
+%   [R, t] = CALIBRATION_EXTRINSICS_CAMERA(cam, K, dir, cm2px_scale)
+%
+%   Input arguments:
+%   ------------------
+%   cam:            webcam object  
+%   K:              extrinsics matrix of the camera (literature convention)
+%   dir:            directory where the script write and read the
+%                   calibration .mat files
+%   cm2px_scale:    dimension in cm of 1 pixel of the rectified image               
+%
+%   Output arguments:
+%   ------------------
+%   R:              camera rotation matrix in the world frame (literature convention)
+%   t:              translation vector of the camera pose in the world frame (literature convention)
+%   
+%   NOTE to use this script you need the MATLAB Support Package for USB Webcams
+%        and Computer Vision Toolkit (http://www.diegm.uniud.it/fusiello/demo/toolkit/)
+%
+%   See also PNP_LIN, PNP_NONLIN, CALIBRATION_INTRINSICS_CAMERA
 
     fprintf('------ Camera Calibration (Extrinsics) ------\n');
     fprintf('%s\n', dir);
@@ -110,5 +132,7 @@ function [R, t] = calibration_extrinsics_camera(cam, K, dir, cm2px_scale)
     end
     
     legend([line_control_points lines_axes], 'control points', 'pose x-axis', 'pose y-axis', 'pose z-axis');
-
+    R = R';
+    t = t';
+    
 end

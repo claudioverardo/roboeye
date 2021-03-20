@@ -1,5 +1,21 @@
 function [R,t,G] = get_extrinsics_camera(P, K) 
-% Retrieve camera pose T from projective matrix P and intrinsics K
+% GET_EXTRINSICS_CAMERA Retrieve extrinsics of cameras from projective matrices 
+%   and intrinsics matrices
+%
+%   [R,t] = GET_EXTRINSICS_CAMERA(P, K) 
+%
+%   [R,t,G] = GET_EXTRINSICS_CAMERA(P, K) 
+%
+%   Input arguments:
+%   ------------------
+%   P: projective matrices (literature convention)  
+%   K: intrinsics matrices (literature convention)
+%
+%   Output arguments:
+%   ------------------
+%   R: rotation matrices (literature convention)
+%   t: translation vectors (literature convention)
+%   G: roto-translation matrices (literature convention)
 
     n_cameras = numel(P);
     

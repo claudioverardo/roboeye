@@ -1,4 +1,29 @@
 function [P, K, intrinsics] = calibration_intrinsics_camera(dir_images, n_intrinsics, n_radial_dist, cm2px_scale)
+% CALIBRATION_INTRINSICS_STEREO Retrive the intrisics of a camera via 
+%   SMZ calibration (wrapper of the runCalibChecker)
+%
+%   [P, K, intrinsics] = CALIBRATION_INTRINSICS_STEREO(dir_images, n_intrinsics, n_radial_dist, cm2px_scale)
+%
+%   Input arguments:
+%   ------------------
+%   dir_images:     folder containing the images fot the SMZ calibration    
+%   n_intrinsics:   number of intrisics to be calibrated (4, 5)
+%                   4: fx, fy, u0, v0
+%                   5: fx, fy, u0, v0, skew
+%   n_radial_dist:  number of the distortion coefficient to be calibrated (1, 2)
+%   cm2px_scale:    dimension in cm of 1 pixel of the rectified image           
+%
+%   Output arguments:
+%   ------------------
+%   P:              projection matrices of the cameras (literature convention)
+%   K:              calibrated intrisics matrices (literature convention)
+%   intrinsics:     table with intrinsics parameters and radial distortion
+%                   coefficients 
+%
+%   NOTE to use this script you need Computer Vision Toolkit 
+%        (http://www.diegm.uniud.it/fusiello/demo/toolkit/)
+%
+%   See also RUNCALIBCHECKER
 
     fprintf('------ Camera Calibration (Intrinsics) ------\n');
     fprintf('%s\n', dir_images);

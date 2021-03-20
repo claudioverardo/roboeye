@@ -1,5 +1,27 @@
 function [delta_R, delta_t, E, F] = calibration_extrinsics_stereo(P1, K1, P2, K2, dir)
-% Find the relative pose of cam2 wrt cam1 and their epipolar geometry
+% CALIBRATION_EXTRINSICS_STEREO Retrive the relative position of the second
+%   camera wrt to the first one in a calibrated stereo pair
+%
+%   [delta_R, delta_t, E, F] = CALIBRATION_EXTRINSICS_STEREO(P1, K1, P2, K2, dir)
+%
+%   Input arguments:
+%   ------------------
+%   P1:         projection matrix of the first camera (literature convention)    
+%   K1:         intrinsics matrix of the first camera (literature convention)   
+%   P2:         projection matrix of the second camera (literature convention)    
+%   K2          intrinsics matrix of the second camera (literature convention)   
+%   dir:        cell array of the folder names where the script save the results          
+%
+%   Output arguments:
+%   ------------------
+%   delta_R:    rotation matrix of the pose of second camera wrt the 
+%               first camera (literature convention)
+%   delta_t:    translation vector of the pose of second camera wrt the 
+%               first camera (literature convention)
+%   E:          essential matrix of the stereo pair (literature convention)
+%   F:          fundamental matrix of the stereo pair (literature convention)
+%
+%   See also CALIBRATION_INTRINSICS_CAMERA
 
     fprintf('------ Stereo Calibration (Extrinsics) ------\n');    
     

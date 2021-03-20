@@ -1,5 +1,11 @@
 function print_countdown(length)
-    % length [s]
+% PRINT_COUNTDOWN plot on the screen the countdown of length seconds
+%
+%   PRINT_COUNTDOWN(length)
+%
+%   Input arguments:
+%   ------------------
+%   length: duration of the countdown [s]
     
     for i=1:length
         fprintf(' %d', length-i+1);
