@@ -1,24 +1,37 @@
-function [R, t] = roi_pnp(img, rois, i_arucos, aruco_real_sides, K, R_cam, t_cam, VERBOSE)
-% Compute pose of matched ROIs in the camera frame
+function [R, t] = roi_pose_estimation(img, rois, i_arucos, aruco_real_sides, K, R_cam, t_cam, varargin)
+% ROI_POSE_ESTIMATION Compute pose of matched ROIs in the camera frame
 %
-%   [R, t] = roi_pnp(img, rois, i_arucos, aruco_real_sides, K, VERBOSE)
+%   [R, t] = ROI_POSE_ESTIMATION(img, rois, i_arucos, aruco_real_sides, K)
 %
 %   Input arguments:
 %   ------------------
-%   img:                TODO
-%   rois:               TODO
-%   i_arucos:           TODO
-%   aruco_real_sides:   TODO
-%   K:                  TODO
-%   VERBOSE:            TODO
+%   img:                input image
+%   rois:               region of interest matched with the markers
+%   i_arucos:           indices of the matched marker for every rois matched 
+%   aruco_real_sides:   lengths of the markers in the dictionary [cm]
+%   K:                  intrisics matrix of the camera (Matlab convention)
+%   
+%   Parameters:
+%   --------
+%   'verbose:           verbose level of the function (allowed values 0, 1, 2, 3)
 %
 %   Output arguments:
 %   ------------------
-%   R:                  TODO
-%   t:                  TODO
+%   R:                  rotation matrix of the roi pose (Matlab convention)
+%   t:                  translation vector of the roi pose (Matlab convention)
 %
-%   NOTE: points and K with Matlab conventions.
-%   See also TODO
+%   See also ARUCO_POSE_ESTIMATION
+
+    % Default values of parameters    
+    default_verbose = 1;
+    
+    % Input parser
+    p = inputParser;
+    addParameter(p, 'verbose', default_verbose, @(x) x>=0);
+    parse(p, varargin{:});
+    
+    % Parse function parameters
+    VERBOSE = p.Results.verbose;
     
     % Generate world points for PnP
     n_arucos_markers = length(aruco_real_sides);
@@ -52,8 +65,7 @@ function [R, t] = roi_pnp(img, rois, i_arucos, aruco_real_sides, K, R_cam, t_cam
             fprintf('ROI %d: reproj error (RMS) lin: %f -- nonlin: %f\n', i, reproj_err_lin, reproj_err_nonlin);
         end
         
-        
-        delta_T = T2*inv(T1);
+        % delta_T = T2*inv(T1);
         
     end
     

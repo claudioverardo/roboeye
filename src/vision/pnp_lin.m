@@ -10,16 +10,16 @@ function [R, t, reproj_err] = pnp_lin(X_image, X_world, K)
 %
 %   Input arguments:
 %   ------------------
-%   X_image:    Nx2 array
-%   X_world:    Nx3 array
+%   X_image:    Nx2 array, 2D image points
+%   X_world:    Nx3 array, 3D world points
 %
 %   Output arguments:
 %   ------------------
-%   R:          rotation matrix 3x3
-%   t:          translate vector 3x1
+%   R:          rotation matrix 3x3 (Matlab convention)
+%   t:          translate vector 1x3 (Matlab convention)
 %   reproj_err: reprojection error (RMS value)
 %   
-%   NOTE: points and K with Matlab conventions, X_image = X_world*[R;t]*K.
+%   NOTE: points and K with Matlab conventions, X_image = X_world*[R; t]*K.
 %
 %   See also PNP_NONLIN, REPROJECTION_ERROR
 

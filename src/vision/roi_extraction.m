@@ -1,5 +1,31 @@
 function rois_raw = roi_extraction(img, img_gray, varargin)
-% Extract ROIs from input image
+% ROI_EXTRACTION Extract ROIs from input image
+%
+%   rois_raw = ROI_EXTRACTION(img, img_gray)
+%
+%   Input arguments:
+%   ------------------
+%   img:                    input image
+%   img_gray:               input image grayscale
+%
+%   Parameters:
+%   ------------------   
+%   'method':				choose the roi extraction algorithm
+%                           'adaptth-moore': Adaptive thresholding + Moore-Neighbor tracing 
+%                           'canny-dfs': Canny edge detector + DFS
+%                           'canny-dfs-c': Canny edge detector + DFS C-implementation   
+%   'adaptth_sensitivity':	sensitivity of the adaptive thresholding (cf adaptthresh)	
+%   'adaptth_statistic':	statistic of the adaptive thresholding (cf adaptthresh)			
+%   'adaptth_neighborhood':	neighborhood of the adaptive thresholding (cf adaptthresh)			
+%   'canny_th_low':			lower threshold of the Canny edge detector (cf edge)
+%   'canny_th_high':		higher threshold of the Canny edge detector (cf edge)		
+%   'verbose:               verbose level of the function (allowed values 0, 1, 2)
+%
+%   Output arguments:
+%   ------------------
+%   rois_raw:               extracted rois without any refinement
+%
+%   See also ARUCO_DETECTION
 
     % Default values of parameters
     default_method = 'adaptth-moore';

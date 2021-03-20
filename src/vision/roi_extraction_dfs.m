@@ -2,7 +2,7 @@ function components = roi_extraction_dfs(img_canny)
 % ROI_EXTRACTION_DFS Extract the connected components (set of points, set of
 %   tails) from the image (2D-Graph)
 %
-%   Y = ROI_EXTRACTION_DFS(img_canny) apply the DFS algorithm on the
+%   components = ROI_EXTRACTION_DFS(img_canny) apply the DFS algorithm on the
 %   picture and extract the connected components
 %
 %   The outpur cell array components are arranged in a cell array where each 
@@ -12,7 +12,7 @@ function components = roi_extraction_dfs(img_canny)
 %   
 %   Input arguments:
 %   ------------------
-%   img_canny:      HEIGHT x WIDTH matrix fashion
+%   img_canny:      input image filtered by Canny edge detector
 %
 %   Output arguments:
 %   ------------------

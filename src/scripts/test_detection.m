@@ -10,7 +10,7 @@ CANNY_TH_LOW  = 0.01;
 CANNY_TH_HIGH = 0.10;
 
 % ROI refinement parameters
-ROI_REFINEMENT_METHOD = 'rdp'; % rdp, geometric
+ROI_REFINEMENT_METHOD = 'geometric'; % rdp, geometric
 ROI_SIZE_TH = 50;  
 RDP_TH = 0.1;  % Ramer–Douglas–Peucker threshold
 ROI_SUM_ANGLES_TOL  = 10; % [degrees]

@@ -1,22 +1,22 @@
-function Y = homography(X,H)
+function Y = homography(X, H)
 % HOMOGRAPHY Apply homogeneous transformation
-%   Y = HOMOGRAPHY(X, H) apply transformation H to the set of points X (in homogeneous coordinates).
+%
+%   Y = HOMOGRAPHY(X, H) apply transformation H to the set of points X 
 %   The points are arranged by rows X = [x1; ... ; xN], Y = [y1; ... ; yN], and hom(Y) = hom(X)*H.
 %
 %   Input arguments:
 %   ------------------
-%   X:      Input set points in homogeneous coordinates
-%   H:      Linear transformation beetween in homogeneous coordinates
+%   X:      Input set points (inhomogeneous coordinates)
+%   H:      Linear transformation between homogeneous coordinates
+%           (Matlab convention: hom(Y) = hom(X)*H)
 %
 %   Output arguments:
 %   ------------------
-%   Y:      Transformed output points
+%   Y:      Transformed output points (Matlab convention)
 %
-%   NOTE:   H 4x3 is a projection
+%   NOTE:   H 4x3 is a projection 
 %           H 3x3 is a transformation in the projective plane
 %           H 4x4 is a transformation in the projective space
-%
-%   See also TODO
     
     % Convert X in homogeneous coordinates
     X_hom = [X ones(size(X,1),1)];

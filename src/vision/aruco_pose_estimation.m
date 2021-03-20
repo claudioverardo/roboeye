@@ -1,22 +1,44 @@
-function [rois, i_arucos, rois_R, rois_t] = aruco_pose_estimation(img, aruco_markers, aruco_real_sides, K, R_cam, t_cam, varargin)
-    
-    % NB: points and K with Matlab convention
+function [rois, i_arucos, rois_R, rois_t] = aruco_pose_estimation(img, aruco_markers, aruco_real_sides, K, R_cam, t_cam varargin)
+% ARUCO_POSE_ESTIMATION Build Aruco pose estimation pipeline. It executes in
+% order aruco_detection(...), roi_pose_estimation(...)
+%
+%   [rois, i_arucos, rois_R, rois_t] = ARUCO_POSE_ESTIMATION(img, aruco_markers, aruco_real_sides, K)
+%
+%   Input arguments:
+%   ------------------
+%   img:                input image
+%   aruco_markers:      input marker dictionary
+%   aruco_real_sides:   lengths of the markers in the dictionary [cm]
+%   K:                  intrisics matrix of the camera (Matlab convention)
+%
+%   Parameters:
+%   ------------------
+%   Refers to aruco_detection(...), roi_pose_estimation(...)
+%
+%   Output arguments:
+%   ------------------
+%   rois:               rois matched with the markers
+%   i_arucos:           indices of the matched marker for every rois matched 
+%   rois_R:             rotation matrices of the roi poses (Matlab convention)
+%   rois_t:             translation vectors of the roi poses (Matlab convention)
+%
+%   See also ARUCO_DETECTION, ROI_POSE_ESTIMATION
 
     % Default values of parameters
-    default_roi_pnp_verbose = 1;
+    default_roi_pose_estimation_verbose = 1;
     default_aruco_detection_verbose = 1;
     default_verbose = 1;
 
     % Input parser
     p = inputParser;
     p.KeepUnmatched = true;
-    addParameter(p, 'roi_pnp_verbose', default_roi_pnp_verbose);
+    addParameter(p, 'roi_pose_estimation_verbose', default_roi_pose_estimation_verbose);
     addParameter(p, 'aruco_detection_verbose', default_aruco_detection_verbose);
     addParameter(p, 'verbose', default_verbose);
     parse(p, varargin{:});
     
     % Parse function parameters
-    ROI_PNP_VERBOSE = p.Results.roi_pnp_verbose;
+    ROI_POSE_ESTIMATION_VERBOSE = p.Results.roi_pose_estimation_verbose;
     ARUCO_DETECTION_VERBOSE = p.Results.aruco_detection_verbose;
     VERBOSE = p.Results.verbose;
     
@@ -28,8 +50,8 @@ function [rois, i_arucos, rois_R, rois_t] = aruco_pose_estimation(img, aruco_mar
     fprintf('----- Aruco Pose Estimation -----\n');
 
     % Compute pose of matched ROIs in the camera frame
-    fprintf('roi_pnp...\n');
-    [rois_R, rois_t] = roi_pnp(img, rois, i_arucos, aruco_real_sides, K, R_cam, t_cam, ROI_PNP_VERBOSE);
+    fprintf('roi_pose_estimation...\n');
+    [rois_R, rois_t] = roi_pose_estimation(img, rois, i_arucos, aruco_real_sides, K, R_cam, t_cam, 'verbose', ROI_POSE_ESTIMATION_VERBOSE);
 
     if VERBOSE > 0
         % TODO: plot of elapsed time at each step

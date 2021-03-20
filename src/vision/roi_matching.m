@@ -1,30 +1,29 @@
-function [rois_matched, i_rois_matched, i_arucos, k_rots] = roi_matching(img, img_gray, rois, aruco_markers, varargin)
-% ROI_MATCHING  Match Aruco markers with candidate ROIs.
-%   ROI_MATCHING(IMG, IMG_GRAY, ROIS, ARUCO_MARKERS) match the ARUCO_MARKERS with the ROIS of IMG 
+function [rois_matched, i_rois_matched, i_arucos] = roi_matching(img, img_gray, rois, aruco_markers, varargin)
+% ROI_MATCHING  Match Aruco markers with candidate ROIs
+%
+%   [rois_matched, i_rois_matched, i_arucos] = ROI_MATCHING(img, img_gray, rois, aruco_markers)
 %
 %   Input arguments:
 %   ------------------
-%   img:                TODO
-%   img_gray:           TODO
-%   rois:               TODO
-%   aruco_markers:      TODO
-%   varargin
+%   img:                input image
+%   img_gray:           input image grayscale
+%   rois:               region of interest candidated for matching with markers
+%   aruco_markers:      input marker dictionary
 %
 %   Parameters:
 %   --------
 %   'roi_bb_padding':   padding value of bounding boxes
 %   'roi_h_side':       side value of ROI after homography
 %   'roi_hamming_th':   max value of hamming distance to detect a marker
-%   'verbose:           launch function in verbose mode
+%   'verbose:           verbose level of the function (allowed values 1, 2, 3)
 %
 %   Output arguments:
 %   ------------------
-%   rois_matched:   matched rois among the rois
-%   i_rois_matched: indices of the rois_matched in the rois cell array
-%   i_arucos:       TODO
-%   k_rots:         TODO
+%   rois_matched:       matched rois among the rois
+%   i_rois_matched:     indices of the rois_matched in the rois cell array
+%   i_arucos:           indices of the matched marker for every rois matched 
 %
-%   See also TODO
+%   See also ARUCO_DETECTION
     
     marker_side = size(aruco_markers{1,1},1);
     n_aruco_markers = size(aruco_markers,1);
@@ -140,7 +139,7 @@ function [rois_matched, i_rois_matched, i_arucos, k_rots] = roi_matching(img, im
                     'hamming' ...
                 );
 
-                % Matching ?
+                % Matching
                 if D <= ROI_HAMMING_TH / (marker_side*marker_side)
                     detected_aruco = 1;
 

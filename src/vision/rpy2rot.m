@@ -1,7 +1,9 @@
 function [R, J_roll, J_pitch, J_yaw] = rpy2rot(a)
 % RPY2ROT Create rotation matrix from roll-pitch-yaw parameterization
 %
-%   [R, J_roll, J_pitch, J_yaw] = rpy2rot(a) TODO
+%   R = RPY2ROT(a)
+%
+%   [R, J_roll, J_pitch, J_yaw] = RPY2ROT(a)
 %
 %   Input arguments:
 %   ------------------
@@ -12,9 +14,9 @@ function [R, J_roll, J_pitch, J_yaw] = rpy2rot(a)
 %   Output arguments:
 %   ------------------
 %   R:          R = Rx(roll)*Ry(pitch)*Rz(yaw)
-%   J_roll:     TODO
-%   J_pitch:    TODO
-%   J_yaw:      TODO
+%   J_roll:     Jacobian of R wrt roll
+%   J_pitch:    Jacobian of R wrt pitch
+%   J_yaw:      Jacobian of R wrt yaw
     
     % Rotation around x-axis (roll)
     Rx =  [
