@@ -1,4 +1,4 @@
-function [R, t] = roi_pnp(img, rois, i_arucos, aruco_real_sides, K, VERBOSE)
+function [R, t] = roi_pnp(img, rois, i_arucos, aruco_real_sides, K, R_cam, t_cam, VERBOSE)
 % Compute pose of matched ROIs in the camera frame
 %
 %   [R, t] = roi_pnp(img, rois, i_arucos, aruco_real_sides, K, VERBOSE)
@@ -36,21 +36,25 @@ function [R, t] = roi_pnp(img, rois, i_arucos, aruco_real_sides, K, VERBOSE)
 
     % Perform PnP
     n_rois = size(rois,1);
-    R = cell(n_rois,1);
-    t = cell(n_rois,1);
-    P = cell(n_rois,1);
+    R_rel = cell(n_rois,1);
+    t_rel = cell(n_rois,1);
+    P_rel = cell(n_rois,1);
     for i=1:n_rois
         
         % Pose (rotation + translation)
-        [R{i}, t{i}, reproj_err_lin] = pnp_lin(rois{i}, rois_world{i_arucos(i)}, K);
+        [R_rel{i}, t_rel{i}, reproj_err_lin] = pnp_lin(rois{i}, rois_world{i_arucos(i)}, K);
         % Non linear refinement of the pose
-        [R{i}, t{i}, reproj_err_nonlin] = pnp_nonlin(R{i}, t{i}, rois{i}, rois_world{i_arucos(i)}, K);
+        [R_rel{i}, t_rel{i}, reproj_err_nonlin] = pnp_nonlin(R_rel{i}, t_rel{i}, rois{i}, rois_world{i_arucos(i)}, K);
         % Projective matrix
-        P{i} = [R{i}; t{i}]*K;
+        P_rel{i} = [R_rel{i}; t_rel{i}]*K;
         
         if VERBOSE > 1
             fprintf('ROI %d: reproj error (RMS) lin: %f -- nonlin: %f\n', i, reproj_err_lin, reproj_err_nonlin);
         end
+        
+        
+        delta_T = T2*inv(T1);
+        
     end
     
     % Plots
@@ -93,14 +97,14 @@ function [R, t] = roi_pnp(img, rois, i_arucos, aruco_real_sides, K, VERBOSE)
             % Projection of marker centroid
             centroid_world = mean(roi_world);
             % centroid_proj = htx(P', centroid_world')'; % [Fusiello]
-            centroid_proj = homography(centroid_world, P{i});
+            centroid_proj = homography(centroid_world, P_rel{i});
             
             % Plot the projected centroid of the marker
             % plot(centroid_proj(1),centroid_proj(2),'ro');
             
             % Projection of marker contours
             % roi_proj = htx(P', roi_world')'; % [Fusiello]
-            roi_proj = homography(roi_world, P{i});
+            roi_proj = homography(roi_world, P_rel{i});
             
             % Plot the projected marker contours
             line_projected_roi = plot(roi_proj(:,1),roi_proj(:,2),'c+');
@@ -112,7 +116,7 @@ function [R, t] = roi_pnp(img, rois, i_arucos, aruco_real_sides, K, VERBOSE)
                 0 0 1
             ];
             % axes_proj = htx(P', axes_world')'; % [Fusiello]
-            axes_proj = homography(axes_world, P{i});
+            axes_proj = homography(axes_world, P_rel{i});
 
             % Plot the projected pose axes of the marker
             for j=1:3
