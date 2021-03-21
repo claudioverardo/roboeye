@@ -172,7 +172,9 @@ Input params:
 + **aruco_markers**:      input marker dictionary
 + **aruco_real_sides**:   lengths of the markers in the dictionary [cm]
 + **K**:                  intrisics matrix of the camera (Matlab convention)
-TODO
++ **R_cam**:              rotation matrix of the camera pose in the world frame (Matlab convention)
++ **t_cam**:              translation matrix of the camera pose in the world frame (Matlab convention)
++ **varargin**: collection of optional parameters check official Matlab documentation
 
 Output params:
 + **rois**:               rois matched with the markers
@@ -360,7 +362,21 @@ Output params:
         roi_pose_estimation
     </summary>
 
-TODO
+    [R, t] = roi_pose_estimation(img, rois, i_arucos, aruco_real_sides, K, R_cam, t_cam, varargin)
+
+Input params:
++ **img**: input image
++ **rois**: regions of interest matched with the markers
++ **i_arucos**: indices of the matched marker for every rois matched 
++ **aruco_real_sides**: lengths of the markers in the dictionary [cm]
++ **K**: intrisics matrix of the camera (Matlab convention)
++ **R_cam**: rotation matrix of the camera pose in the world frame (Matlab convention)
++ **t_cam**: translation matrix of the camera pose in the world frame (Matlab convention)
++ **varargin**: collection of optional parameters check official Matlab
+
+Output params:
++ **R**: rotation matrices of the rois poses in the world frame (Matlab convention)
++ **t**: translation vectors of the rois poses in the world frame (Matlab convention)
 </details>
 
 <!-- roi_refinement matlab function -->
