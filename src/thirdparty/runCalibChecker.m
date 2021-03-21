@@ -1,5 +1,10 @@
-function [P, K, internal] = runCalibChecker(files, control_points, NumIntPar, NumRadDist, cm2px_scale)
-% Calibrate camera from checkerboard images (SMZ calibration)
+function [P, K, internal] = runCalibChecker(files, control_points, NumIntPar, NumRadDist, stepSize, gridArrangement, cm2px_scale)
+% RUNCALIBCHECKER Calibrate camera from checkerboard images (SMZ calibration)
+%
+% Copyright © 2020 Prof. A. Fusiello, University of Udine
+% Calibration Toolkit: http://www.diegm.uniud.it/fusiello/demo/toolkit/calibration.html
+%
+% Modified by Claudio Verardo, Mattia Balutto (2021)
 
     % NumIntPar  = 5; % # of internal parameters (typ. 4 or 5)
     % NumRadDist = 1; % # of radial distortion coefficients (typ. 1 or 2).
@@ -8,8 +13,8 @@ function [P, K, internal] = runCalibChecker(files, control_points, NumIntPar, Nu
     num_imgs = numel(files);
 
     % Generate world point coordinates for the pattern
-    stepSize = 3; % side of the square in centimeters
-    gridArrangement = [8, 6];  % # rows by # columns
+    % stepSize = 3; % side of the square in centimeters
+    % gridArrangement = [8, 6];  % # rows by # columns
     M_grid = generateGridPoints(gridArrangement, stepSize, 'Checker');
 
     % read images
@@ -25,7 +30,7 @@ function [P, K, internal] = runCalibChecker(files, control_points, NumIntPar, Nu
         figure(1), imshow(I,[],'InitialMagnification','fit');
 
         % detect grid points
-        m_grid{i} = findGridPoints(I, 'Checker', M_grid(1:2,:), control_points{i}, files(i), cm2px_scale);
+        m_grid{i} = findGridPoints(I, 'Checker', M_grid(1:2,:), control_points{i}, gridArrangement, files(i), cm2px_scale);
 
         figure(1), hold on;
         % plot(m_grid{i}(1,:), m_grid{i}(2,:), 'oc','MarkerSize',15);

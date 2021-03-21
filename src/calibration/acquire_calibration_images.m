@@ -1,22 +1,22 @@
 function images = acquire_calibration_images(n_images, cameras, dirs_images)
-% ACQUIRE_CALIBRATION_IMAGES Acquire some images from a set of cameras
-%   to perform camera's calibrations with the SMZ algorithm
+% ACQUIRE_CALIBRATION_IMAGES Acquire some images of a checkerboard from a set 
+% of fixed cameras at the same time. These images can be used to calibrate
+% the cameras with the SMZ algorithm.
 %
 %   images = ACQUIRE_CALIBRATION_IMAGES(n_images, cameras, dirs_images)
 %
 %   Input arguments:
 %   ------------------
-%   n_images:       number of the images to be acquire
-%   cameras:        array of camera objects (cf webcam)
-%   dirs_images:    cell array of the folder names where the script 
-%                   save the images
+%   n_images:       number of the images to be acquired from each camera
+%   cameras:        cell array of camera objects (cf. webcam(...))
+%   dirs_images:    cell array with the directory paths where to save the images
 %
 %   Output arguments:
 %   ------------------
-%   images:         acquired images 
-%                   images{i,j} the i-th image acquired from the j-th camera
+%   images:         cell array of acquired images 
+%                   images{i,j} is the i-th image acquired from the j-th camera
 %   
-%   NOTE to use this script you need the MATLAB Support Package for USB Webcams
+%   NOTE this function requires the MATLAB Support Package for USB Webcams
 %
 %   See also WEBCAMLIST, WEBCAM, SNAPSHOT, PREVIEW
 

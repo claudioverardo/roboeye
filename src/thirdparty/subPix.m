@@ -1,9 +1,15 @@
 function [dx, dy] = subPix(x,y)
-    %  subPix: return the vertex of the parabola passing through the
-    %  points (x1,y1), (x2,y2)) and (x3,y3))
-    %  the outut is the displacement of the vertex wrt the central point
-    %  i.e, if (vx,vy) are the coordinates of the vertex, 
-    %  vx = x(2) + dx, vy = y(2) + dy
+% SUBPIX: return the vertex of the parabola passing through the points
+% (x1,y1), (x2,y2) and (x3,y3)
+%   
+%   the output is the displacement of the vertex wrt the central point
+%   i.e, if (vx,vy) are the coordinates of the vertex, 
+%   vx = x(2) + dx, vy = y(2) + dy
+%
+% Copyright © 2020 Prof. A. Fusiello, University of Udine
+% Calibration Toolkit: http://www.diegm.uniud.it/fusiello/demo/toolkit/calibration.html
+%
+% Modified by Claudio Verardo, Mattia Balutto (2021)
     
     t3 = 1/x(2);
     t4 = x(1) - x(2);

@@ -1,12 +1,18 @@
 function M_grid = generateGridPoints(gridArrangement, stepSize, method)
-    % Build the grid of control points
-    %
-    % Input:
-    %       - gridArrangement: rows, columns
-    %       - stepSize: side of the square in cm
-    %       - method: {April, Checker, Rig}
-    % Output:
-    %       - M_grid: grid points in 3D object-space (cm)
+% GENERATEGRIDPOINTS Build the grid points
+%
+% Input:
+%       - gridArrangement: [x-steps y-steps] grid steps along x, y axes
+%       - stepSize: side of the squares of the grid (cm)
+%       - method: {April, Checker, Rig}
+%
+% Output:
+%       - M_grid: grid points in 3D object-space (cm)
+%
+% Copyright © 2020 Prof. A. Fusiello, University of Udine
+% Calibration Toolkit: http://www.diegm.uniud.it/fusiello/demo/toolkit/calibration.html
+%
+% Modified by Claudio Verardo, Mattia Balutto (2021)
     
     n_cols = gridArrangement(2);  % # of columns
     n_rows = gridArrangement(1);  % # of rows

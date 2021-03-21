@@ -1,15 +1,22 @@
-function [m_grid, detected] = findGridPoints(I, method, M_grid, control_points, file, cm2px_scale)
-    % Find grid points in image I
-    %
-    % Input:
-    %       - I: image
-    %       - method: {April, Checker, Rig}
-    %       - M_grid: grid points in 2D object-space (cm)
-    %       - control_points: grid delimiters in image space (pixels)
-    %       - file: filename of the image being processed
-    %       - cm2px_scale: dimension in cm of 1 pixel of the rectified image
-    % Output:
-    %       - m_grid: grid points detected in image space (pixels)
+function [m_grid, detected] = findGridPoints(I, method, M_grid, control_points, grid_arrangement, file, cm2px_scale)
+% FINDGRIDPOINTS Find grid points in image I
+%
+% Input:
+%       - I: image
+%       - method: {April, Checker, Rig}
+%       - M_grid: grid points in 2D object-space (cm)
+%       - control_points: grid delimiters in image space (pixels)
+%       - grid_arrangement: [x-steps y-steps] grid steps along x, y axes
+%       - file: filename of the image being processed
+%       - cm2px_scale: dimension in cm of 1 pixel of the rectified image
+%
+% Output:
+%       - m_grid: grid points detected in image space (pixels)
+%
+% Copyright © 2020 Prof. A. Fusiello, University of Udine
+% Calibration Toolkit: http://www.diegm.uniud.it/fusiello/demo/toolkit/calibration.html
+%
+% Modified by Claudio Verardo, Mattia Balutto (2021)
     
     if strcmp(method, 'April')
         % Call pyhton script and return the results (tags corners)
@@ -39,7 +46,10 @@ function [m_grid, detected] = findGridPoints(I, method, M_grid, control_points, 
             case 'Checker'
                 
                 % initialization points  (match the ones clicked by the user)
-                M4 = M_grid(:,[1,8,48,41]);
+                grid_xsteps = grid_arrangement(1);
+                grid_ysteps = grid_arrangement(2);
+                M4 = M_grid(:,[1, grid_xsteps, grid_xsteps*grid_ysteps, grid_xsteps*grid_ysteps-grid_xsteps+1]);
+                % M4 = M_grid(:,[1,8,48,41]);
                 
                 % this is only for testing, normally the user should
                 % provide input here

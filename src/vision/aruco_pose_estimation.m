@@ -10,6 +10,8 @@ function [rois, i_arucos, rois_R, rois_t] = aruco_pose_estimation(img, aruco_mar
 %   aruco_markers:      input marker dictionary
 %   aruco_real_sides:   lengths of the markers in the dictionary [cm]
 %   K:                  intrisics matrix of the camera (Matlab convention)
+%   R_cam:              rotation matrix of the camera pose in the world frame (Matlab convention)
+%   t_cam:              translation matrix of the camera pose in the world frame (Matlab convention)
 %
 %   Parameters:
 %   ------------------

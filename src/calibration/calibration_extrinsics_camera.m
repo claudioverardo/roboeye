@@ -1,24 +1,28 @@
-function [R, t] = calibration_extrinsics_camera(cam, K, dir, cm2px_scale)
-% CALIBRATION_EXTRINSICS_CAMERA Retrive the camera rotation and the 
-%   translation vector of the camera pose in the world frame
+function [R, t] = calibration_extrinsics_camera(cam, K, step_size, grid_arrangement, cm2px_scale, dir)
+% CALIBRATION_EXTRINSICS_CAMERA Retrive the rotation matrix and the translation
+% vector of the camera pose wrt a world frame attached to a checkerboard
 %
-%   [R, t] = CALIBRATION_EXTRINSICS_CAMERA(cam, K, dir, cm2px_scale)
+%   [R, t] = CALIBRATION_EXTRINSICS_CAMERA(cam, K, step_size, grid_arrangement, cm2px_scale, dir)
 %
 %   Input arguments:
 %   ------------------
-%   cam:            webcam object  
-%   K:              extrinsics matrix of the camera (literature convention)
-%   dir:            directory where the script write and read the
-%                   calibration .mat files
-%   cm2px_scale:    dimension in cm of 1 pixel of the rectified image               
+%   cam:                webcam object (cf. webcam(...))
+%   K:                  intrinsics matrix of the camera (literature convention)
+%   step_size:          side of the squares of the checkerboard (cm)
+%   grid_arrangement    [x-steps y-steps] steps of the checkerboard along x,y axes
+%   cm2px_scale:        dimension in cm of 1 pixel of the rectified image
+%   dir:                directory where to write/read the calibration files
 %
 %   Output arguments:
 %   ------------------
-%   R:              camera rotation matrix in the world frame (literature convention)
-%   t:              translation vector of the camera pose in the world frame (literature convention)
+%   R:                  rotation matrix of the camera pose in the world frame
+%                       (literature convention)
+%   t:                  translation vector of the camera pose in the world frame
+%                       (literature convention)
 %   
-%   NOTE to use this script you need the MATLAB Support Package for USB Webcams
-%        and Computer Vision Toolkit (http://www.diegm.uniud.it/fusiello/demo/toolkit/)
+%   NOTE this function requires the following packages:
+%        - MATLAB Support Package for USB Webcams
+%        - Computer Vision Toolkit (http://www.diegm.uniud.it/fusiello/demo/toolkit/)
 %
 %   See also PNP_LIN, PNP_NONLIN, CALIBRATION_INTRINSICS_CAMERA
 
@@ -97,12 +101,10 @@ function [R, t] = calibration_extrinsics_camera(cam, K, dir, cm2px_scale)
         fprintf('Computing R, t...\n');
         
         % Generate world coordinates for the grid points
-        step_size = 3; % side of the squarein centimeters
-        grid_arrangement = [8, 6];  % rows by columns
         M_grid = generateGridPoints(grid_arrangement, step_size, 'Checker');
 
         % Detect grid points in the image
-        m_grid = findGridPoints(rgb2gray(img), 'Checker', M_grid(1:2,:), control_points, files(1), cm2px_scale);
+        m_grid = findGridPoints(rgb2gray(img), 'Checker', M_grid(1:2,:), control_points, grid_arrangement, files(1), cm2px_scale);
 
         % Estimate the pose of the camera wrt the checkerboard
         % rand_indices = randsample(size(M_grid,2),20);
@@ -110,6 +112,8 @@ function [R, t] = calibration_extrinsics_camera(cam, K, dir, cm2px_scale)
         [R, t, reproj_err_nonlin] = pnp_nonlin(R, t, m_grid', M_grid', K');
         fprintf('Reproj error (RMS) ___lin: %f\n', reproj_err_lin);
         fprintf('Reproj error (RMS) nonlin: %f\n', reproj_err_nonlin);
+        R = R';
+        t = t';
     
         % Save the pose on disk
         save(R_path, 'R');
@@ -118,21 +122,19 @@ function [R, t] = calibration_extrinsics_camera(cam, K, dir, cm2px_scale)
     end
     
     % Plot the reprojection of the frame axes onto the image
-    X_world = 3*[1 0 0; 0 1 0; 0 0 1; 0 0 0];
-    X_image = homography(X_world, [R;t]*K');
+    X_world = 3*[1 0 0; 0 1 0; 0 0 1; 0 0 0]';
+    X_image = htx(K*[R,t], X_world);
     
     figure(1);
     colors_axes=['r' 'g' 'b'];
     for i=1:3
-        lines_axes(i) = line([X_image(end,1) X_image(i,1)], ...
-            [X_image(end,2) X_image(i,2)], ...
+        lines_axes(i) = line([X_image(1,end) X_image(1,i)], ...
+            [X_image(2,end) X_image(2,i)], ...
             'color', colors_axes(i), ...
             'linestyle','-', 'linewidth', 3, ...
             'marker','none', 'markersize', 5);
     end
     
     legend([line_control_points lines_axes], 'control points', 'pose x-axis', 'pose y-axis', 'pose z-axis');
-    R = R';
-    t = t';
     
 end
