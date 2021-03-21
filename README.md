@@ -40,7 +40,7 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis vitae erat efficit
 
 <a name="documentation"></a>
 ## Documentation
-Check the associated .md document [DOCS.md](TODO LINK)
+Check the associated .md document [DOCS.md](https://github.com/claudioverardo/roboeye/blob/develop/DOCS.md)
 
 <a name="contribute"></a>
 ## Contribute
