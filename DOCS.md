@@ -256,10 +256,9 @@ Output params:
         pnp_nonlin
     </summary>
 
-    [R, t] = PNP_NONLIN(R0, t0, X_image, X_world, K) refines the input camera pose R0, t0 from a set of 2D-3D correspondences defined by X_image, X_world 
-%   respectively. The algorithm minimizes the reprojection errors.
+    [R, t] = pnp_nonlin(R0, t0, X_image, X_world, K) refines the input camera pose R0, t0 from a set of 2D-3D correspondences defined by X_image, X_world respectively. The algorithm minimizes the reprojection errors.
 
-    [R, t, reproj_err] = PNP_NONLIN(R0, t0, X_image, X_world, K) return also the RMS value of the reprojection errors of the 3D-2D correspondences.
+    [R, t, reproj_err] = pnp_nonlin(R0, t0, X_image, X_world, K) return also the RMS value of the reprojection errors of the 3D-2D correspondences.
 
 Input params:
 + **R0**:         Initial rotation matrix for the non-linear iterative method, typically calculate through the pnp_lin function
