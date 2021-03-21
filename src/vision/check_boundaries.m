@@ -12,7 +12,7 @@ function check_ans = check_boundaries(i, j, img_size)
 %
 %   Output arguments:
 %   ------------------
-%   check_ans:  1 if the point is inside the image size 0 otherwiae
+%   check_ans:  1 if the point is inside the image size 0 otherwise
 %
 %   See also ROI_EXTRACTION_DFS
 
