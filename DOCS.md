@@ -10,6 +10,134 @@
 
 <a name="robot-calibration"></a>
 ## Robot Calibration
+<!-- acquire_calibration_images matlab function -->
+<details>
+    <summary>
+        acquire_calibration_images
+    </summary>
+
+    images = acquire_calibration_images(n_images, cameras, dirs_images)
+
+Input params:
++ **n_images**: number of the images to be acquired from each camera
++ **cameras**: cell array of camera objects (cf. webcam(...))
++ **dirs_images**: cell array with the directory paths where to save the images
+
+Output params:
++ **images**: cell array of acquired images. images{i,j} is the i-th image acquired from the j-th camera
+</details>
+
+<!-- calibration_extrinsics_camera matlab function -->
+<details>
+    <summary>
+        calibration_extrinsics_camera
+    </summary>
+
+    [R_cam, t_cam] = calibration_extrinsics_camera(cam, K, step_size, grid_arrangement, cm2px_scale, dir)
+
+Input params:
++ **cam**:                webcam object (cf. webcam(...))
++ **K**:                  intrinsics matrix of the camera (literature convention)
++ **step_size**:          side of the squares of the checkerboard (cm)
++ **grid_arrangement**:   [x-steps y-steps] steps of the checkerboard along x,y axes
++ **cm2px_scale**:        dimension in cm of 1 pixel of the rectified image
++ **dir**:                directory where to write/read the calibration files
+
+Output params:
++ **R_cam**: rotation matrix of the camera pose in the world frame (literature convention)
++ **t_cam**: translation vector of the camera pose in the world frame (literature convention)
+</details>
+
+<!-- calibration_extrinsics_stereo matlab function -->
+<details>
+    <summary>
+        calibration_extrinsics_stereo
+    </summary>
+
+    [delta_R, delta_t, E, F] = calibration_extrinsics_stereo(P1, K1, P2, K2, dir)
+
+Input params:
++ **P1**:         projection matrix of the first camera (literature convention)    
++ **K1**:         intrinsics matrix of the first camera (literature convention)   
++ **P2**:         projection matrix of the second camera (literature convention)    
++ **K2**:          intrinsics matrix of the second camera (literature convention)   
++ **dir**:        cell array of the folder names where the script save the results 
+
+Output params:
++ **delta_R**:    rotation matrix of the pose of second camera wrt the first camera (literature convention)
++ **delta_t**:    translation vector of the pose of second camera wrt the first camera (literature convention)
++ **E**:          essential matrix of the stereo pair (literature convention)
++ **F**:          fundamental matrix of the stereo pair (literature convention)
+</details>
+
+<!-- calibration_intrinsics_camera matlab function -->
+<details>
+    <summary>
+        calibration_intrinsics_camera
+    </summary>
+
+    [P, K, intrinsics] = calibration_intrinsics_camera(n_intrinsics, n_radial_dist, step_size, grid_arrangement, cm2px_scale, dir_images)
+
+Input params:
++ **n_intrinsics**:       number of intrisics to be calibrated (4, 5)
+    + 4: fx, fy, u0, v0
+    + 5: fx, fy, u0, v0, skew
++ **n_radial_dist**:      number of the distortion coefficient to be calibrated (1, 2)
++ **step_size**:          side of the squares of the checkerboard (cm)
++ **grid_arrangement**:   [x-steps y-steps] steps of the checkerboard along x,y axes
++ **cm2px_scale**:        dimension in cm of 1 pixel of the rectified images   
++ **dir_images**:         path of the directory containing the checkerboard images  
+
+Output params:
++ **P:                  cell array of projection matrices associated to the checkerboard images (literature convention)
++ **K:                  calibrated intrisics matrix (literature convention)
++ **intrinsics:         table with intrinsics and radial distortion parameters 
+</details>
+
+<!-- check_svd matlab function -->
+<details>
+    <summary>
+        check_svd
+    </summary>
+
+    sigma_svd = check_svd(X)
+
+Input params:
++ **X**: cell array of candidated linearly dependent arrays
+
+Output params:
++ **sigma_svd**: singolar values of the concatenated arrays
+</details>
+
+<!-- get_extrinsics_camera matlab function -->
+<details>
+    <summary>
+        get_extrinsics_camera
+    </summary>
+
+    [R, t, G] = get_extrinsics_camera(P, K) 
+
+Input params:
++ **P**: projective matrices (literature convention)
++ **K**: intrinsics matrices (literature convention)
+
+Output params:
++ **R**: rotation matrices (literature convention)
++ **t**: translation vectors (literature convention)
++ **G**: roto-translation matrices (literature convention)
+</details>
+
+<!-- print_countdown matlab function -->
+<details>
+    <summary>
+        print_countdown
+    </summary>
+
+    print_countdown(length)
+
+Input params:
++ **length**: duration of the countdown [s]
+</details>
 
 <a name="robot-vision"></a>
 ## Robot Vision

@@ -9,7 +9,7 @@ function [delta_R, delta_t, E, F] = calibration_extrinsics_stereo(P1, K1, P2, K2
 %   P1:         projection matrix of the first camera (literature convention)    
 %   K1:         intrinsics matrix of the first camera (literature convention)   
 %   P2:         projection matrix of the second camera (literature convention)    
-%   K2          intrinsics matrix of the second camera (literature convention)   
+%   K2:         intrinsics matrix of the second camera (literature convention)   
 %   dir:        cell array of the folder names where the script save the results          
 %
 %   Output arguments:

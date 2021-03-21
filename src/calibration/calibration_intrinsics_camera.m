@@ -12,7 +12,7 @@ function [P, K, intrinsics] = calibration_intrinsics_camera(n_intrinsics, n_radi
 %                       5: fx, fy, u0, v0, skew
 %   n_radial_dist:      number of the distortion coefficient to be calibrated (1, 2)
 %   step_size:          side of the squares of the checkerboard (cm)
-%   grid_arrangement    [x-steps y-steps] steps of the checkerboard along x,y axes
+%   grid_arrangement:   [x-steps y-steps] steps of the checkerboard along x,y axes
 %   cm2px_scale:        dimension in cm of 1 pixel of the rectified images   
 %   dir_images:         path of the directory containing the checkerboard images           
 %
