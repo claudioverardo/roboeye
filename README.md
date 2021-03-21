@@ -22,7 +22,6 @@ TODO ADD RIGHT IMAGES
 ### Package installation
 + Install [MATLAB Support Package for USB Webcams](https://www.mathworks.com/help/supportpkg/usbwebcams/index.html?s_tid=CRUX_lftnav)
 + Install [Computer Vision Toolkit](http://www.diegm.uniud.it/fusiello/demo/toolkit/)
-+ Install [Calibration Vision Toolkit](http://www.diegm.uniud.it/fusiello/demo/toolkit/calibration.html)
 
 ### Run setup 
 1. Go to HOMEDIR / src
@@ -49,13 +48,14 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis vitae erat efficit
 
 ### Contributors
 + [Mattia Balutto](https://github.com/mattiabalutto) - MSc Electronic Engineering of Udine (Italy)
-+ [Diego Perisutti](https://github.com/DiegoPerissutti) - MSc Mechanical of Udine (Italy)
-+ [Claudio Verardo](https://github.com/claudioverardo) - BSc Electronic Engineering of Udine (Italy)
++ [Diego Perisutti](https://github.com/DiegoPerissutti) - MSc Mechanical Engineering of Udine (Italy)
++ [Claudio Verardo](https://github.com/claudioverardo) - MSc Electronic Engineering of Udine (Italy)
+
+Equal contribution from all the contributors
 
 <a name="credits"></a>
 ## Credits
 The project and the sample images are inspired from the:
-+ [Computer Vision Toolkit](http://www.diegm.uniud.it/fusiello/demo/toolkit/)
-+ [Calibration Toolkit](http://www.diegm.uniud.it/fusiello/demo/toolkit/calibration.html)
++ [Computer Vision Toolkit](http://www.diegm.uniud.it/fusiello/demo/toolkit/) by Professor Andrea Fusiello at University of Udine
 
 Whenever we are missing some credits acknowledgements, please let us know and we will fix it.
