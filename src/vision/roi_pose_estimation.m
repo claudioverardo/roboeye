@@ -1,26 +1,30 @@
 function [R, t] = roi_pose_estimation(img, rois, i_arucos, aruco_real_sides, K, R_cam, t_cam, varargin)
 % ROI_POSE_ESTIMATION Compute pose of matched ROIs in the camera frame
 %
-%   [R, t] = ROI_POSE_ESTIMATION(img, rois, i_arucos, aruco_real_sides, K)
+%   [R, t] = ROI_POSE_ESTIMATION(img, rois, i_arucos, aruco_real_sides, K, R_cam, t_cam)
 %
 %   Input arguments:
 %   ------------------
 %   img:                input image
-%   rois:               region of interest matched with the markers
+%   rois:               regions of interest matched with the markers
 %   i_arucos:           indices of the matched marker for every rois matched 
 %   aruco_real_sides:   lengths of the markers in the dictionary [cm]
 %   K:                  intrisics matrix of the camera (Matlab convention)
-%   R_cam:              rotation matrix of the camera pose in the world frame (Matlab convention)
-%   t_cam:              translation matrix of the camera pose in the world frame (Matlab convention)
+%   R_cam:              rotation matrix of the camera pose in the world frame
+%                       (Matlab convention)
+%   t_cam:              translation matrix of the camera pose in the world frame
+%                       (Matlab convention)
 %   
 %   Parameters:
 %   --------
-%   'verbose:           verbose level of the function (allowed values 0, 1, 2)
+%   'verbose':          verbose level of the function (allowed values 0, 1, 2)
 %
 %   Output arguments:
 %   ------------------
-%   R:                  rotation matrix of the roi pose in the world frame (Matlab convention)
-%   t:                  translation vector of the roi pose in the world frame (Matlab convention)
+%   R:                  rotation matrices of the rois poses in the world frame
+%                       (Matlab convention)
+%   t:                  translation vectors of the rois poses in the world frame
+%                       (Matlab convention)
 %
 %   See also ARUCO_POSE_ESTIMATION
 
@@ -72,6 +76,7 @@ function [R, t] = roi_pose_estimation(img, rois, i_arucos, aruco_real_sides, K, 
         end
         
         % Poses of the ROIs in the world frame
+        % G{i}  = G_pnp{i} * inv(G_cam)
         R{i} = R_pnp{i}*R_cam'; 
         t{i} = t_pnp{i}*R_cam' - t_cam*(R_cam');
         

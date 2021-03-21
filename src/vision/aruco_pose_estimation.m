@@ -2,7 +2,8 @@ function [rois, i_arucos, rois_R, rois_t] = aruco_pose_estimation(img, aruco_mar
 % ARUCO_POSE_ESTIMATION Build Aruco pose estimation pipeline. It executes in
 % order aruco_detection(...), roi_pose_estimation(...)
 %
-%   [rois, i_arucos, rois_R, rois_t] = ARUCO_POSE_ESTIMATION(img, aruco_markers, aruco_real_sides, K)
+%   [rois, i_arucos, rois_R, rois_t] = ARUCO_POSE_ESTIMATION(img, aruco_markers,
+%   aruco_real_sides, K, R_cam, t_cam)
 %
 %   Input arguments:
 %   ------------------
@@ -10,8 +11,10 @@ function [rois, i_arucos, rois_R, rois_t] = aruco_pose_estimation(img, aruco_mar
 %   aruco_markers:      input marker dictionary
 %   aruco_real_sides:   lengths of the markers in the dictionary [cm]
 %   K:                  intrisics matrix of the camera (Matlab convention)
-%   R_cam:              rotation matrix of the camera pose in the world frame (Matlab convention)
-%   t_cam:              translation matrix of the camera pose in the world frame (Matlab convention)
+%   R_cam:              rotation matrix of the camera pose in the world frame
+%                       (Matlab convention)
+%   t_cam:              translation matrix of the camera pose in the world frame
+%                       (Matlab convention)
 %
 %   Parameters:
 %   ------------------

@@ -43,8 +43,8 @@ aruco_real_sides = [2.8 2.8 6 5.7]; % [cm]
 load('../assets/aruco_markers/aruco_markers_8x8_camera.mat');
 load('../assets/calibration/intrinsics_cam1/K.mat', 'K');
 load('../assets/calibration/intrinsics_cam1/intrinsics.mat', 'intrinsics');
-load('../assets/calibration/extrinsics_cam1/R.mat', 'R');
-load('../assets/calibration/extrinsics_cam1/t.mat', 't');
+load('../assets/calibration/extrinsics_cam1/R_cam.mat', 'R_cam');
+load('../assets/calibration/extrinsics_cam1/t_cam.mat', 't_cam');
 
 %---------- TEST img_tests6-8 (old setup) -----------
 
@@ -76,8 +76,8 @@ load('../assets/calibration/extrinsics_cam1/t.mat', 't');
 %---------------------------------
 
 K = K'; % intrinsics from Fusiello toolkit
-R = R';
-t = t';
+R_cam = R_cam';
+t_cam = t_cam';
 
 % Camera intrinsics object
 % K(1,1) = -K(1,1);
@@ -91,7 +91,7 @@ t = t';
 
 % Launch Pose Estimation w/ PnP
 [rois, i_arucos, rois_R, rois_t] = aruco_pose_estimation( ...
-    img, aruco_markers, aruco_real_sides, K, R, t, ...
+    img, aruco_markers, aruco_real_sides, K, R_cam, t_cam, ...
     'roi_extraction_method', ROI_EXTRACTION_METHOD, ...
     'adaptth_sensitivity', ADAPTTH_SENSITIVITY, ...
     'adaptth_statistic', ADAPTTH_STATISTIC, ...

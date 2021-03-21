@@ -15,7 +15,7 @@ function [rois_matched, i_rois_matched, i_arucos] = roi_matching(img, img_gray, 
 %   'roi_bb_padding':   padding value of bounding boxes
 %   'roi_h_side':       side value of ROI after homography
 %   'roi_hamming_th':   max value of hamming distance to detect a marker
-%   'verbose:           verbose level of the function (allowed values 1, 2, 3)
+%   'verbose':           verbose level of the function (allowed values 1, 2, 3)
 %
 %   Output arguments:
 %   ------------------

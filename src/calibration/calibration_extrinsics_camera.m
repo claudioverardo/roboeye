@@ -1,8 +1,8 @@
-function [R, t] = calibration_extrinsics_camera(cam, K, step_size, grid_arrangement, cm2px_scale, dir)
+function [R_cam, t_cam] = calibration_extrinsics_camera(cam, K, step_size, grid_arrangement, cm2px_scale, dir)
 % CALIBRATION_EXTRINSICS_CAMERA Retrive the rotation matrix and the translation
 % vector of the camera pose wrt a world frame attached to a checkerboard
 %
-%   [R, t] = CALIBRATION_EXTRINSICS_CAMERA(cam, K, step_size, grid_arrangement, cm2px_scale, dir)
+%   [R_cam, t_cam] = CALIBRATION_EXTRINSICS_CAMERA(cam, K, step_size, grid_arrangement, cm2px_scale, dir)
 %
 %   Input arguments:
 %   ------------------
@@ -15,9 +15,9 @@ function [R, t] = calibration_extrinsics_camera(cam, K, step_size, grid_arrangem
 %
 %   Output arguments:
 %   ------------------
-%   R:                  rotation matrix of the camera pose in the world frame
+%   R_cam:              rotation matrix of the camera pose in the world frame
 %                       (literature convention)
-%   t:                  translation vector of the camera pose in the world frame
+%   t_cam:              translation vector of the camera pose in the world frame
 %                       (literature convention)
 %   
 %   NOTE this function requires the following packages:
@@ -87,14 +87,14 @@ function [R, t] = calibration_extrinsics_camera(cam, K, step_size, grid_arrangem
 
     end
     
-    R_path = fullfile(dir, 'R.mat');
-    t_path = fullfile(dir, 't.mat');
+    R_cam_path = fullfile(dir, 'R_cam.mat');
+    t_cam_path = fullfile(dir, 't_cam.mat');
     
-    if isfile(R_path) && isfile(t_path)
+    if isfile(R_cam_path) && isfile(t_cam_path)
         
-        fprintf('Found R.mat, t.mat on disk\n');
-        load(R_path, 'R');
-        load(t_path, 't');
+        fprintf('Found R_cam.mat, t_cam.mat on disk\n');
+        load(R_cam_path, 'R_cam');
+        load(t_cam_path, 't_cam');
         
     else 
         
@@ -108,22 +108,22 @@ function [R, t] = calibration_extrinsics_camera(cam, K, step_size, grid_arrangem
 
         % Estimate the pose of the camera wrt the checkerboard
         % rand_indices = randsample(size(M_grid,2),20);
-        [R, t, reproj_err_lin] = pnp_lin(m_grid', M_grid', K');
-        [R, t, reproj_err_nonlin] = pnp_nonlin(R, t, m_grid', M_grid', K');
+        [R_cam, t_cam, reproj_err_lin] = pnp_lin(m_grid', M_grid', K');
+        [R_cam, t_cam, reproj_err_nonlin] = pnp_nonlin(R_cam, t_cam, m_grid', M_grid', K');
         fprintf('Reproj error (RMS) ___lin: %f\n', reproj_err_lin);
         fprintf('Reproj error (RMS) nonlin: %f\n', reproj_err_nonlin);
-        R = R';
-        t = t';
+        R_cam = R_cam';
+        t_cam = t_cam';
     
         % Save the pose on disk
-        save(R_path, 'R');
-        save(t_path, 't');
+        save(R_cam_path, 'R_cam');
+        save(t_cam_path, 't_cam');
         
     end
     
     % Plot the reprojection of the frame axes onto the image
     X_world = 3*[1 0 0; 0 1 0; 0 0 1; 0 0 0]';
-    X_image = htx(K*[R,t], X_world);
+    X_image = htx(K*[R_cam,t_cam], X_world);
     
     figure(1);
     colors_axes=['r' 'g' 'b'];
@@ -135,6 +135,6 @@ function [R, t] = calibration_extrinsics_camera(cam, K, step_size, grid_arrangem
             'marker','none', 'markersize', 5);
     end
     
-    legend([line_control_points lines_axes], 'control points', 'pose x-axis', 'pose y-axis', 'pose z-axis');
+    legend([line_control_points lines_axes], 'Control points', 'World x-axis', 'World y-axis', 'World z-axis');
     
 end

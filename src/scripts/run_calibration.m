@@ -34,10 +34,10 @@ cam1 = webcam(1);
 load('../assets/calibration/intrinsics_cam1/K.mat'); K1 = K; clear('K');
 dir1 = '../assets/calibration/extrinsics_cam1';
 step_size = 3;
-grid_arrangement = [10, 8];
+grid_arrangement = [8, 10];
 cm2px_scale = 0.05;
 
-[R1, t1] = calibration_extrinsics_camera(cam1, K1, step_size, grid_arrangement, cm2px_scale, dir1);
+[R_cam1, t_cam1] = calibration_extrinsics_camera(cam1, K1, step_size, grid_arrangement, cm2px_scale, dir1);
 
 
 %% Calculate the relative pose of the 2 cameras from SMZ output
