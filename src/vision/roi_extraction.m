@@ -19,7 +19,7 @@ function rois_raw = roi_extraction(img, img_gray, varargin)
 %   'adaptth_neighborhood':	neighborhood of the adaptive thresholding (cf adaptthresh)			
 %   'canny_th_low':			lower threshold of the Canny edge detector (cf edge)
 %   'canny_th_high':		higher threshold of the Canny edge detector (cf edge)		
-%   'verbose:               verbose level of the function (allowed values 0, 1, 2)
+%   'verbose':              verbose level of the function (allowed values 0, 1, 2)
 %
 %   Output arguments:
 %   ------------------

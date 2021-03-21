@@ -14,14 +14,14 @@ ROI_REFINEMENT_METHOD = 'geometric'; % rdp, geometric
 ROI_SIZE_TH = 50;
 RDP_TH = 0.1;  % Ramer–Douglas–Peucker threshold
 ROI_SUM_ANGLES_TOL  = 10; % [degrees]
-ROI_PARALLELISM_TOL = 20; % [degrees]
+ROI_PARALLELISM_TOL = 10; % [degrees]
 ROI_SIDE_TH_LOW  = 1/100; % [% diag(img)]
 ROI_SIDE_TH_HIGH = 1/5;   % [% diag(img)]
 
 % ROI matching parameters
 ROI_BB_PADDING  = 2;
 ROI_H_SIDE = 80;
-ROI_HAMMING_TH  = 3;
+ROI_HAMMING_TH  = 5;
 
 % Debug/Analysis
 ROI_EXTRACTION_VERBOSE        = 0; % 1: show roi_extracted  2: + adaptth/canny 
@@ -33,18 +33,18 @@ ARUCO_POSE_ESTIMATION_VERBOSE = 0; % TODO
 
 %--------- TEST img_tests9 (from camera) ----------
 
-% cam = webcam(1);
-% img = snapshot(cam);
+cam = webcam(1);
+img = snapshot(cam);
 % img = imread('../assets/img_tests/test9/img1.png'); % 2 aruco
 % img = imread('../assets/img_tests/test9/img2.png'); % 3 aruco
-img = imread('../assets/img_tests/test9/img3.png'); % 4 aruco
+% img = imread('../assets/img_tests/test9/img3.png'); % 4 aruco
 
-aruco_real_sides = [3 3 6 6]; % [cm]
+aruco_real_sides = [2.8 2.8 6 5.7]; % [cm]
 load('../assets/aruco_markers/aruco_markers_8x8_camera.mat');
 load('../assets/calibration/intrinsics_cam1/K.mat', 'K');
 load('../assets/calibration/intrinsics_cam1/intrinsics.mat', 'intrinsics');
-load('../assets/calibration/extrinsics_cam1/R.mat', 'R');
-load('../assets/calibration/extrinsics_cam1/t.mat', 't');
+load('../assets/calibration/extrinsics_cam1/R_cam.mat', 'R_cam');
+load('../assets/calibration/extrinsics_cam1/t_cam.mat', 't_cam');
 
 %---------- TEST img_tests6-8 (old setup) -----------
 
@@ -76,8 +76,8 @@ load('../assets/calibration/extrinsics_cam1/t.mat', 't');
 %---------------------------------
 
 K = K'; % intrinsics from Fusiello toolkit
-% R = R';
-% t = t';
+R_cam = R_cam';
+t_cam = t_cam';
 
 % Camera intrinsics object
 % K(1,1) = -K(1,1);
@@ -91,7 +91,7 @@ K = K'; % intrinsics from Fusiello toolkit
 
 % Launch Pose Estimation w/ PnP
 [rois, i_arucos, rois_R, rois_t] = aruco_pose_estimation( ...
-    img, aruco_markers, aruco_real_sides, K, R, t, ...
+    img, aruco_markers, aruco_real_sides, K, R_cam, t_cam, ...
     'roi_extraction_method', ROI_EXTRACTION_METHOD, ...
     'adaptth_sensitivity', ADAPTTH_SENSITIVITY, ...
     'adaptth_statistic', ADAPTTH_STATISTIC, ...

@@ -1,29 +1,32 @@
-function [P, K, intrinsics] = calibration_intrinsics_camera(dir_images, n_intrinsics, n_radial_dist, cm2px_scale)
-% CALIBRATION_INTRINSICS_STEREO Retrive the intrisics of a camera via 
-%   SMZ calibration (wrapper of the runCalibChecker)
+function [P, K, intrinsics] = calibration_intrinsics_camera(n_intrinsics, n_radial_dist, step_size, grid_arrangement, cm2px_scale, dir_images)
+% CALIBRATION_INTRINSICS_STEREO Retrive the intrisics and radial distortion 
+% parameters of a camera using a set of checkerboard images (SMZ algorithm)
 %
-%   [P, K, intrinsics] = CALIBRATION_INTRINSICS_STEREO(dir_images, n_intrinsics, n_radial_dist, cm2px_scale)
+%   [P, K, intrinsics] = CALIBRATION_INTRINSICS_STEREO(n_intrinsics, n_radial_dist,
+%   step_size, grid_arrangement, cm2px_scale, dir_images)
 %
 %   Input arguments:
 %   ------------------
-%   dir_images:     folder containing the images fot the SMZ calibration    
-%   n_intrinsics:   number of intrisics to be calibrated (4, 5)
-%                   4: fx, fy, u0, v0
-%                   5: fx, fy, u0, v0, skew
-%   n_radial_dist:  number of the distortion coefficient to be calibrated (1, 2)
-%   cm2px_scale:    dimension in cm of 1 pixel of the rectified image           
+%   n_intrinsics:       number of intrisics to be calibrated (4, 5)
+%                       4: fx, fy, u0, v0
+%                       5: fx, fy, u0, v0, skew
+%   n_radial_dist:      number of the distortion coefficient to be calibrated (1, 2)
+%   step_size:          side of the squares of the checkerboard (cm)
+%   grid_arrangement    [x-steps y-steps] steps of the checkerboard along x,y axes
+%   cm2px_scale:        dimension in cm of 1 pixel of the rectified images   
+%   dir_images:         path of the directory containing the checkerboard images           
 %
 %   Output arguments:
 %   ------------------
-%   P:              projection matrices of the cameras (literature convention)
-%   K:              calibrated intrisics matrices (literature convention)
-%   intrinsics:     table with intrinsics parameters and radial distortion
-%                   coefficients 
+%   P:                  cell array of projection matrices associated to the
+%                       checkerboard images (literature convention)
+%   K:                  calibrated intrisics matrix (literature convention)
+%   intrinsics:         table with intrinsics and radial distortion parameters 
 %
-%   NOTE to use this script you need Computer Vision Toolkit 
+%   NOTE this function requires the Computer Vision Toolkit
 %        (http://www.diegm.uniud.it/fusiello/demo/toolkit/)
 %
-%   See also RUNCALIBCHECKER
+%   See also RUNCALIBCHECKER, ACQUIRE_CALIBRATION_IMAGES
 
     fprintf('------ Camera Calibration (Intrinsics) ------\n');
     fprintf('%s\n', dir_images);
@@ -91,7 +94,7 @@ function [P, K, intrinsics] = calibration_intrinsics_camera(dir_images, n_intrin
     
     % Calculate the P camera matrices and the K intrinsic matrices
     fprintf('--------- Starting runCalibChecker ----------\n');
-    [P, K, intrinsics] = runCalibChecker(files, control_points, n_intrinsics, n_radial_dist, cm2px_scale);
+    [P, K, intrinsics] = runCalibChecker(files, control_points, n_intrinsics, n_radial_dist, step_size, grid_arrangement, cm2px_scale);
     
     % Save results
     save(fullfile(dir_images, 'P'), 'P');
