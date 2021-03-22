@@ -11,9 +11,9 @@ function [rois, i_arucos, rois_R, rois_t] = aruco_pose_estimation(img, aruco_mar
 %   aruco_markers:      input marker dictionary
 %   aruco_real_sides:   lengths of the markers in the dictionary [cm]
 %   K:                  intrisics matrix of the camera (Matlab convention)
-%   R_cam:              rotation matrix of the camera pose in the world frame
+%   R_cam:              rotation matrix of the camera extrinsics in the world frame
 %                       (Matlab convention)
-%   t_cam:              translation matrix of the camera pose in the world frame
+%   t_cam:              translation vector of the camera extrinsics in the world frame
 %                       (Matlab convention)
 %
 %   Parameters:
@@ -24,8 +24,10 @@ function [rois, i_arucos, rois_R, rois_t] = aruco_pose_estimation(img, aruco_mar
 %   ------------------
 %   rois:               rois matched with the markers
 %   i_arucos:           indices of the matched marker for every rois matched 
-%   rois_R:             rotation matrices of the roi poses (Matlab convention)
-%   rois_t:             translation vectors of the roi poses (Matlab convention)
+%   rois_R:             rotation matrices of the roto-translations that map points
+%                       from the roi frames into the world frame (Matlab convention)
+%   rois_t:             translation vectors of the roto-translations that map points
+%                       from the roi frames into the world frame (Matlab convention)
 %
 %   See also ARUCO_DETECTION, ROI_POSE_ESTIMATION
 

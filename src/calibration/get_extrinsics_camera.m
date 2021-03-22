@@ -1,6 +1,6 @@
 function [R,t,G] = get_extrinsics_camera(P, K) 
 % GET_EXTRINSICS_CAMERA Retrieve extrinsics of cameras from projective matrices 
-%   and intrinsics matrices
+% and intrinsics matrices
 %
 %   [R,t] = GET_EXTRINSICS_CAMERA(P, K) 
 %

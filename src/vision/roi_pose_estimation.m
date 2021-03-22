@@ -10,9 +10,9 @@ function [R, t] = roi_pose_estimation(img, rois, i_arucos, aruco_real_sides, K, 
 %   i_arucos:           indices of the matched marker for every rois matched 
 %   aruco_real_sides:   lengths of the markers in the dictionary [cm]
 %   K:                  intrisics matrix of the camera (Matlab convention)
-%   R_cam:              rotation matrix of the camera pose in the world frame
+%   R_cam:              rotation matrix of the camera extrinsics in the world frame
 %                       (Matlab convention)
-%   t_cam:              translation matrix of the camera pose in the world frame
+%   t_cam:              translation vector of the camera extrinsics in the world frame
 %                       (Matlab convention)
 %   
 %   Parameters:
@@ -21,12 +21,12 @@ function [R, t] = roi_pose_estimation(img, rois, i_arucos, aruco_real_sides, K, 
 %
 %   Output arguments:
 %   ------------------
-%   R:                  rotation matrices of the rois poses in the world frame
-%                       (Matlab convention)
-%   t:                  translation vectors of the rois poses in the world frame
-%                       (Matlab convention)
+%   R:                  rotation matrices of the roto-translations that map points
+%                       from the roi frames into the world frame (Matlab convention)
+%   t:                  translation vectors of the roto-translations that map points
+%                       from the roi frames into the world frame (Matlab convention)
 %
-%   See also ARUCO_POSE_ESTIMATION
+%   See also ARUCO_POSE_ESTIMATION, PNP_LIN, PNP_NONLIN
 
     % Default values of parameters    
     default_verbose = 1;
@@ -122,7 +122,7 @@ function [R, t] = roi_pose_estimation(img, rois, i_arucos, aruco_real_sides, K, 
             line_control_points = plot(roi(1,1),roi(1,2), 'gs', 'MarkerSize', 10, 'LineWidth', 1); % 'MarkerFaceColor', 'g'
             
             % Projection of marker centroid
-            centroid_world_pnp = mean(roi_world_pnp);
+            centroid_world_pnp = mean();
             % centroid_proj = htx(P_pnp{i}', centroid_world_pnp')'; % [Fusiello]
             centroid_reproj = homography(centroid_world_pnp, P_pnp{i});
             

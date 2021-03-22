@@ -70,8 +70,10 @@ function [P, K, intrinsics] = calibration_intrinsics_camera(n_intrinsics, n_radi
             for k = 1:4
                 
                 % Acquire point
+                title('Press any key to start acquisition of a new control point');
                 zoom on;
                 pause();
+                title('Click to acquire a new control point');
                 zoom off;
                 [j, i] = ginput(1);
                 points = [points; [j, i]];

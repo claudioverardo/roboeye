@@ -44,8 +44,8 @@ Input params:
 + **dir**:                directory where to write/read the calibration files
 
 Output params:
-+ **R_cam**: rotation matrix of the camera pose in the world frame (literature convention)
-+ **t_cam**: translation vector of the camera pose in the world frame (literature convention)
++ **R_cam**: rotation matrix of the camera extrinsics in the world frame (literature convention)
++ **t_cam**: translation vector of the camera extrinsics in the world frame (literature convention)
 </details>
 
 <!-- calibration_extrinsics_stereo matlab function -->
@@ -54,18 +54,42 @@ Output params:
         calibration_extrinsics_stereo
     </summary>
 
-    [delta_R, delta_t, E, F] = calibration_extrinsics_stereo(P1, K1, P2, K2, dir)
+    [delta_R, delta_t, E, F] = calibration_extrinsics_stereo(K1, R1, t1, K2, R2, t2, dir)
 
 Input params:
-+ **P1**:         projection matrix of the first camera (literature convention)    
-+ **K1**:         intrinsics matrix of the first camera (literature convention)   
-+ **P2**:         projection matrix of the second camera (literature convention)    
-+ **K2**:          intrinsics matrix of the second camera (literature convention)   
-+ **dir**:        cell array of the folder names where the script save the results 
++ **K1**:         intrinsics matrix of the first camera (literature convention)
++ **R1**:         rotation matrix of the extrinsics of the first camera in the world frame (literature convention)
++ **t1**:         translation vector of the extrinsics of the first camera in the world frame (literature convention)
++ **K2**:         intrinsics matrix of the second camera (literature convention)
++ **R2**:         rotation matrix of the extrinsics of the second camera in the world frame (literature convention)
++ **t2**:         translation vector of the extrinsics of the second camera in the world frame (literature convention)
++ **dir**:        name of the directory where to save the results
 
 Output params:
-+ **delta_R**:    rotation matrix of the pose of second camera wrt the first camera (literature convention)
-+ **delta_t**:    translation vector of the pose of second camera wrt the first camera (literature convention)
++ **delta_R**:    rotation matrix of the extrinsics of the stereo pair with the first camera as reference (literature convention)
++ **delta_t**:    translation vector of the extrinsics of the stereo pair with the first camera as reference (literature convention)
++ **E**:          essential matrix of the stereo pair (literature convention)
++ **F**:          fundamental matrix of the stereo pair (literature convention)
+</details>
+
+<!-- calibration_extrinsics_stereo_smz matlab function -->
+<details>
+    <summary>
+        calibration_extrinsics_stereo_smz
+    </summary>
+
+    [delta_R, delta_t, E, F] = calibration_extrinsics_stereo_smz(P1, K1, P2, K2, dir)
+
+Input params:
++ **P1**:         cell array of projection matrices returned by SMZ calibration of the first camera (literature convention)
++ **K1**:         intrinsics matrix of the first camera (literature convention)
++ **P2**:         cell array of projection matrices returned by SMZ calibration of the second camera (literature convention)
++ **K2**:         intrinsics matrix of the second camera (literature convention)
++ **dir**:        name of the directory where to save the results
+
+Output params:
++ **delta_R**:    rotation matrix of the extrinsics of the stereo pair with the first camera as reference (literature convention)
++ **delta_t**:    translation vector of the extrinsics of the stereo pair with the first camera as reference (literature convention)
 + **E**:          essential matrix of the stereo pair (literature convention)
 + **F**:          fundamental matrix of the stereo pair (literature convention)
 </details>
@@ -92,6 +116,23 @@ Output params:
 + **P:                  cell array of projection matrices associated to the checkerboard images (literature convention)
 + **K:                  calibrated intrisics matrix (literature convention)
 + **intrinsics:         table with intrinsics and radial distortion parameters 
+</details>
+
+<!-- check_epipolar matlab function -->
+<details>
+    <summary>
+        check_epipolar_geometry
+    </summary>
+
+    test = check_epipolar_geometry(cam1, cam2, F)
+
+Input params:
++ **cam1**: camera object of the first camera (cf. webcam(...))
++ **cam2**: camera object of the second camera (cf. webcam(...))
++ **F**: fundamental matrix of the stereo pair (cam1 assumed as reference)
+
+Output params:
++ **test**: value of p2'*F*p1 value where p1, p2 are the points acquired from the first and second camera respectively in homogeneous coordinates
 </details>
 
 <!-- check_svd matlab function -->
@@ -172,15 +213,15 @@ Input params:
 + **aruco_markers**:      input marker dictionary
 + **aruco_real_sides**:   lengths of the markers in the dictionary [cm]
 + **K**:                  intrisics matrix of the camera (Matlab convention)
-+ **R_cam**:              rotation matrix of the camera pose in the world frame (Matlab convention)
-+ **t_cam**:              translation matrix of the camera pose in the world frame (Matlab convention)
++ **R_cam**:              rotation matrix of the camera extrinsics in the world frame (Matlab convention)
++ **t_cam**:              translation vector of the camera extrinsics in the world frame (Matlab convention)
 + **varargin**: collection of optional parameters check official Matlab documentation
 
 Output params:
 + **rois**:               rois matched with the markers
-+ **i_arucos**:           indices of the matched marker for every rois matched 
-+ **rois_R**:             rotation matrices of the roi poses (Matlab convention)
-+ **rois_t**:             translation vectors of the roi poses (Matlab convention)
++ **i_arucos**:           indices of the matched marker for every rois matched
++ **rois_R**:             rotation matrices of the roto-translations that map points from the roi frames into the world frame (Matlab convention)
++ **rois_t**:             translation vectors of the roto-translations that map points from the roi frames into the world frame (Matlab convention)
 </details>
 
 <!-- check_boundaries matlab function -->
@@ -369,13 +410,13 @@ Input params:
 + **i_arucos**: indices of the matched marker for every rois matched 
 + **aruco_real_sides**: lengths of the markers in the dictionary [cm]
 + **K**: intrisics matrix of the camera (Matlab convention)
-+ **R_cam**: rotation matrix of the camera pose in the world frame (Matlab convention)
-+ **t_cam**: translation matrix of the camera pose in the world frame (Matlab convention)
++ **R_cam**: rotation matrix of the camera extrinsics in the world frame (Matlab convention)
++ **t_cam**: translation vector of the camera extrinsics in the world frame (Matlab convention)
 + **varargin**: collection of optional parameters check official Matlab
 
 Output params:
-+ **R**: rotation matrices of the rois poses in the world frame (Matlab convention)
-+ **t**: translation vectors of the rois poses in the world frame (Matlab convention)
++ **R**: rotation matrices of the roto-translations that map points from the roi frames into the world frame (Matlab convention)
++ **t**: translation vectors of the roto-translations that map points from the roi frames into the world frame (Matlab convention)
 </details>
 
 <!-- roi_refinement matlab function -->
