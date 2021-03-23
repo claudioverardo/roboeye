@@ -11,11 +11,11 @@ t_cam_file = '../assets/calibration/extrinsics_cam1_tests/t_cam.mat';
 % img_source = '../assets/img_tests/7x7/img_7x7_04_03.png';
 % img_source = '../assets/img_tests/7x7/img_7x7_06_01.png';
 % img_source = '../assets/img_tests/7x7/img_7x7_06_02.png';
-% img_source = '../assets/img_tests/7x7/img_7x7_06_03.png';
+img_source = '../assets/img_tests/7x7/img_7x7_06_03.png';
 % img_source = '../assets/img_tests/7x7/img_7x7_08_01.png';
 % img_source = '../assets/img_tests/7x7/img_7x7_08_02.png';
 % img_source = '../assets/img_tests/7x7/img_7x7_12_01.png';
-img_source = '../assets/img_tests/7x7/img_7x7_12_02.png';
+% img_source = '../assets/img_tests/7x7/img_7x7_12_02.png';
 
 aruco_markers_file = '../assets/aruco_markers/aruco_markers_7x7.mat';
 aruco_real_sides = [3 3 3 3 4 4 5 5]; % [cm]
