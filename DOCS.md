@@ -257,6 +257,21 @@ Output params:
 + **is_valid_quad**: 1 if the shape is a valid quadrilateral 0 otherwise
 </details>
 
+<!-- get_image matlab function -->
+<details>
+    <summary>
+        get_image
+    </summary>
+
+    img = get_image(img_source)
+
+Input params:
++ **img_source**: webcam object or path to an image on disk
+
+Output params:
++ **img**: image acquired from the camera or loaded from disk
+</details>
+
 <!-- homography matlab function -->
 <details>
     <summary>
