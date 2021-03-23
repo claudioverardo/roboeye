@@ -38,7 +38,7 @@ Output params:
 Input params:
 + **cam**:                webcam object (cf. webcam(...))
 + **K**:                  intrinsics matrix of the camera (literature convention)
-+ **step_size**:          side of the squares of the checkerboard (cm)
++ **step_size**:          side of the squares of the checkerboard [cm]
 + **grid_arrangement**:   [x-steps y-steps] steps of the checkerboard along x,y axes
 + **cm2px_scale**:        dimension in cm of 1 pixel of the rectified image
 + **dir**:                directory where to write/read the calibration files
@@ -107,7 +107,7 @@ Input params:
     + 4: fx, fy, u0, v0
     + 5: fx, fy, u0, v0, skew
 + **n_radial_dist**:      number of the distortion coefficient to be calibrated (1, 2)
-+ **step_size**:          side of the squares of the checkerboard (cm)
++ **step_size**:          side of the squares of the checkerboard [cm]
 + **grid_arrangement**:   [x-steps y-steps] steps of the checkerboard along x,y axes
 + **cm2px_scale**:        dimension in cm of 1 pixel of the rectified images   
 + **dir_images**:         path of the directory containing the checkerboard images  
@@ -192,12 +192,12 @@ Input params:
 
 Input params:
 + **img**: input image
-+ **ruco_markers**: input marker dictionary
-+ **varargin**: collection of optional parameters check official Matlab documentation
++ **ruco_markers**: markers to be matched
++ **varargin**: collection of optional parameters, cf. the official Matlab documentation
 
 Output params:
-+ **rois_matched**: matched rois among the rois
-+ **i_arucos**: indices of the matched marker for every rois matched
++ **rois_matched**: ROIs matched with the markers
++ **i_arucos**: indices of the markers matched with the rois_matched
 </details>
 
 <!-- aruco_pose_estimation matlab function -->
@@ -210,18 +210,18 @@ Output params:
 
 Input params:
 + **img**:                input image
-+ **aruco_markers**:      input marker dictionary
-+ **aruco_real_sides**:   lengths of the markers in the dictionary [cm]
++ **aruco_markers**:      markers to be matched
++ **aruco_real_sides**:   real world lengths of the sides of the markers [cm]
 + **K**:                  intrisics matrix of the camera (Matlab convention)
 + **R_cam**:              rotation matrix of the camera extrinsics in the world frame (Matlab convention)
 + **t_cam**:              translation vector of the camera extrinsics in the world frame (Matlab convention)
-+ **varargin**: collection of optional parameters check official Matlab documentation
++ **varargin**:           collection of optional parameters, cf. the official Matlab documentation
 
 Output params:
-+ **rois**:               rois matched with the markers
-+ **i_arucos**:           indices of the matched marker for every rois matched
-+ **rois_R**:             rotation matrices of the roto-translations that map points from the roi frames into the world frame (Matlab convention)
-+ **rois_t**:             translation vectors of the roto-translations that map points from the roi frames into the world frame (Matlab convention)
++ **rois**:               ROIs matched with the markers
++ **i_arucos**:           indices of the markers matched with the rois
++ **rois_R**:             rotation matrices of the roto-translations that map points from the ROIs frames into the world frame (Matlab convention)
++ **rois_t**:             translation vectors of the roto-translations that map points from the ROIs frames into the world frame (Matlab convention)   
 </details>
 
 <!-- check_boundaries matlab function -->
@@ -235,10 +235,10 @@ Output params:
 Input params:
 + **i**:          i point coordinate (row)
 + **j**:          j point coordinate (column)
-+ **img_size**:   1x2 (rows img limit, columns img limit)
++ **img_size**:   1x2 [rows img limit, columns img limit]
 
 Output params:
-+ **check_ans**:  1 if the point is inside the image size 0 otherwise
++ **check_ans**:  1 if the point is inside the image 0 otherwise
 </details>
 
 <!-- check_quadrilateral matlab function -->
@@ -250,11 +250,11 @@ Output params:
     is_valid_quad = check_quadrilateral(points, varargin)
 
 Input params:
-+ **points**:   Array Nx2, example [ [x1,y1]; [x2,y2]; ...; [xN,yN] ]
-+ **varargin**: collection of optional parameters check official Matlab documentation
++ **points**:   array Nx2 of points that defines the shape [ [x1,y1]; [x2,y2]; ... ; [xN,yN] ]
++ **varargin**: collection of optional parameters, cf. the official Matlab documentation
 
 Output params:
-+ **is_valid_quad**: return 1 if this is a valid quadrilateral 0 otherwise
++ **is_valid_quad**: 1 if the shape is a valid quadrilateral 0 otherwise
 </details>
 
 <!-- homography matlab function -->
@@ -266,11 +266,11 @@ Output params:
     Y = homography(X, H)
 
 Input params:
-+ **X**:      Input set points (inhomogeneous coordinates)
-+ **H**:      Linear transformation between homogeneous coordinates (Matlab convention: hom(Y) = hom(X)*H)
++ **X**: input set of points (inhomogeneous coordinates)
++ **H**: linear transformation between homogeneous coordinates (Matlab convention: hom(Y) = hom(X)*H)
 
 Output params:
-+ **Y**:      Transformed output points (Matlab convention)
++ **Y**: transformed set of points (inhomogeneous coordinates)
 </details>
 
 <!-- plot_aruco_markers matlab function -->
@@ -292,15 +292,18 @@ Input params:
     </summary>
 
     [R, t, reproj_err] = pnp_lin(X_image, X_world, K)
-
+    
 Input params:
 + **X_image**:    Nx2 array, 2D image points
-+ **X_world**:    Nx3 array, 3D world points
++ **X_world**:    Nx3 array, 3D world points ( X_world(:,3) = 0 )
++ **K**:          intrisics matrix of the camera
 
 Output params:
-+ **R**:          rotation matrix 3x3 (Matlab convention)
-+ **t**:          translate vector 1x3 (Matlab convention)
++ **R**:          rotation matrix of the camera extrinsics
++ **t**:          translation vector of the camera extrinsics
 + **reproj_err**: reprojection error (RMS value)
+
+NOTE: Matlab convention is assumed, X_image = X_world*[R; t]*K.
 </details>
 
 <!-- pnp_nonlin matlab function -->
@@ -309,21 +312,21 @@ Output params:
         pnp_nonlin
     </summary>
 
-    [R, t] = pnp_nonlin(R0, t0, X_image, X_world, K) refines the input camera pose R0, t0 from a set of 2D-3D correspondences defined by X_image, X_world respectively. The algorithm minimizes the reprojection errors.
-
-    [R, t, reproj_err] = pnp_nonlin(R0, t0, X_image, X_world, K) return also the RMS value of the reprojection errors of the 3D-2D correspondences.
+    [R, t, reproj_err] = pnp_nonlin(R0, t0, X_image, X_world, K)
 
 Input params:
-+ **R0**:         Initial rotation matrix for the non-linear iterative method, typically calculate through the pnp_lin function
-+ **t0**:         Initial translate vector for the non-linear iterative method, typically calculate through the pnp_lin function
++ **R0**:         initial guess for the rotation matrix of the camera extrinsics, e.g., calculated with pnp_lin(...)
++ **t0**:         initial guess for the translation vector of the camera extrinsics, e.g., calculated with pnp_lin(...)
 + **X_image**:    Nx2 array, 2D image points
 + **X_world**:    Nx3 array, 3D world points
-+ **K**:          Intrisics matrix of the input camera
++ **K**:          intrisics matrix of the camera
 
 Output params:
-+ **R**:          rotation matrix 3x3 (Matlab convetion)
-+ **t**:          translate vector 1x3 (Matlab convetion)
++ **R**:          rotation matrix of the (refined) camera extrinsics
++ **t**:          translation vector of the (refined) camera extrinsics
 + **reproj_err**: reprojection error (RMS value)
+
+NOTE: Matlab convention is assumed, X_image = X_world*[R; t]*K.
 </details>
 
 <!-- reprojection_error matlab function -->
@@ -335,15 +338,17 @@ Output params:
     [err, J_ext] = reprojection_error(m, M, K, R, t)
 
 Input params:
-+ **m**:      2D point (image point)
-+ **M**:      3D point (world point)
-+ **K**:      Intrisics matrix of the input camera
-+ **R**:      Rotation matrix 3x3 (Matlab convention)
-+ **t**:      Translation vector 1x3 (Matlab convention)
++ **m**:      2D image point
++ **M**:      3D world point
++ **K**:      intrisics matrix of the camera
++ **R**:      rotation matrix of the camera extrinsics
++ **t**:      translation vector of the camera extrinsics
 
 Output params:
-+ **err**:    component-wise reprojection error between m and M*[R; t]*K
-+ **J_ext**:  Jacobian of err wrt the external parameters
++ **err**:    2x1 array, reprojection error between m and reproj(M)
++ **J_ext**:  2x12 array, Jacobian of err wrt the camera extrinsics [R11,R21,R31,R12,R22,R32,R13,R23,R33,t1,t2,t3]
+
+NOTE: Matlab convention is assumed, reproj(M) = M*[R; t]*K.
 </details>
 
 <!-- roi_extraction matlab function -->
@@ -352,15 +357,16 @@ Output params:
         roi_extraction
     </summary>
 
-    rois_raw = roi_extraction(img, img_gray, varargin)
+    [rois_raw, time] = roi_extraction(img, img_gray, varargin)
 
 Input params:
 + **img**:      input image
-+ **img_gray**: input image grayscale
-+ **varargin**: collection of optional parameters check official Matlab
++ **img_gray**: input image (grayscale)
++ **varargin**: collection of optional parameters, cf. the official Matlab documentation
 
 Output params:
-+ **rois_raw**: extracted rois without any refinement
++ **rois_raw**: extracted ROIs without any refinement
++ **time**: execution time (ignoring plots)
 </details>
 
 <!-- roi_extraction_dfs matlab function -->
@@ -376,6 +382,8 @@ Input params:
 
 Output params:
 + **components**: cell array of the connected components (points and tails)
+    + components{i,1} is the set of points of the i-th component
+    + components{i,2} is the set of tails of the i-th component
 </details>
 
 <!-- roi_extraction_dfs_c matlab function -->
@@ -393,19 +401,20 @@ TODO
         roi_matching
     </summary>
 
-    [rois_matched, i_rois_matched, i_arucos] = roi_matching(img, img_gray, rois, aruco_markers, varargin)
+    [rois_matched, i_rois_matched, i_arucos, time] = roi_matching(img, img_gray, rois, aruco_markers, varargin)
 
 Input params:
 + **img**: input image
-+ **img_gray**: input image grayscale
-+ **rois**: region of interest candidated for matching with markers
-+ **aruco_markers**: input marker dictionary
-+ **varargin**: collection of optional parameters check official Matlab
++ **img_gray**: input image (grayscale)
++ **rois**: candidated ROIs for matching with markers
++ **aruco_markers**: markers to be matched
++ **varargin**: collection of optional parameters, cf. the official Matlab documentation
 
 Output params:
-+ **rois_matched**: matched rois among the rois
++ **rois_matched**: matched ROIs among the candidated ROIs
 + **i_rois_matched**: indices of the rois_matched in the rois cell array
-+ **i_arucos**: indices of the matched marker for every rois matched 
++ **i_arucos**: indices of the markers matched with the rois_matched
++ **time**: execution time (ignoring plots)
 </details>
 
 <!-- roi_pose_estimation matlab function -->
@@ -414,21 +423,24 @@ Output params:
         roi_pose_estimation
     </summary>
 
-    [R, t] = roi_pose_estimation(img, rois, i_arucos, aruco_real_sides, K, R_cam, t_cam, varargin)
+    [R, t, err_lin, err_nonlin, time] = roi_pose_estimation(img, rois, i_arucos, aruco_real_sides, K, R_cam, t_cam, varargin)
 
 Input params:
 + **img**: input image
-+ **rois**: regions of interest matched with the markers
-+ **i_arucos**: indices of the matched marker for every rois matched 
-+ **aruco_real_sides**: lengths of the markers in the dictionary [cm]
++ **rois**: ROIs matched with the markers
++ **i_arucos**: indices of the matched markers for every ROIs
++ **aruco_real_sides**: real world lengths of the sides of the markers [cm]
 + **K**: intrisics matrix of the camera (Matlab convention)
 + **R_cam**: rotation matrix of the camera extrinsics in the world frame (Matlab convention)
 + **t_cam**: translation vector of the camera extrinsics in the world frame (Matlab convention)
-+ **varargin**: collection of optional parameters check official Matlab
++ **varargin**: collection of optional parameters, cf. the official Matlab documentation
 
 Output params:
 + **R**: rotation matrices of the roto-translations that map points from the roi frames into the world frame (Matlab convention)
 + **t**: translation vectors of the roto-translations that map points from the roi frames into the world frame (Matlab convention)
++ **err_lin**: RMS values of reprojection errors (after linear PnP)
++ **err_nonlin**: RMS values of reprojection errors (after non-linear PnP)
++ **time**: execution time (ignoring plots)
 </details>
 
 <!-- roi_refinement matlab function -->
@@ -437,19 +449,20 @@ Output params:
         roi_refinement
     </summary>
 
-    [rois_refined, i_rois_refined] = roi_refinement(img, rois_raw, varargin)
+    [rois_refined, i_rois_refined, time] = roi_refinement(img, rois_raw, varargin)
 
 Input params:
 + **img**: input image
-+ **rois_raw**: extracted region of interests
-+ **varargin**: collection of optional parameters check official Matlab
++ **rois_raw**: input ROIs without any refinement
++ **varargin**: collection of optional parameters, cf. the official Matlab documentation
 
 Output params:
-+ **rois_refined**: valid rois among the rois_raw
++ **rois_refined**: refined and selected ROIs among the input ROIs
 + **i_rois_refined**: indices of the rois_refined in the rois_raw cell array
++ **time**: execution time (ignoring plots)
 </details>
 
-<!-- roi_refinement matlab function -->
+<!-- rpy2rot matlab function -->
 <details>
     <summary>
         rpy2rot
@@ -458,10 +471,13 @@ Output params:
     [R, J_roll, J_pitch, J_yaw] = rpy2rot(a)
 
 Input params:
-+ **a**: a(1) = roll  (x-axis), a(2) = pitch (y-axis), a(3) = yaw (z-axis)
++ **a**: roll-pitch-yaw parameterization of the rotation
+    + a(1) = roll  (rotation angle around x-axis)
+    + a(2) = pitch (rotation angle around y-axis)
+    + a(3) = yaw   (rotation angle around z-axis)
 
 Output params:
-+ **R**: R = Rx(roll)*Ry(pitch)*Rz(yaw)
++ **R**: rotation matrix, R = Rx(roll)*Ry(pitch)*Rz(yaw)
 + **J_roll**: Jacobian of R wrt roll
 + **J_pitch**: Jacobian of R wrt pitch
 + **J_yaw**: Jacobian of R wrt yaw

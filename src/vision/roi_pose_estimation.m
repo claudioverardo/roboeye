@@ -1,14 +1,15 @@
-function [R, t] = roi_pose_estimation(img, rois, i_arucos, aruco_real_sides, K, R_cam, t_cam, varargin)
-% ROI_POSE_ESTIMATION Compute pose of matched ROIs in the camera frame
+function [R, t, err_lin, err_nonlin, time] = roi_pose_estimation(img, rois, i_arucos, aruco_real_sides, K, R_cam, t_cam, varargin)
+% ROI_POSE_ESTIMATION Compute pose of matched ROIs in the world frame.
 %
-%   [R, t] = ROI_POSE_ESTIMATION(img, rois, i_arucos, aruco_real_sides, K, R_cam, t_cam)
+%   [R, t, err_lin, err_nonlin, time] = ROI_POSE_ESTIMATION(img, rois, i_arucos, 
+%   aruco_real_sides, K, R_cam, t_cam)
 %
 %   Input arguments:
 %   ------------------
 %   img:                input image
-%   rois:               regions of interest matched with the markers
-%   i_arucos:           indices of the matched marker for every rois matched 
-%   aruco_real_sides:   lengths of the markers in the dictionary [cm]
+%   rois:               ROIs matched with the markers
+%   i_arucos:           indices of the matched markers for every ROIs
+%   aruco_real_sides:   real world lengths of the sides of the markers [cm]
 %   K:                  intrisics matrix of the camera (Matlab convention)
 %   R_cam:              rotation matrix of the camera extrinsics in the world frame
 %                       (Matlab convention)
@@ -17,7 +18,7 @@ function [R, t] = roi_pose_estimation(img, rois, i_arucos, aruco_real_sides, K, 
 %   
 %   Parameters:
 %   --------
-%   'verbose':          verbose level of the function (allowed values 0, 1, 2)
+%   'verbose':          verbose level of the function (0, 1, 2)
 %
 %   Output arguments:
 %   ------------------
@@ -25,8 +26,14 @@ function [R, t] = roi_pose_estimation(img, rois, i_arucos, aruco_real_sides, K, 
 %                       from the roi frames into the world frame (Matlab convention)
 %   t:                  translation vectors of the roto-translations that map points
 %                       from the roi frames into the world frame (Matlab convention)
+%   err_lin:            RMS values of reprojection errors (after linear PnP)
+%   err_nonlin:         RMS values of reprojection errors (after non-linear PnP)
+%   time:               execution time (ignoring plots)
 %
 %   See also ARUCO_POSE_ESTIMATION, PNP_LIN, PNP_NONLIN
+
+    % Start timer
+    tic;
 
     % Default values of parameters    
     default_verbose = 1;
@@ -39,11 +46,10 @@ function [R, t] = roi_pose_estimation(img, rois, i_arucos, aruco_real_sides, K, 
     % Parse function parameters
     VERBOSE = p.Results.verbose;
     
-    % Generate world points for PnP
+    % Generate points in the ROIs frames for PnP
     n_arucos_markers = length(aruco_real_sides);
     rois_world_pnp = cell(n_arucos_markers,1);
     for i=1:n_arucos_markers
-        % Real world coordinates of ROIs
         rois_world_pnp{i} = aruco_real_sides(i) * [
             %  x    y    z
             -0.5  0.5    0
@@ -63,17 +69,16 @@ function [R, t] = roi_pose_estimation(img, rois, i_arucos, aruco_real_sides, K, 
     P_pnp = cell(n_rois,1);
     R = cell(n_rois,1);
     t = cell(n_rois,1);
+    err_lin = zeros(n_rois,1);
+    err_nonlin = zeros(n_rois,1);
     for i=1:n_rois
         
-        % Poses of the camera wrt the ROI frames (PnP + non-linear refinement)
-        [R_pnp{i}, t_pnp{i}, reproj_err_lin] = pnp_lin(rois{i}, rois_world_pnp{i_arucos(i)}, K);
-        [R_pnp{i}, t_pnp{i}, reproj_err_nonlin] = pnp_nonlin(R_pnp{i}, t_pnp{i}, rois{i}, rois_world_pnp{i_arucos(i)}, K);
-        % Projective matrices associated with the ROI frames
-        P_pnp{i} = [R_pnp{i}; t_pnp{i}]*K;
+        % Poses of the camera wrt the ROIs frames (PnP + non-linear refinement)
+        [R_pnp{i}, t_pnp{i}, err_lin(i)] = pnp_lin(rois{i}, rois_world_pnp{i_arucos(i)}, K);
+        [R_pnp{i}, t_pnp{i}, err_nonlin(i)] = pnp_nonlin(R_pnp{i}, t_pnp{i}, rois{i}, rois_world_pnp{i_arucos(i)}, K);
         
-        if VERBOSE > 1
-            fprintf('ROI %d: reproj error (RMS) lin: %f -- nonlin: %f\n', i, reproj_err_lin, reproj_err_nonlin);
-        end
+        % Projection matrices associated with the ROIs frames
+        P_pnp{i} = [R_pnp{i}; t_pnp{i}]*K;
         
         % Poses of the ROIs in the world frame
         % G{i}  = G_pnp{i} * inv(G_cam)
@@ -81,6 +86,9 @@ function [R, t] = roi_pose_estimation(img, rois, i_arucos, aruco_real_sides, K, 
         t{i} = t_pnp{i}*R_cam' - t_cam*(R_cam');
         
     end
+    
+    % End timer
+    time = toc;
     
     % Plots
     if VERBOSE > 0
@@ -116,7 +124,7 @@ function [R, t] = roi_pose_estimation(img, rois, i_arucos, aruco_real_sides, K, 
                      [roi(:,2); roi(1,2)], ...
                      'color','m','linestyle','-','linewidth',1.5, ...
                      'marker','o','markersize',5);
-                lines_rois_str{1} = 'ROIs Detected';
+                lines_rois_str{1} = 'ROIs detected';
             end
             
             % Plot control point
@@ -182,7 +190,7 @@ function [R, t] = roi_pose_estimation(img, rois, i_arucos, aruco_real_sides, K, 
         if n_rois > 0
             legend( [lines_rois, line_reproj_rois, line_control_points, lines_axes_pose_reproj, lines_axes_world_reproj], ...
                 lines_rois_str{:}, 'ROIs reprojected', 'Control points', ...
-                'ROIs pose x-axis', 'ROIs pose y-axis', 'ROIs pose z-axis', ...
+                'ROIs poses x-axis', 'ROIs poses y-axis', 'ROIs poses z-axis', ...
                 'World frame X-axis', 'World frame Y-axis', 'World frame Z-axis');
         end
         

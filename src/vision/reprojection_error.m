@@ -1,27 +1,27 @@
 function [err, J_ext] = reprojection_error(m, M, K, R, t)
-% REPROJECTION_ERROR Reprojection error of 3D-2D correspondence.
-% 
-%   err = REPROJECTION_ERROR(m, M, K, R, t) finds the component-wise error
-%   between the 2D point m and the 3D point M reprojected with P = [R; t]*K.
+% REPROJECTION_ERROR Reprojection error of a 3D-2D correspondence. It finds
+% the component-wise reprojection error between a 2D point and a 3D point.
+% The Jacobian wrt the extrinsics of the camera is also returned.
 %
-%   [err, J_ext] = REPROJECTION_ERROR(m, M, K, R, t) returns the error and
-%   its Jacobian wrt the external parameters R_ij, t_i (2x12 matrix).
+%   [err, J_ext] = REPROJECTION_ERROR(m, M, K, R, t)
 %
 %   Input arguments:
 %   ------------------
-%   m:      2D point (image point)
-%   M:      3D point (world point)
-%   K:      Intrisics matrix of the input camera
-%   R:      Rotation matrix 3x3 (Matlab convention)
-%   t:      Translation vector 1x3 (Matlab convention)
+%   m:      2D image point
+%   M:      3D world point
+%   K:      intrisics matrix of the camera
+%   R:      rotation matrix of the camera extrinsics
+%   t:      translation vector of the camera extrinsics
 %
 %   Output arguments:
 %   ------------------
-%   err:    component-wise reprojection error between m and M*[R; t]*K
-%   J_ext:  Jacobian of err wrt the external parameters
+%   err:    2x1 array, reprojection error between m and reproj(M)
+%   J_ext:  2x12 array, Jacobian of err wrt the camera extrinsics
+%           [R11,R21,R31,R12,R22,R32,R13,R23,R33,t1,t2,t3]
+%
+%   NOTE: Matlab convention is assumed, reproj(M) = M*[R; t]*K.
 %
 %   See also PNP_LIN, PNP_NONLIN
-
     
     % Hereafter, fp denotes the perspective division.
     % It converts homogeneous coordinates to inhomogenous coordinates

@@ -16,7 +16,7 @@ function images = acquire_calibration_images(n_images, cameras, dirs_images)
 %   images:         cell array of acquired images 
 %                   images{i,j} is the i-th image acquired from the j-th camera
 %   
-%   NOTE this function requires the MATLAB Support Package for USB Webcams
+%   NOTE: this function requires the MATLAB Support Package for USB Webcams.
 %
 %   See also WEBCAMLIST, WEBCAM, SNAPSHOT, PREVIEW
 

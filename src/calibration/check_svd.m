@@ -1,5 +1,5 @@
 function sigma_svd = check_svd(X)
-% CHECK_SVD SVD test to check if arrays are (numerically) linearly dependent 
+% CHECK_SVD SVD test to check if arrays are (numerically) linearly dependent.
 %
 %   sigma_svd = CHECK_SVD(X)
 %

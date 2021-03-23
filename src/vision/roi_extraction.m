@@ -1,31 +1,40 @@
-function rois_raw = roi_extraction(img, img_gray, varargin)
-% ROI_EXTRACTION Extract ROIs from input image
+function [rois_raw, time] = roi_extraction(img, img_gray, varargin)
+% ROI_EXTRACTION Extract ROIs from input image.
 %
-%   rois_raw = ROI_EXTRACTION(img, img_gray)
+%   [rois_raw, time] = ROI_EXTRACTION(img, img_gray)
 %
 %   Input arguments:
 %   ------------------
 %   img:                    input image
-%   img_gray:               input image grayscale
+%   img_gray:               input image (grayscale)
 %
 %   Parameters:
 %   ------------------   
-%   'method':				choose the roi extraction algorithm
-%                           'adaptth-moore': Adaptive thresholding + Moore-Neighbor tracing 
-%                           'canny-dfs': Canny edge detector + DFS
-%                           'canny-dfs-c': Canny edge detector + DFS C-implementation   
-%   'adaptth_sensitivity':	sensitivity of the adaptive thresholding (cf adaptthresh)	
-%   'adaptth_statistic':	statistic of the adaptive thresholding (cf adaptthresh)			
-%   'adaptth_neighborhood':	neighborhood of the adaptive thresholding (cf adaptthresh)			
-%   'canny_th_low':			lower threshold of the Canny edge detector (cf edge)
-%   'canny_th_high':		higher threshold of the Canny edge detector (cf edge)		
-%   'verbose':              verbose level of the function (allowed values 0, 1, 2)
+%   'method':   choose the ROI extraction algorithm
+%               - 'adaptth-moore': adaptive thresholding + Moore-Neighbor tracing 
+%               - 'canny-dfs': Canny edge detector + DFS
+%               - 'canny-dfs-c': Canny edge detector + DFS C-implementation   
+%   'adaptth_sensitivity':	sensitivity of the adaptive thresholding, 
+%                           cf. adaptthresh(...)
+%   'adaptth_statistic':	statistic of the adaptive thresholding,
+%                           cf. adaptthresh(...)		
+%   'adaptth_neighborhood':	neighborhood size of the adaptive thresholding,
+%                           cf. adaptthresh(...)			
+%   'canny_th_low':			lower threshold of the Canny edge detector,
+%                           cf. edge(...)
+%   'canny_th_high':		higher threshold of the Canny edge detector,
+%                           cf. edge(...)		
+%   'verbose':              verbose level of the function (0, 1, 2)
 %
 %   Output arguments:
 %   ------------------
-%   rois_raw:               extracted rois without any refinement
+%   rois_raw:               extracted ROIs without any refinement
+%   time:                   execution time (ignoring plots)
 %
 %   See also ARUCO_DETECTION
+
+    % Start timer
+    tic;
 
     % Default values of parameters
     default_method = 'adaptth-moore';
@@ -62,15 +71,12 @@ function rois_raw = roi_extraction(img, img_gray, varargin)
         % sensitivity -> [0,1]
         % Statistic -> mean, gaussian, median
         % NeighborhoodSize -> [height, width,], odd values, default 2*floor(size(img_gray)/16)+1
-        img_th = adaptthresh(img_gray, ADAPTTH_SENSITIVITY, 'Statistic', ADAPTTH_STATISTIC, 'NeighborhoodSize', ADAPTTH_NEIGHBORHOOD); 
+        img_th = adaptthresh(  ...
+            img_gray, ADAPTTH_SENSITIVITY, ...
+            'Statistic', ADAPTTH_STATISTIC, ...
+            'NeighborhoodSize', ADAPTTH_NEIGHBORHOOD ...
+        ); 
         img_bw = imbinarize(img_gray, img_th);
-    
-        % Plot binarization output
-        if VERBOSE > 1
-            figure;
-            imshow(img_bw);
-            title('Binarized image');
-        end
         
         % Extract morphological components - Moore-Neighbor tracing
         rois_raw = bwboundaries(1-img_bw,'noholes');
@@ -82,68 +88,90 @@ function rois_raw = roi_extraction(img, img_gray, varargin)
             rois_raw{k}(end,:) = [];
             % NOTE: the output of bwboundaries may contain repeated points (pay attention with roi_refinement_geometric)
         end
+
+        % End timer
+        time = toc;
+    
+        % Plot binarization output
+        if VERBOSE > 1
+            figure;
+            imshow(img_bw);
+            title('Binarized image');
+        end
         
     elseif strcmp(METHOD, 'canny-dfs')
         
-        % Grayscale converion already performed in aruco_detection
+        % Grayscale conversion already performed in aruco_detection
         % img_gray = rgb2gray(img);
 
         % Canny edge detector
         img_canny = edge(img_gray, 'canny', [CANNY_TH_LOW, CANNY_TH_HIGH]);
-
-        % Plot Canny output
-        if VERBOSE > 1
-           figure;
-           imshow(img_canny);
-           title('Canny Edge Detector');
-        end
 
         % Extract morphological components - DFS [MATLAB-implementation]
         components = roi_extraction_dfs(img_canny);
-        
-        if VERBOSE > 0
+        rois_raw = components(:,1);
+
+        % End timer
+        time = toc;
+
+        if VERBOSE > 1
+           
+            % Plot Canny output
+            figure;
+            imshow(img_canny);
+            title('Canny Edge Detector');
+           
+            % Plot DFS output
             I = zeros(size(img));
-            for i = 1:size(components, 1)
-                % plot component points
+            n_components = size(components, 1);
+            colors = [ rand(n_components, 1)/2, rand(n_components, 2) ];
+            for i = 1:n_components
+                % Plot component points
                 for j = 1:size(components{i, 1}, 1)
-                    I(components{i, 1}(j, 2), components{i, 1}(j, 1), :) = [255, 255, 255];
+                    I(components{i, 1}(j, 2), components{i, 1}(j, 1), :) = colors(i,:);
                 end
-                % plot tails
+                % Plot tails
                 for j = 1:size(components{i, 2}, 1)
-                    I(components{i, 2}(j, 2), components{i, 2}(j, 1), :) = [255, 0, 0];
+                    I(components{i, 2}(j, 2), components{i, 2}(j, 1), :) = [1, 0, 0];
                 end
             end
-
             figure;
             imshow(I);
-            title('Components');
+            title('Components (points + tails)');
+           
         end
-        
-        rois_raw = components(:,1);
         
     elseif strcmp(METHOD, 'canny-dfs-c')
         
-        % Grayscale converion already performed in aruco_detection
+        % Grayscale conversion already performed in aruco_detection
         % img_gray = rgb2gray(img);
 
         % Canny edge detector
         img_canny = edge(img_gray, 'canny', [CANNY_TH_LOW, CANNY_TH_HIGH]);
-
-        % Plot Canny output
-        if VERBOSE > 1
-           figure;
-           imshow(img_canny);
-           title('Canny Edge Detector');
-        end
 
         % Extract morphological components - DFS [C-implementation]
         [components, tails] = roi_extraction_dfs_c(img_canny, size(img_canny, 1), size(img_canny, 2));
         rois_raw = components;
+
+        % End timer
+        time = toc;
+
+        if VERBOSE > 1
+            
+            % Plot Canny output
+            figure;
+            imshow(img_canny);
+            title('Canny Edge Detector');
+            
+        end
     
     else
         
         % Invalid ROI_EXTRACTION_METHOD
         error('Error: Invalid ROI_EXTRACTION_METHOD = \"%s\"', METHOD);
+
+        % End timer
+        time = toc;
     
     end
     

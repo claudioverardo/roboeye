@@ -1,25 +1,24 @@
 function [R, t, reproj_err] = pnp_lin(X_image, X_world, K)
-% PNP Perspective-n-Points (PnP) from 3D-2D correspondences.
-%   
-%   [R, t] = PNP_LIN(X_image, X_world, K) finds the camera pose R, t from a
-%   set of 2D-3D correspondences defined by X_image, X_world respectively.
-%   The algorithm assumes 3D points with z=0, i.e. X_world(:,3)=0.
-%   
-%   [R, t, reproj_err] = PNP_LIN(X_image, X_world, K) return also the RMS
-%   value of the reprojection errors of the 3D-2D correspondences.
+% PNP_LIN Perspective-n-Points (PnP) from 3D-2D correspondences. It finds the
+% camera extrinsics R, t wrt the frame of the 3D points from a set of 3D-2D
+% correspondences. The algorithm assumes coplanar 3D points, i.e. with z=0.
+% Also the RMS value of the reprojection errors is returned.
+%
+%   [R, t, reproj_err] = PNP_LIN(X_image, X_world, K)
 %
 %   Input arguments:
 %   ------------------
 %   X_image:    Nx2 array, 2D image points
-%   X_world:    Nx3 array, 3D world points
+%   X_world:    Nx3 array, 3D world points ( X_world(:,3) = 0 )
+%   K:          intrisics matrix of the camera
 %
 %   Output arguments:
 %   ------------------
-%   R:          rotation matrix 3x3 (Matlab convention)
-%   t:          translate vector 1x3 (Matlab convention)
+%   R:          rotation matrix of the camera extrinsics
+%   t:          translation vector of the camera extrinsics
 %   reproj_err: reprojection error (RMS value)
 %   
-%   NOTE: points and K with Matlab conventions, X_image = X_world*[R; t]*K.
+%   NOTE: Matlab convention is assumed, X_image = X_world*[R; t]*K.
 %
 %   See also PNP_NONLIN, REPROJECTION_ERROR
 

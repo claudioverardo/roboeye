@@ -1,8 +1,8 @@
 function [P, K, intrinsics] = calibration_intrinsics_camera(n_intrinsics, n_radial_dist, step_size, grid_arrangement, cm2px_scale, dir_images)
-% CALIBRATION_INTRINSICS_STEREO Retrive the intrisics and radial distortion 
-% parameters of a camera using a set of checkerboard images (SMZ algorithm)
+% CALIBRATION_INTRINSICS_CAMERA Retrive the intrisics and radial distortion 
+% parameters of a camera using a set of checkerboard images (SMZ algorithm).
 %
-%   [P, K, intrinsics] = CALIBRATION_INTRINSICS_STEREO(n_intrinsics, n_radial_dist,
+%   [P, K, intrinsics] = CALIBRATION_INTRINSICS_CAMERA(n_intrinsics, n_radial_dist,
 %   step_size, grid_arrangement, cm2px_scale, dir_images)
 %
 %   Input arguments:
@@ -11,7 +11,7 @@ function [P, K, intrinsics] = calibration_intrinsics_camera(n_intrinsics, n_radi
 %                       4: fx, fy, u0, v0
 %                       5: fx, fy, u0, v0, skew
 %   n_radial_dist:      number of the distortion coefficient to be calibrated (1, 2)
-%   step_size:          side of the squares of the checkerboard (cm)
+%   step_size:          side of the squares of the checkerboard [cm]
 %   grid_arrangement:   [x-steps y-steps] steps of the checkerboard along x,y axes
 %   cm2px_scale:        dimension in cm of 1 pixel of the rectified images   
 %   dir_images:         path of the directory containing the checkerboard images           

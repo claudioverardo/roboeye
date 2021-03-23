@@ -1,6 +1,6 @@
 function [R_cam, t_cam] = calibration_extrinsics_camera(cam, K, step_size, grid_arrangement, cm2px_scale, dir)
 % CALIBRATION_EXTRINSICS_CAMERA Retrive the rotation matrix and the translation
-% vector (extrinsics) of a camera wrt a world frame attached to a checkerboard
+% vector (extrinsics) of a camera wrt a world frame attached to a checkerboard.
 %
 %   [R_cam, t_cam] = CALIBRATION_EXTRINSICS_CAMERA(cam, K, step_size, grid_arrangement, cm2px_scale, dir)
 %
@@ -8,7 +8,7 @@ function [R_cam, t_cam] = calibration_extrinsics_camera(cam, K, step_size, grid_
 %   ------------------
 %   cam:                webcam object (cf. webcam(...))
 %   K:                  intrinsics matrix of the camera (literature convention)
-%   step_size:          side of the squares of the checkerboard (cm)
+%   step_size:          side of the squares of the checkerboard [cm]
 %   grid_arrangement    [x-steps y-steps] steps of the checkerboard along x,y axes
 %   cm2px_scale:        dimension in cm of 1 pixel of the rectified image
 %   dir:                directory where to write/read the calibration files

@@ -1,22 +1,25 @@
 function [rois_matched, i_arucos] = aruco_detection(img, aruco_markers, varargin)
-% ARUCO_DETECTION Build Aruco detection pipeline. It executes in
-% order roi_extraction(...), roi_refinement(...), roi_matching(...)
+% ARUCO_DETECTION Build Aruco detection pipeline. It executes in order the
+% functions roi_extraction(...), roi_refinement(...), roi_matching(...).
 %
 %   [rois_matched, i_arucos] = ARUCO_DETECTION(img, aruco_markers)
 %
 %   Input arguments:
 %   ------------------
 %   img:            input image
-%   aruco_markers:  input marker dictionary
+%   aruco_markers:  markers to be matched
 %
 %   Parameters:
 %   ------------------
-%   Refers to roi_extraction(...), roi_refinement(...), roi_matching(...)
+%   'verbose':      verbose level of the function (0, 1)
+%
+%   Refer to roi_extraction(...), roi_refinement(...), roi_matching(...) 
+%   for details about further allowed parameters.
 %
 %   Output arguments:
 %   ------------------
-%   rois_matched:   matched rois among the rois
-%   i_arucos:       indices of the matched marker for every rois matched 
+%   rois_matched:   ROIs matched with the markers
+%   i_arucos:       indices of the markers matched with the rois_matched
 %
 %   See also ROI_EXTRACTION, ROI_REFINEMENT, ROI_MATCHING
 
@@ -91,16 +94,11 @@ function [rois_matched, i_arucos] = aruco_detection(img, aruco_markers, varargin
     ROI_MATCHING_VERBOSE = p.Results.roi_matching_verbose;
     VERBOSE = p.Results.verbose;
     
-    fprintf('-------- Aruco Detection --------\n');
-    
-    % Plot Aruco Markers
-    if VERBOSE > 0
-        plot_aruco_markers(aruco_markers);
-    end
+    fprintf('\n-------- Aruco Detection --------\n');
 
     % Extract ROIs from input image
     fprintf('roi_extraction...\n');
-    rois_raw = roi_extraction( ...
+    [rois_raw, time_roi_extraction] = roi_extraction( ...
         img, img_gray, ... 
         'method', ROI_EXTRACTION_METHOD, ...
         'adaptth_sensitivity', ADAPTTH_SENSITIVITY, ...
@@ -111,9 +109,13 @@ function [rois_matched, i_arucos] = aruco_detection(img, aruco_markers, varargin
         'verbose', ROI_EXTRACTION_VERBOSE ...
     );
 
+    if VERBOSE > 0
+        fprintf('  #rois_raw: %d\n  time: %f s\n', length(rois_raw), time_roi_extraction);
+    end
+
     % Select candidate ROIs for matching
     fprintf('roi_refinement...\n');
-    [rois_refined, i_rois_refined] = roi_refinement( ...
+    [rois_refined, i_rois_refined, time_roi_refined] = roi_refinement( ...
         img, rois_raw, ... 
         'method', ROI_REFINEMENT_METHOD, ...
         'roi_size_th', ROI_SIZE_TH, ...
@@ -125,10 +127,14 @@ function [rois_matched, i_arucos] = aruco_detection(img, aruco_markers, varargin
         'verbose', ROI_REFINEMENT_VERBOSE ...
     );
 
+    if VERBOSE > 0
+        fprintf('  #rois_refined: %d\n  time: %f s\n', length(rois_refined), time_roi_refined);
+    end
+
     % Match Aruco markers with candidate ROIs.
     % NB: rois_matched contains sorted vertices of ROIs
     fprintf('roi_matching...\n');
-    [rois_matched, i_rois_matched, i_arucos] = roi_matching(...
+    [rois_matched, i_rois_matched, i_arucos, time_roi_matching] = roi_matching(...
         img, img_gray, rois_refined, aruco_markers, ...
         'roi_bb_padding', ROI_BB_PADDING, ...
         'roi_h_side', ROI_H_SIDE, ...
@@ -137,7 +143,11 @@ function [rois_matched, i_arucos] = aruco_detection(img, aruco_markers, varargin
     );
 
     if VERBOSE > 0
-        % TODO: plot of elapsed time at each step
-    else
+        n_rois_matched = length(rois_matched);
+        fprintf('  #rois_matched: %d\n  time: %f s\n', n_rois_matched, time_roi_matching);
+        for i=1:n_rois_matched
+            fprintf('  ROI %d -> Aruco %d detected\n', i, i_arucos(i));
+        end
+    end
 
 end

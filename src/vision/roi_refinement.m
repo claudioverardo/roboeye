@@ -1,19 +1,19 @@
-function [rois_refined, i_rois_refined] = roi_refinement(img, rois_raw, varargin)
-% ROI_REFINEMENT Select candidate ROIs for matching
+function [rois_refined, i_rois_refined, time] = roi_refinement(img, rois_raw, varargin)
+% ROI_REFINEMENT Refine and select candidate ROIs for matching.
 %
-%   [rois_refined, i_rois_refined] = ROI_REFINEMENT(img, rois_raw)
+%   [rois_refined, i_rois_refined, time] = ROI_REFINEMENT(img, rois_raw)
 %
 %   Input arguments:
 %   ------------------
 %   img:                    input image
-%   rois_raw:               extracted region of interests
+%   rois_raw:               input ROIs without any refinement
 %
 %   Parameters:
 %   ------------------
-%   'method':               Choose the roi refinement algorithm
-%                           'rdp': Ramer-Douglas–Peucker 
-%                           'geometric': Extreme corners for each quadrilateral side
-%   'roi_size_th':          minimun number of points require by each roi to be processed
+%   'method':               Choose the ROI refinement algorithm
+%                           - 'rdp': Ramer-Douglas–Peucker 
+%                           - 'geometric': find four extreme corners
+%   'roi_size_th':          minimun #points required by each ROI to be processed
 %   'rdp_th':               threshold of the Ramer-Douglas–Peucker algorithm
 %   'roi_sum_angles_tol':   tolerance on the sum of the internal angles [degrees]
 %   'roi_parallelism_tol':  tolerance on the angle between opposite sides [degrees]
@@ -21,16 +21,20 @@ function [rois_refined, i_rois_refined] = roi_refinement(img, rois_raw, varargin
 %                           (normalized wrt the diagonal of the image)
 %   'roi_side_th_high':     higher threshold on the length of each side
 %                           (normalized wrt the diagonal of the image)
-%   'verbose':              verbose level of the function (allowed values 0, 1, 2)
+%   'verbose':              verbose level of the function (0, 1, 2)
 %
 %   Output arguments:
 %   ------------------
-%   rois_refined:           valid rois among the rois_raw
+%   rois_refined:           refined and selected ROIs among the input ROIs
 %   i_rois_refined:         indices of the rois_refined in the rois_raw cell array
+%   time:                   execution time (ignoring plots)
 %
-%   NOTE to use the Ramer-Douglas–Peucker('rdp') you need Matlab >= 2019b
+%   NOTE: to use Ramer-Douglas–Peucker ('rdp') Matlab >= 2019b is needed.
 %
 %   See also ARUCO_DETECTION
+
+    % Start timer
+    tic;
 
     % Default values of parameters
     default_method = 'rdp';
@@ -113,12 +117,15 @@ function [rois_refined, i_rois_refined] = roi_refinement(img, rois_raw, varargin
         end
         
     end
-    
-    n_rois_refined = size(rois_refined,1);
-    n_rois_discarded = size(rois_discarded,1);
+
+    % End timer
+    time = toc;
     
     % Plot refined ROIs
     if VERBOSE > 0
+    
+        n_rois_refined = size(rois_refined,1);
+        n_rois_discarded = size(rois_discarded,1);
         
         figure;
         imshow(img);

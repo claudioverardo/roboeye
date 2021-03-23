@@ -1,5 +1,5 @@
 function plot_aruco_markers(aruco_markers)
-% PLOT_ARUCO_MARKERS Show the content of a set of Aruco markers
+% PLOT_ARUCO_MARKERS Show the content of a set of Aruco markers.
 %
 %   PLOT_ARUCO_MARKERS(aruco_markers)
 %

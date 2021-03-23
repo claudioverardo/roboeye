@@ -1,29 +1,33 @@
-function [rois_matched, i_rois_matched, i_arucos] = roi_matching(img, img_gray, rois, aruco_markers, varargin)
-% ROI_MATCHING Match Aruco markers with candidate ROIs
+function [rois_matched, i_rois_matched, i_arucos, time] = roi_matching(img, img_gray, rois, aruco_markers, varargin)
+% ROI_MATCHING Match Aruco markers with candidate ROIs.
 %
-%   [rois_matched, i_rois_matched, i_arucos] = ROI_MATCHING(img, img_gray, rois, aruco_markers)
+%   [rois_matched, i_rois_matched, i_arucos, time] = ROI_MATCHING(img, img_gray,
+%   rois, aruco_markers)
 %
 %   Input arguments:
 %   ------------------
 %   img:                input image
-%   img_gray:           input image grayscale
-%   rois:               region of interest candidated for matching with markers
-%   aruco_markers:      input marker dictionary
+%   img_gray:           input image (grayscale)
+%   rois:               candidated ROIs for matching with markers
+%   aruco_markers:      markers to be matched
 %
 %   Parameters:
 %   --------
-%   'roi_bb_padding':   padding value of bounding boxes
-%   'roi_h_side':       side value of ROI after homography
-%   'roi_hamming_th':   max value of hamming distance to detect a marker
-%   'verbose':           verbose level of the function (allowed values 1, 2, 3)
+%   'roi_bb_padding':   padding value of bounding boxes [pixels]
+%   'roi_h_side':       side value of a ROI after homography [pixels]
+%   'roi_hamming_th':   maximum value of hamming distance to detect a marker
+%   'verbose':          verbose level of the function (0, 1, 2, 3)
 %
 %   Output arguments:
 %   ------------------
-%   rois_matched:       matched rois among the rois
+%   rois_matched:       matched ROIs among the candidated ROIs
 %   i_rois_matched:     indices of the rois_matched in the rois cell array
-%   i_arucos:           indices of the matched marker for every rois matched 
+%   i_arucos:           indices of the markers matched with the rois_matched
+%   time:               execution time (ignoring plots)
 %
 %   See also ARUCO_DETECTION
+
+    tic;
     
     marker_side = size(aruco_markers{1,1},1);
     n_aruco_markers = size(aruco_markers,1);
@@ -71,8 +75,13 @@ function [rois_matched, i_rois_matched, i_arucos] = roi_matching(img, img_gray, 
     cd(changedFolder); % path of Matlab imwarp
     %---------------------------------------------------------------------
     
+    times = zeros(1,n_rois);
+    time = toc;
+    
     % Iterate over all the regions of interest
     for i_roi = 1:n_rois
+        
+        tic;
         
         % Current ROI
         roi = rois{i_roi};
@@ -170,6 +179,8 @@ function [rois_matched, i_rois_matched, i_arucos] = roi_matching(img, img_gray, 
             end
         end
 
+        times(i_roi) = toc;
+
         % Plots
         if VERBOSE > 2 || (VERBOSE == 2 && detected_aruco == 1)
 
@@ -254,19 +265,26 @@ function [rois_matched, i_rois_matched, i_arucos] = roi_matching(img, img_gray, 
         end
 
     end
-
+    
     %--------------------------------------------------------------
     % Back to original path
+    tic;
     cd(currentFolder);
     %--------------------------------------------------------------
     
-    n_rois_matched = size(rois_matched,1);
+    % Elapsed time
+    time = time + sum(times) + toc;
 
-    % Plot matched ROIs
     if VERBOSE > 0
+        
+        % Plot Aruco Markers
+        plot_aruco_markers(aruco_markers);
+    
+        % Plot matched ROIs
         figure;
         imshow(img);
         
+        n_rois_matched = size(rois_matched,1);
         colors = hsv(n_rois_matched);
         lines_obj = gobjects(1,n_rois_matched);
         lines_str = cell(1,n_rois_matched);
@@ -286,6 +304,7 @@ function [rois_matched, i_rois_matched, i_arucos] = roi_matching(img, img_gray, 
         if n_rois_matched > 0
             legend([lines_obj point_obj], lines_str{:}, 'Control points');
         end
+        
     end
     
 end

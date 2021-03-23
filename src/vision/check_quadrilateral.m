@@ -1,13 +1,13 @@
 function is_valid_quad = check_quadrilateral(points, varargin)
-% CHECK_QUADRILATERAL Check if the set of input points defines a
-% valid quadrilateral (close to a parallelogram shape)
+% CHECK_QUADRILATERAL Check if the set of input points defines the shape of
+% a valid quadrilateral, i.e., it is close to the shape of a parallelogram.
 %
 %   is_valid_quad = CHECK_QUADRILATERAL(points)
 %
 %   Input arguments:
 %   ------------------
-%   points:             Array Nx2
-%                       Example [ [x1,y1]; [x2,y2]; ...; [xN,yN] ]
+%   points:             array Nx2 of points that defines the shape
+%                       [ [x1,y1]; [x2,y2]; ... ; [xN,yN] ]
 %
 %   Parameters:
 %   ------------------
@@ -18,9 +18,9 @@ function is_valid_quad = check_quadrilateral(points, varargin)
 %
 %   Output arguments:
 %   ------------------
-%   is_valid_quad:      return 1 if this is a valid quadrilateral 0 otherwise
+%   is_valid_quad:      1 if the shape is a valid quadrilateral 0 otherwise
 %
-%   NOTE shapes will be discarded when one of the following conditions is met
+%   NOTE a shape is discarded when one of the following conditions is met:
 %   - sum of the internal angles > 360° + sum_angles_tol 
 %   - angle between opposide sides > parallelism_tol
 %   - length of side lower than side_th_low
