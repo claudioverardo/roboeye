@@ -52,11 +52,21 @@ TODO
 ## Examples
 
 ### Robot Vision
-These following pictures shows one example about **run_pose_estimation**.
-To reproduce these you can follow the istructions below:
-1. Go to HOMEDIR / assets / config_files
-2. Set the parameters of the pipeline (in this example we are using the 2nd pipeline, you must enable the verbose setting for plotting)
-   ``` 
+To run an example of pose estimation of Aruco Markers, perform in order the following steps:
+1. Go to HOMEDIR / assets / config_files.
+2. Set the parameters of the pipeline (in this example we are using the 2nd pipeline, you must enable the verbose setting for plotting).
+3. Go to HOMEDIR / src.
+4. Run **run_pose_estimation** script.
+
+Below there are some examples of the pipeline:
+
+![Demo1](./assets/demo/1.png)
+![Demo2](./assets/demo/2.png)
+![Demo4](./assets/demo/4.png)
+![Demo3](./assets/demo/3.png)
+
+The foregoing images has been obtained with the following configuration parameters (HOMEDIR / assets / config_files / config_pose_estimation.m)
+
     %% CONFIGURATION FILE OF ROBOEYE
 
     % ROI extraction parameters
@@ -82,14 +92,6 @@ To reproduce these you can follow the istructions below:
     ROI_HAMMING_TH  = 2;
 
     ...
-
-3. Go to HOMEDIR / src
-4. Run **run_pose_estimation** script
-
-![Demo1](./assets/demo/1.png)
-![Demo2](./assets/demo/2.png)
-![Demo4](./assets/demo/4.png)
-![Demo3](./assets/demo/3.png)
 
 ### Robot Control
 + TODO
