@@ -21,15 +21,19 @@ This project implements a basic hand-eye coordination system between a UVC  came
 
 <a name="installation"></a>
 ## Installation
-### Matlab Version
+#### Matlab Version
 + Minimum Matlab version >= 2019b
 + Tested with Matlab 2020b
 
-### Package installation
+#### Package installation
 + Install [MATLAB Support Package for USB Webcams](https://www.mathworks.com/help/supportpkg/usbwebcams/index.html?s_tid=CRUX_lftnav)
 + Install [Computer Vision Toolkit](http://www.diegm.uniud.it/fusiello/demo/toolkit/)
++ Install [Arduino IDE](https://www.arduino.cc/en/software)
 
-### Run setup 
+#### Hardware setup
++ Robot used [ThinkerKit Braccio](https://www.arduino.cc/en/Guide/Braccio)
+
+#### Run setup 
 1. Go to HOMEDIR / src
 2. Run setup.m file
 
@@ -37,7 +41,7 @@ This project implements a basic hand-eye coordination system between a UVC  came
 ## Overview
 
 ### Robot Vision
-The vision stage is composed by a pipeline that spots candidates regions of interests (**ROIs**), matches them with an Aruco Markers dictionary and estimates its pose in space. Namely:
+The vision stage is composed by a pipeline that spots candidates regions of interest (**ROIs**), matches them with a set Aruco Markers and estimates its pose in space. Namely:
  + The first step extracts the contours from the input image deploying either **Adaptive Thresholding + Moore-Neighbor** or **Canny Edge Detector + Depth First Search** (DFS)
  + The second step selects only the contours with rectangular shapes and refines them in order to identify their corners. To this end, it resorts to either **Ramer–Douglas-Pecker** algorithm or **Geometric Corner Extractor**. The output are the ROIs candidated for the matching with the Aruco Markers.
  + The third step remove the prospective distortion of the input ROIs and try to match them with the Aruco Marker in a given dictionary (**Homography** and **Hamming Distance**).
