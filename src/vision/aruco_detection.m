@@ -92,6 +92,11 @@ function [rois_matched, i_arucos] = aruco_detection(img, aruco_markers, varargin
     VERBOSE = p.Results.verbose;
     
     fprintf('-------- Aruco Detection --------\n');
+    
+    % Plot Aruco Markers
+    if VERBOSE > 0
+        plot_aruco_markers(aruco_markers);
+    end
 
     % Extract ROIs from input image
     fprintf('roi_extraction...\n');

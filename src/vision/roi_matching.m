@@ -1,5 +1,5 @@
 function [rois_matched, i_rois_matched, i_arucos] = roi_matching(img, img_gray, rois, aruco_markers, varargin)
-% ROI_MATCHING  Match Aruco markers with candidate ROIs
+% ROI_MATCHING Match Aruco markers with candidate ROIs
 %
 %   [rois_matched, i_rois_matched, i_arucos] = ROI_MATCHING(img, img_gray, rois, aruco_markers)
 %
@@ -117,11 +117,16 @@ function [rois_matched, i_rois_matched, i_arucos] = roi_matching(img, img_gray, 
 
         % Retrieve the top-left vertex of the transformed ROI in the px frame
         [bb_vertexTL_H_i, bb_vertexTL_H_j] = worldToSubscript(R_bb_bw_H, bb_vertices_H(1,1), bb_vertices_H(1,2));
-
+        
         % Select the content of the ROI within the transformed bounding box
+        bb_vertexTL_H_i = max(bb_vertexTL_H_i, 1); % top-left i
+        bb_vertexBL_H_i = min(bb_vertexTL_H_i + ROI_H_SIDE - 1, size(bb_bw_H,1)); % bottom-left i
+        bb_vertexTL_H_j = max(bb_vertexTL_H_j, 1); % top-left j
+        bb_vertexTR_H_j = min(bb_vertexTL_H_j + ROI_H_SIDE - 1, size(bb_bw_H,2)); % top-right j
+        
         bb_bw_H_crop = bb_bw_H( ...
-            bb_vertexTL_H_i : bb_vertexTL_H_i + ROI_H_SIDE - 1, ...
-            bb_vertexTL_H_j : bb_vertexTL_H_j + ROI_H_SIDE - 1  ...
+            bb_vertexTL_H_i : bb_vertexBL_H_i, ...
+            bb_vertexTL_H_j : bb_vertexTR_H_j  ...
         );
 
         % Downsample to marker_side x marker_side px for aruco matching
@@ -212,17 +217,6 @@ function [rois_matched, i_rois_matched, i_arucos] = roi_matching(img, img_gray, 
                  'color','r','linestyle','-','linewidth',1.5, ...
                  'marker','o','markersize',5);
             title('homography');
-            % further check: retrieve the bb_vertices_H as H_est * bb_vertices and plot
-            % bb_vertices_H_check = htx(H_est, bb_vertices')';
-            % line([bb_vertices_H_check(:,1); bb_vertices_H_check(1,1)], ...
-            %      [bb_vertices_H_check(:,2); bb_vertices_H_check(1,2)], ...
-            %      'color','g','linestyle','-','linewidth',1.5, ...
-            %      'marker','o','markersize',5);
-
-            % Plot only the ROI after the homography
-            % subplot(2,4,7);
-            % imshow(bb_bw_H_crop);
-            % title('crop');
 
             % Plot the content of the vertices downsampled to marker_side x marker_side px
             subplot(2,4,7);
@@ -265,17 +259,6 @@ function [rois_matched, i_rois_matched, i_arucos] = roi_matching(img, img_gray, 
     % Back to original path
     cd(currentFolder);
     %--------------------------------------------------------------
-
-    % Plot Aruco Markers
-    if VERBOSE > 0
-        figure;
-        for i=1:n_aruco_markers
-            subplot(1,n_aruco_markers,i)
-            imshow(aruco_markers{i},'InitialMagnification','fit');
-            title(sprintf('Aruco %d', i));
-        end
-        suptitle('Aruco Markers');
-    end
     
     n_rois_matched = size(rois_matched,1);
 
@@ -284,7 +267,7 @@ function [rois_matched, i_rois_matched, i_arucos] = roi_matching(img, img_gray, 
         figure;
         imshow(img);
         
-        colors = autumn(n_aruco_markers);
+        colors = hsv(n_rois_matched);
         lines_obj = gobjects(1,n_rois_matched);
         lines_str = cell(1,n_rois_matched);
         for k=1:n_rois_matched
@@ -292,7 +275,7 @@ function [rois_matched, i_rois_matched, i_arucos] = roi_matching(img, img_gray, 
            lines_obj(k) = line( ...
                 [rois_matched{k,1}(:,1); rois_matched{k,1}(1,1)], ...
                 [rois_matched{k,1}(:,2); rois_matched{k,1}(1,2)], ...
-                'color', colors(i_arucos(k),:), ...
+                'color', colors(k,:), ...
                 'linestyle', '-', 'linewidth', 1.5, ...
                 'marker', 'o', 'markersize', 5 ...
            );

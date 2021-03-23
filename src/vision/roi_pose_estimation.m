@@ -89,7 +89,7 @@ function [R, t] = roi_pose_estimation(img, rois, i_arucos, aruco_real_sides, K, 
         imshow(img);
         hold on;
         
-        colors_rois = autumn(n_arucos_markers);
+        colors_rois = hsv(n_rois);
         colors_axes = ['r', 'g', 'b'];
     
         for i=1:n_rois
@@ -103,7 +103,7 @@ function [R, t] = roi_pose_estimation(img, rois, i_arucos, aruco_real_sides, K, 
                 lines_rois(i) = line( ...
                     [rois{i,1}(:,1); rois{i,1}(1,1)], ...
                     [rois{i,1}(:,2); rois{i,1}(1,2)], ...
-                    'color', colors_rois(i_arucos(i),:), ...
+                    'color', colors_rois(i,:), ...
                     'linestyle', '-', 'linewidth', 1.5, ...
                     'marker', 'o', 'markersize', 5 ...
                 );
@@ -111,18 +111,19 @@ function [R, t] = roi_pose_estimation(img, rois, i_arucos, aruco_real_sides, K, 
                     'ROI=%d, Aruco=%d\nX=%5.1f Y=%5.1f Z=%5.1f', ...
                     i, i_arucos(i), t{i}(1), t{i}(2), t{i}(3));
             else
-                lines_rois(1) = line([roi(:,1); roi(1,1)], ...
+                lines_rois(1) = line( ...
+                     [roi(:,1); roi(1,1)], ...
                      [roi(:,2); roi(1,2)], ...
                      'color','m','linestyle','-','linewidth',1.5, ...
                      'marker','o','markersize',5);
-                lines_rois_str{1} = 'Detected ROIs';
+                lines_rois_str{1} = 'ROIs Detected';
             end
             
             % Plot control point
             line_control_points = plot(roi(1,1),roi(1,2), 'gs', 'MarkerSize', 10, 'LineWidth', 1); % 'MarkerFaceColor', 'g'
             
             % Projection of marker centroid
-            centroid_world_pnp = mean();
+            centroid_world_pnp = mean(roi_world_pnp);
             % centroid_proj = htx(P_pnp{i}', centroid_world_pnp')'; % [Fusiello]
             centroid_reproj = homography(centroid_world_pnp, P_pnp{i});
             
@@ -137,41 +138,52 @@ function [R, t] = roi_pose_estimation(img, rois, i_arucos, aruco_real_sides, K, 
             line_reproj_rois = plot(roi_reproj(:,1),roi_reproj(:,2),'c+');
 
             % Projection of marker pose axes
-            axes_world_pnp = 1.0*aruco_real_side * [
+            axes_pose = 1.0*aruco_real_side * [
                 1 0 0
                 0 1 0
                 0 0 1
             ];
-            % axes_proj = htx(P_pnp{i}', axes_world_pnp')'; % [Fusiello]
-            axes_reproj = homography(axes_world_pnp, P_pnp{i});
+            % axes_pose_reproj = htx(P_pnp{i}', axes_pose')'; % [Fusiello]
+            axes_pose_reproj = homography(axes_pose, P_pnp{i});
 
             % Plot the projected pose axes of the marker
             for j=1:3
-                lines_reproj_axes(j) = line([centroid_reproj(1,1) axes_reproj(j,1)], ...
-                     [centroid_reproj(1,2) axes_reproj(j,2)], ...
-                     'color',colors_axes(j),'linestyle','-','linewidth',3, ...
-                     'marker','none','markersize',5);
+                lines_axes_pose_reproj(j) = line( ...
+                    [centroid_reproj(1,1) axes_pose_reproj(j,1)], ...
+                    [centroid_reproj(1,2) axes_pose_reproj(j,2)], ...
+                    'color',colors_axes(j),'linestyle','-','linewidth',3, ...
+                    'marker','none','markersize',5);
             end
 
         end
         
-        % Plot the world frame        
-        X_world = 3*[1 0 0; 0 1 0; 0 0 1; 0 0 0];
-        X_image = homography(X_world, P_cam);
+        % Plot the world frame
+        centroid_world = [0 0 0];
+        axes_world = 6*[
+            1 0 0
+            0 1 0
+            0 0 1
+        ];
+    
+        centroid_world_world = homography(centroid_world, P_cam);
+        axes_world_reproj = homography(axes_world, P_cam);
 
-        colors_axes=['r' 'g' 'b'];
+        colors_axes=['c' 'm' 'y'];
         for i=1:3
-            lines_reproj_axes(i) = line([X_image(end,1) X_image(i,1)], ...
-                [X_image(end,2) X_image(i,2)], ...
+            lines_axes_world_reproj(i) = line(...
+                [centroid_world_world(1,1) axes_world_reproj(i,1)], ...
+                [centroid_world_world(1,2) axes_world_reproj(i,2)], ...
                 'color', colors_axes(i), ...
                 'linestyle','-', 'linewidth', 3, ...
                 'marker','none', 'markersize', 5);
         end
         
-        title('Pose of ROIs');
+        title('Pose Estimation ROIs');
         if n_rois > 0
-            legend( [lines_rois, line_reproj_rois, line_control_points, lines_reproj_axes], ...
-                lines_rois_str{:}, 'Reprojected ROIs', 'Control points', 'Pose x-axis', 'Pose y-axis', 'Pose z-axis');
+            legend( [lines_rois, line_reproj_rois, line_control_points, lines_axes_pose_reproj, lines_axes_world_reproj], ...
+                lines_rois_str{:}, 'ROIs reprojected', 'Control points', ...
+                'ROIs pose x-axis', 'ROIs pose y-axis', 'ROIs pose z-axis', ...
+                'World frame X-axis', 'World frame Y-axis', 'World frame Z-axis');
         end
         
         % TEST: find coordinates of ROI_2 wrt frame of ROI_1

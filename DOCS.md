@@ -273,6 +273,18 @@ Output params:
 + **Y**:      Transformed output points (Matlab convention)
 </details>
 
+<!-- plot_aruco_markers matlab function -->
+<details>
+    <summary>
+        plot_aruco_markers
+    </summary>
+
+    plot_aruco_markers(aruco_markers)
+
+Input params:
++ **aruco_markers**: cell array containing the Aruco markers
+</details>
+
 <!-- pnp_lin matlab function -->
 <details>
     <summary>
