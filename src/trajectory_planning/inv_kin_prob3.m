@@ -1,32 +1,30 @@
 %define the equation which has to be numerically solved in order to comput inverse kinematics
 
-function sol=inv_kin_prob(q)
+function sol=inv_kin_prob3(q_in)
   
   global A_target;
+  global q_set;
 
 
   %position in the matrix equation in which extract the system
   
   chosen_index=[1 4;
-               2 4;
                3 4;
-               1 1;
+               2 2;
                3 3];
   
   
   %%%%%%% convert model's angle convention to Devenit-Hartenberg convention
+  q=[q_set(1) q_in];
   
   neutral_position=[0 90 0 -90 0]; 
   
   q=q+neutral_position;
   
-  norm=ones(4);
-  norm(4,[1 2 3])=[300 300 300];
-  
-  Asol=(direct_kin(q,5)-A_target)./norm;  
+  Asol=direct_kin(q,5)-A_target;  
  
  
-  for i=1:5
+  for i=1:length(chosen_index(:,1))
      sol(i)=Asol(chosen_index(i,1),chosen_index(i,2));
   end
   

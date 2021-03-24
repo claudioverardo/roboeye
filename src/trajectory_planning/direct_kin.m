@@ -4,9 +4,14 @@ function Atot= direct_kin(q,njoints)
     
   q=q*pi/180; %convert to rad
 
-  braccio=[67 125 125 188 0]; %lengths of Braccio's segments
+  %braccio=[67 125 125 188 0]; %lengths of Braccio's segments %Since 19_03_21
+  %delta=-4.5;
   
-  delta=-4.5;
+  braccio=[71 125 125 195 0];
+  %delta=-10;
+  delta=0;
+  
+ 
 
   %DH parameters
   a=[0 braccio(2:3) 0 delta]; 

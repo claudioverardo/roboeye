@@ -1,8 +1,8 @@
-function jointpos=plot_config(Q)
+function [jointpos,Aloc_out]=plot_config(Q)
   %GIVEN TRAJECTORY IN INPUT PLOT ROBOT CONFIGURATION
   
 
-  npoints=length(Q(:,1))
+  npoints=length(Q(:,1));
   lungax=1;
 
   xax=zeros(npoints,3);
@@ -38,7 +38,7 @@ function jointpos=plot_config(Q)
     jointpos(i+1,:)=Afin([1 2 3],4)';
   end
 
-  fig=figure
+  fig=figure(1)
     set(gca,'DataAspectRatio',[1 1 1]);
     hold on
     quiver3(XX(:,2), XX(:,3), XX(:,4), zax(:,1), zax(:,2), zax(:,3),'b');
@@ -49,6 +49,10 @@ function jointpos=plot_config(Q)
     plot3(jointpos(:,1),jointpos(:,2),jointpos(:,3));
     scatter3(jointpos(:,1),jointpos(:,2),jointpos(:,3),'k');
     hold off
+    xlabel('x');
+    ylabel('y');
+    
+    
 
-
+    Aloc_out=Aloc;
 end

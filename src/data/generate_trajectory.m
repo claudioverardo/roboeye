@@ -5,8 +5,8 @@ global A_target
 %define starting position of solver
 %startingpos=[0 90 -90 -180 0];
 startingpos=[0 0 0 0 0];
-startingpos=[89.95285    90.37269   -78.13193  -192.18695   -45.09429];
-startingpos=[90.00001     -42.05283     -57.27621      11.09545      91.25148];
+%startingpos=[89.95285    90.37269   -78.13193  -192.18695   -45.09429];
+%startingpos=[90.00001   -42.05283     -57.27621      11.09545      91.25148];
 npoints=20;
 npoints_first=150;
 
@@ -43,7 +43,13 @@ X=[linspace(0,3,npoints)' ones(npoints,1)*(0) linspace(120,130,npoints)'+ones(np
 X=[linspace(0,3,npoints)' ones(npoints,1)*250 ones(npoints,1)*(0) linspace(40,-6,npoints)'  ones(npoints,1)*150 linspace(0,90,npoints)'*0];
 
 %test 7
-X=[linspace(0,3,npoints)' ones(npoints,1)*250 linspace(0,40,npoints)' linspace(40,-6,npoints)'  ones(npoints,1)*150 linspace(0,90,npoints)'*0];
+X=[linspace(0,3,npoints)' ones(npoints,1)*250 linspace(0,40,npoints)' linspace(40,0,npoints)'  ones(npoints,1)*150 linspace(0,90,npoints)'*0];
+
+%test 8 (Lmax)
+X=[linspace(0,3,npoints)' ones(npoints,1)*360 ones(npoints,1)*(0) linspace(10,0,npoints)'  ones(npoints,1)*135 linspace(0,90,npoints)'*0];
+
+%test 9 (Lmax)
+%X=[linspace(0,3,npoints)' ones(npoints,1)*(240) ones(npoints,1)*(0) linspace(10,0,npoints)' ones(npoints,1)*(135) ones(npoints,1)*0];
 
 grabberalgle=ones(npoints,1)*72; %angle position of the grabber
 
@@ -56,6 +62,7 @@ Q(:,1)=X(:,1);
 %contains information about the quality of the solver's output (i.e convergence)
 controlvec=zeros(length(X(:,1)),2);
 
+
 tic   
 
 for i=1:length(X(:,1))
@@ -66,7 +73,8 @@ for i=1:length(X(:,1))
   [qloc, fval, info] = inverse_kin(transl,eulr,startingpos);
   
   %Q(i,[2 3 4 5 6])=qloc+[0 90 0 -90 0]; %test for different angles rf
-  Q(i,[2 3 4 5 6])=qloc;
+  Q(i,[2 3 4 5 6])=mod(qloc+180,360)-180;
+  %Q(i,[2 3 4 5 6])=qloc;
   
   Q(i,7)=grabberalgle(i);
 
@@ -98,12 +106,30 @@ toc
 Qtot = [Q_first; Q];
 
 Q_final = [Qrob_first(:,[2:1:end]); Qrob(:,[2:1:end])];
-Q_final = uint8(mod(round(Q_final),360));
+%Q_final = uint8(mod(round(Q_final),360));
 
 %save('./data/test_trajectory.mat','Q_final');
 
-jointpos=plot_config(Qtot);
+[jointpos,A_actual]=plot_config(Qtot);
 
 print_for_arduino(Q_final,2);
+
+%check maxangles
+
+maxangles=[180 165 180 180 180 73];
+
+minangles=[0 15 0 0 0 0];
+
+valid=zeros(size(Q_final(:,1)));
+
+for i=1:length(valid)
+    valid(i)=sum(Q_final(i,:)<=minangles)+sum(Q_final(i,:)>=maxangles);
+end
+
+if sum(valid)>0
+   disp('########## ANGLES OUT OF RANGE ############')
+else
+   disp('########## ANGLES IN RANGE ############')
+end
 
 
