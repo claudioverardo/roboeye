@@ -208,7 +208,7 @@ Input arguments:
 + **length**: duration of the countdown [s]
 </details>
 
-Usage examples can be found in [run_calibration_camera](../src/scripts/run_calibration_camera) and [run_calibration_stereo](../src/scripts/run_calibration_stereo_).
+Usage examples can be found in [run_calibration_camera](../src/scripts/run_calibration_camera.m) and [run_calibration_stereo](../src/scripts/run_calibration_stereo.m).
 
 <a name="robot-vision"></a>
 ## Robot Vision
@@ -648,7 +648,7 @@ Output arguments:
 + **J_yaw**: Jacobian of R wrt yaw
 </details>
 
-Usage examples can be found in [run_detection](../src/scripts/run_detection) and [run_pose_estimation](../src/scripts/run_pose_estimation).
+Usage examples can be found in [run_detection](../src/scripts/run_detection.m) and [run_pose_estimation](../src/scripts/run_pose_estimation.m).
 
 <a name="robot-control"></a>
 ## Robot Control
