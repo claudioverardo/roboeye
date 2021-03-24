@@ -1,5 +1,5 @@
 function img = get_image(img_source)
-% GET_IMAGE Acquire image from camera or load an image from disk.
+% GET_IMAGE Acquire an image from camera or load an image from disk.
 %
 %   img = GET_IMAGE(img_source)
 %

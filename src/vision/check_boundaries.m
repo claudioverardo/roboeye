@@ -1,5 +1,5 @@
 function check_ans = check_boundaries(i, j, img_size)
-% CHECK_BOUNDARIES Returns 1 if the point (i, j) in pixel coordinates is 
+% CHECK_BOUNDARIES Return 1 if the point (i, j) in pixel coordinates is 
 % inside an image, whose size is defined by img_size.
 %
 %   check_ans = CHECK_BOUNDARIES(i, j, img_size)

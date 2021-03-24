@@ -1,6 +1,6 @@
 function test = check_epipolar_geometry(cam1, cam2, F)
 % CHECK_EPIPOLAR_GEOMETRY Acquire two points from the two images of a stereo
-% pair and compute the epipolar form between them.
+% pair and compute the Longuet-Higgins equation between them.
 %
 %   test = CHECK_EPIPOLAR_GEOMETRY(cam1, cam2, F)
 %
@@ -12,8 +12,9 @@ function test = check_epipolar_geometry(cam1, cam2, F)
 %
 %   Output arguments:
 %   ------------------
-%   test:   value of p2'*F*p1 value where p1, p2 are the points acquired from
-%           the first and second camera respectively in homogeneous coordinates
+%   test:   value of the Longuet-Higgins equation p2'*F*p1, where p1, p2 are 
+%           the points acquired from the first and second camera respectively
+%           (in homogeneous coordinates)
 %
 %   See also CALIBRATION_EXTRINSICS_STEREO, CALIBRATION_EXTRINSICS_STEREO_SMZ
 
@@ -53,11 +54,11 @@ function test = check_epipolar_geometry(cam1, cam2, F)
     title('Aquired point - 2nd image');
     fprintf('p2: [%f %f]\n', j2, i2);
 
-    % Build homogenous image points
+    % Build homogeneous image points
     p1 = [j1 i1 1]';
     p2 = [j2, i2, 1]';
 
-    % Test epipolar geometry
+    % Longuet-Higgins equation
     test = p2' * F * p1;
     fprintf('test p2''*F*p1: %f\n', test);
 

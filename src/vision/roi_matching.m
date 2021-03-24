@@ -1,5 +1,5 @@
 function [rois_matched, i_rois_matched, i_arucos, time] = roi_matching(img, img_gray, rois, aruco_markers, varargin)
-% ROI_MATCHING Match Aruco markers with candidate ROIs.
+% ROI_MATCHING Match the Aruco markers with the candidate ROIs.
 %
 %   [rois_matched, i_rois_matched, i_arucos, time] = ROI_MATCHING(img, img_gray,
 %   rois, aruco_markers)
@@ -17,6 +17,10 @@ function [rois_matched, i_rois_matched, i_arucos, time] = roi_matching(img, img_
 %   'roi_h_side':       side value of a ROI after homography [pixels]
 %   'roi_hamming_th':   maximum value of hamming distance to detect a marker
 %   'verbose':          verbose level of the function (0, 1, 2, 3)
+%                       - 0: show nothing
+%                       - 1: show the matched ROIs and the markers IDs
+%                       - 2: show also the homographies of the matched ROIs
+%                       - 3: show also the homographies of the unmatched ROIs
 %
 %   Output arguments:
 %   ------------------

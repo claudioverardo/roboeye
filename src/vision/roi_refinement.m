@@ -1,5 +1,5 @@
 function [rois_refined, i_rois_refined, time] = roi_refinement(img, rois_raw, varargin)
-% ROI_REFINEMENT Refine and select candidate ROIs for matching.
+% ROI_REFINEMENT Refine and select the candidate ROIs for matching.
 %
 %   [rois_refined, i_rois_refined, time] = ROI_REFINEMENT(img, rois_raw)
 %
@@ -10,18 +10,26 @@ function [rois_refined, i_rois_refined, time] = roi_refinement(img, rois_raw, va
 %
 %   Parameters:
 %   ------------------
-%   'method':               Choose the ROI refinement algorithm
+%   'method':               choose the ROI refinement algorithm
 %                           - 'rdp': Ramer-Douglas–Peucker 
-%                           - 'geometric': find four extreme corners
-%   'roi_size_th':          minimun #points required by each ROI to be processed
-%   'rdp_th':               threshold of the Ramer-Douglas–Peucker algorithm
-%   'roi_sum_angles_tol':   tolerance on the sum of the internal angles [degrees]
-%   'roi_parallelism_tol':  tolerance on the angle between opposite sides [degrees]
+%                           - 'geometric': find the four extreme corners
+%   'roi_size_th':          min #points required by each ROI to be processed
+%   'rdp_th':               threshold of the Ramer-Douglas–Peucker algorithm,
+%                           cf. reducepoly(...)
+%   'roi_sum_angles_tol':   tolerance on the sum of the internal angles,
+%                           cf. check_quadrilateral(...)
+%   'roi_parallelism_tol':  tolerance on the angle between opposite sides,
+%                           cf. check_quadrilateral(...)
 %   'roi_side_th_low':      lower threshold on the length of each side
-%                           (normalized wrt the diagonal of the image)
+%                           normalized wrt the diagonal of the input image,
+%                           cf. check_quadrilateral(...)
 %   'roi_side_th_high':     higher threshold on the length of each side
-%                           (normalized wrt the diagonal of the image)
+%                           normalized wrt the diagonal of the input image,
+%                           cf. check_quadrilateral(...)
 %   'verbose':              verbose level of the function (0, 1, 2)
+%                           - 0: show nothing
+%                           - 1: show the refined ROIs
+%                           - 2: show also the discarded ROIs
 %
 %   Output arguments:
 %   ------------------

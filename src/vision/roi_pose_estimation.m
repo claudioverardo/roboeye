@@ -1,5 +1,5 @@
 function [R, t, err_lin, err_nonlin, time] = roi_pose_estimation(img, rois, i_arucos, aruco_real_sides, K, R_cam, t_cam, varargin)
-% ROI_POSE_ESTIMATION Compute pose of matched ROIs in the world frame.
+% ROI_POSE_ESTIMATION Compute the poses of the matched ROIs in the world frame.
 %
 %   [R, t, err_lin, err_nonlin, time] = ROI_POSE_ESTIMATION(img, rois, i_arucos, 
 %   aruco_real_sides, K, R_cam, t_cam)
@@ -11,21 +11,26 @@ function [R, t, err_lin, err_nonlin, time] = roi_pose_estimation(img, rois, i_ar
 %   i_arucos:           indices of the matched markers for every ROIs
 %   aruco_real_sides:   real world lengths of the sides of the markers [cm]
 %   K:                  intrisics matrix of the camera (Matlab convention)
-%   R_cam:              rotation matrix of the camera extrinsics in the world frame
-%                       (Matlab convention)
-%   t_cam:              translation vector of the camera extrinsics in the world frame
-%                       (Matlab convention)
+%   R_cam:              rotation matrix of the camera extrinsics in the 
+%                       world frame (Matlab convention)
+%   t_cam:              translation vector of the camera extrinsics in the 
+%                       world frame (Matlab convention)
 %   
 %   Parameters:
 %   --------
 %   'verbose':          verbose level of the function (0, 1, 2)
+%                       - 0: show nothing
+%                       - 1: show the poses of the ROIs
+%                       - 2: show also the markers IDs
 %
 %   Output arguments:
 %   ------------------
-%   R:                  rotation matrices of the roto-translations that map points
-%                       from the roi frames into the world frame (Matlab convention)
-%   t:                  translation vectors of the roto-translations that map points
-%                       from the roi frames into the world frame (Matlab convention)
+%   R:                  rotation matrices of the roto-translations that map 
+%                       points from the ROIs frames into the world frame
+%                       (Matlab convention)
+%   t:                  translation vectors of the roto-translations that map 
+%                       points from the ROIs frames into the world frame 
+%                       (Matlab convention)
 %   err_lin:            RMS values of reprojection errors (after linear PnP)
 %   err_nonlin:         RMS values of reprojection errors (after non-linear PnP)
 %   time:               execution time (ignoring plots)
