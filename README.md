@@ -11,13 +11,12 @@ This project implements a basic hand-eye coordination system between a UVC  came
 ## Table of Contents
 1. [Installation](#installation)
 2. [Overview](#overview)
-3. [Examples](#examples)
+3. [Documentation](#documentation)
 4. [Demo](#demo)
-5. [Documentation](#documentation)
-6. [Contributors](#contributors)
-7. [Credits](#credits)
-8. [References](#references)
-9. [License](#license)
+5. [Contributors](#contributors)
+6. [Credits](#credits)
+7. [References](#references)
+8. [License](#license)
 
 <a name="installation"></a>
 ## Installation
@@ -52,8 +51,12 @@ A calibrated camera is assumeted, i.e., with known intrisics and extrinsics para
 ### Robot Control
 TODO
 
-<a name="examples"></a>
-## Examples
+<a name="documentation"></a>
+## Documentation
+A comprehensive documentation of the code is available in [docs/DOCS.md](./docs/DOCS.md).
+
+<a name="demo"></a>
+## Demo
 
 ### Robot Vision
 To run an example of pose estimation of Aruco Markers, perform in order the following steps:
@@ -98,15 +101,7 @@ The foregoing images has been obtained with the following configuration paramete
     ...
 
 ### Robot Control
-+ TODO
-
-<a name="demo"></a>
-## Demo
-TODO Video
-
-<a name="documentation"></a>
-## Documentation
-Check the associated document [DOCS.md](./docs/DOCS.md)
++ TODO Video
 
 <a name="contributors"></a>
 ## Contributors

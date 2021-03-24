@@ -9,7 +9,7 @@
 
 Code to perform the calibration of the cameras and the robot with a checkerboard.
 
-These functions assume the usual conventions to represent the pinhole model of a camera (in the following, **literature convention**). Namely, points on the image plane `m` and in space `M` are represented by column vectors. The projection equation takes the form `m = P*M = K*[R t]*M`, where `P` is the projection matrix, `K` the intrinsics matrix, and `[R t]` are the extrinsics of the camera.
+These functions assume the usual conventions to represent the pinhole model of a camera (in the following, **literature convention**). Namely, points on the image plane `m` and in space `M` are represented by column vectors. The projection equation (cf. the references of the project) takes the form `m = P*M = K*[R t]*M`, where `P` is the projection matrix, `K` the intrinsics matrix, and `[R t]` the extrinsics of the camera.
 
 ### Functions
 <!-- acquire_calibration_images matlab function -->
@@ -208,7 +208,7 @@ Input arguments:
 + **length**: duration of the countdown [s]
 </details>
 
-Usage examples can be found in [run_calibration_camera](./src/scripts/run_calibration_camera) and [run_calibration_stereo](./src/scripts/run_calibration_stereo_).
+Usage examples can be found in [run_calibration_camera](../src/scripts/run_calibration_camera) and [run_calibration_stereo](../src/scripts/run_calibration_stereo_).
 
 <a name="robot-vision"></a>
 ## Robot Vision
@@ -648,7 +648,7 @@ Output arguments:
 + **J_yaw**: Jacobian of R wrt yaw
 </details>
 
-Usage examples can be found in [run_detection](./src/scripts/run_detection) and [run_pose_estimation](./src/scripts/run_pose_estimation).
+Usage examples can be found in [run_detection](../src/scripts/run_detection) and [run_pose_estimation](../src/scripts/run_pose_estimation).
 
 <a name="robot-control"></a>
 ## Robot Control
