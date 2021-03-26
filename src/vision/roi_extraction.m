@@ -1,5 +1,5 @@
 function [rois_raw, time] = roi_extraction(img, img_gray, varargin)
-% ROI_EXTRACTION Extract ROIs from input image.
+% ROI_EXTRACTION Extract ROIs from the input image.
 %
 %   [rois_raw, time] = ROI_EXTRACTION(img, img_gray)
 %
@@ -24,7 +24,11 @@ function [rois_raw, time] = roi_extraction(img, img_gray, varargin)
 %                           cf. edge(...)
 %   'canny_th_high':		higher threshold of the Canny edge detector,
 %                           cf. edge(...)		
-%   'verbose':              verbose level of the function (0, 1, 2)
+%   'verbose':  verbose level of the function (0, 1, 2)
+%               - 0: show nothing
+%               - 1: show the extracted ROIs
+%               - 2: show also the binarized image (if 'adaptth-moore') or 
+%                    the Canny+DFS output (if 'canny-dfs')
 %
 %   Output arguments:
 %   ------------------

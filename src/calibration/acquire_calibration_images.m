@@ -36,7 +36,7 @@ function images = acquire_calibration_images(n_images, cameras, dirs_images)
     
     for i = 1:n_images
         
-        fprintf('Acquisition %d ...', i);
+        fprintf('Acquisition %d/%d ...', i, n_images);
         
         for j = 1:num_cameras
             

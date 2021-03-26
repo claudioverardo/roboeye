@@ -9,15 +9,16 @@ function Y = homography(X, H)
 %   ------------------
 %   X:      input set of points (inhomogeneous coordinates)
 %   H:      linear transformation between homogeneous coordinates
-%           (Matlab convention: hom(Y) = hom(X)*H)
+%           (Matlab convention)
 %
 %   Output arguments:
 %   ------------------
 %   Y:      transformed set of points (inhomogeneous coordinates)
 %
-%   NOTE:   H 4x3 is a projection 
-%           H 3x3 is a transformation in the projective plane
-%           H 4x4 is a transformation in the projective space
+%   NOTE: the kind of transformation depends on the dimensions of H
+%         - H 4x3 is a projection 
+%         - H 3x3 is a transformation in the projective plane
+%         - H 4x4 is a transformation in the projective space
     
     % Convert X in homogeneous coordinates
     X_hom = [X ones(size(X,1),1)];

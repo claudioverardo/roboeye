@@ -1,6 +1,6 @@
 function [rois, i_arucos, rois_R, rois_t] = aruco_pose_estimation(img, aruco_markers, aruco_real_sides, K, R_cam, t_cam, varargin)
-% ARUCO_POSE_ESTIMATION Build Aruco pose estimation pipeline. It executes in
-% order the functions aruco_detection(...), roi_pose_estimation(...).
+% ARUCO_POSE_ESTIMATION Build the Aruco pose estimation pipeline. It executes
+% in order the functions aruco_detection(...), roi_pose_estimation(...).
 %
 %   [rois, i_arucos, rois_R, rois_t] = ARUCO_POSE_ESTIMATION(img, aruco_markers,
 %   aruco_real_sides, K, R_cam, t_cam)
@@ -11,14 +11,16 @@ function [rois, i_arucos, rois_R, rois_t] = aruco_pose_estimation(img, aruco_mar
 %   aruco_markers:      markers to be matched
 %   aruco_real_sides:   real world lengths of the sides of the markers [cm]
 %   K:                  intrisics matrix of the camera (Matlab convention)
-%   R_cam:              rotation matrix of the camera extrinsics in the world frame
-%                       (Matlab convention)
-%   t_cam:              translation vector of the camera extrinsics in the world frame
-%                       (Matlab convention)
+%   R_cam:              rotation matrix of the camera extrinsics in the
+%                       world frame (Matlab convention)
+%   t_cam:              translation vector of the camera extrinsics in the 
+%                       world frame (Matlab convention)
 %
 %   Parameters:
 %   ------------------
 %   'verbose':          verbose level of the function (0, 1)
+%                       - 0: show nothing
+%                       - 1: show log in the command window
 %
 %   Refer to aruco_detection(...), roi_pose_estimation(...) for details about
 %   further allowed parameters.
@@ -27,10 +29,12 @@ function [rois, i_arucos, rois_R, rois_t] = aruco_pose_estimation(img, aruco_mar
 %   ------------------
 %   rois:               ROIs matched with the markers
 %   i_arucos:           indices of the markers matched with the rois
-%   rois_R:             rotation matrices of the roto-translations that map points
-%                       from the ROIs frames into the world frame (Matlab convention)
-%   rois_t:             translation vectors of the roto-translations that map points
-%                       from the ROIs frames into the world frame (Matlab convention)
+%   rois_R:             rotation matrices of the roto-translations that map
+%                       points from the ROIs frames into the world frame
+%                       (Matlab convention)
+%   rois_t:             translation vectors of the roto-translations that map
+%                       points from the ROIs frames into the world frame 
+%                       (Matlab convention)
 %
 %   See also ARUCO_DETECTION, ROI_POSE_ESTIMATION
 

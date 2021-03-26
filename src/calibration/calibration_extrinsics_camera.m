@@ -20,9 +20,9 @@ function [R_cam, t_cam] = calibration_extrinsics_camera(cam, K, step_size, grid_
 %   t_cam:              translation vector of the camera extrinsics in the world frame
 %                       (literature convention)
 %   
-%   NOTE this function requires the following packages:
-%        - MATLAB Support Package for USB Webcams
-%        - Computer Vision Toolkit (http://www.diegm.uniud.it/fusiello/demo/toolkit/)
+%   NOTE: this function requires the following packages:
+%         - MATLAB Support Package for USB Webcams
+%         - Computer Vision Toolkit (http://www.diegm.uniud.it/fusiello/demo/toolkit/)
 %
 %   See also CALIBRATION_INTRINSICS_CAMERA, PNP_LIN, PNP_NONLIN
 
@@ -137,7 +137,7 @@ function [R_cam, t_cam] = calibration_extrinsics_camera(cam, K, step_size, grid_
     X_image = htx(K*[R_cam,t_cam], X_world);
     
     figure(fig);
-    colors_axes=['r' 'g' 'b'];
+    colors_axes=['c' 'm' 'y'];
     for i=1:3
         lines_axes(i) = line([X_image(1,end) X_image(1,i)], ...
             [X_image(2,end) X_image(2,i)], ...
@@ -147,7 +147,7 @@ function [R_cam, t_cam] = calibration_extrinsics_camera(cam, K, step_size, grid_
     end
     
     legend([line_control_points lines_axes], ...
-        'Control points', 'World frame x-axis', 'World frame y-axis', 'World frame z-axis');
+        'Control points', 'World frame X-axis', 'World frame Y-axis', 'World frame Z-axis');
     title('Calibrated camera extrinsics');
     
 end

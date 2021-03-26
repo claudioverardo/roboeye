@@ -23,8 +23,8 @@ function [P, K, intrinsics] = calibration_intrinsics_camera(n_intrinsics, n_radi
 %   K:                  calibrated intrisics matrix (literature convention)
 %   intrinsics:         table with intrinsics and radial distortion parameters 
 %
-%   NOTE this function requires the Computer Vision Toolkit
-%        (http://www.diegm.uniud.it/fusiello/demo/toolkit/)
+%   NOTE: this function requires the Computer Vision Toolkit
+%         (http://www.diegm.uniud.it/fusiello/demo/toolkit/)
 %
 %   See also RUNCALIBCHECKER, ACQUIRE_CALIBRATION_IMAGES
 

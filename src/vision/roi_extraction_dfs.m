@@ -1,7 +1,7 @@
 function components = roi_extraction_dfs(img_canny)
-% ROI_EXTRACTION_DFS Apply the DFS algorithm to a picture filtered with the 
-% Canny edge detector (2D-Graph) and extract the connected components from it
-% (set of points, set of tails).
+% ROI_EXTRACTION_DFS Apply the depth-first search (DFS) algorithm to a picture
+% filtered with the Canny edge detector (2D-Graph) and extract the connected 
+% components from it (set of points, set of tails).
 %
 %   components = ROI_EXTRACTION_DFS(img_canny)
 %   

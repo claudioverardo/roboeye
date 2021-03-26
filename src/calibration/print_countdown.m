@@ -1,5 +1,5 @@
 function print_countdown(length)
-% PRINT_COUNTDOWN plot on the screen the countdown of length seconds.
+% PRINT_COUNTDOWN Plot on the screen the countdown of length seconds.
 %
 %   PRINT_COUNTDOWN(length)
 %

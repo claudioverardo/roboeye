@@ -1,6 +1,6 @@
 # Roboeye
 
-![MainImage](./assets/demo/Main1.png)
+![MainImage](./demo/Main1.png)
 This project implements a basic hand-eye coordination system between a UVC  camera and the TinkerKit Braccio Robot. It is composed by two main stages. The former is a vision algorithm that detects and estimates the poses of some Aruco Markers in the scene. The latter plans a tracjectory and control the robot in order to reach the positions extimated by the vision stage.  
 
 ![Badge](https://img.shields.io/badge/matlab-2020b-blue?logo=mathworks)
@@ -11,13 +11,12 @@ This project implements a basic hand-eye coordination system between a UVC  came
 ## Table of Contents
 1. [Installation](#installation)
 2. [Overview](#overview)
-3. [Examples](#examples)
+3. [Documentation](#documentation)
 4. [Demo](#demo)
-5. [Documentation](#documentation)
-6. [Contributors](#contributors)
-7. [Credits](#credits)
-8. [References](#references)
-9. [License](#license)
+5. [Contributors](#contributors)
+6. [Credits](#credits)
+7. [References](#references)
+8. [License](#license)
 
 <a name="installation"></a>
 ## Installation
@@ -52,8 +51,12 @@ A calibrated camera is assumeted, i.e., with known intrisics and extrinsics para
 ### Robot Control
 TODO
 
-<a name="examples"></a>
-## Examples
+<a name="documentation"></a>
+## Documentation
+A comprehensive documentation of the code is available in [docs/DOCS.md](./docs/DOCS.md).
+
+<a name="demo"></a>
+## Demo
 
 ### Robot Vision
 To run an example of pose estimation of Aruco Markers, perform in order the following steps:
@@ -64,10 +67,10 @@ To run an example of pose estimation of Aruco Markers, perform in order the foll
 
 Below there are some examples of the pipeline:
 
-![Demo1](./assets/demo/1.png)
-![Demo2](./assets/demo/2.png)
-![Demo4](./assets/demo/4.png)
-![Demo3](./assets/demo/3.png)
+![Demo1](./demo/1.png)
+![Demo2](./demo/2.png)
+![Demo4](./demo/4.png)
+![Demo3](./demo/3.png)
 
 The foregoing images has been obtained with the following configuration parameters (HOMEDIR / assets / config_files / config_pose_estimation.m)
 
@@ -98,15 +101,7 @@ The foregoing images has been obtained with the following configuration paramete
     ...
 
 ### Robot Control
-+ TODO
-
-<a name="demo"></a>
-## Demo
-TODO Video
-
-<a name="documentation"></a>
-## Documentation
-Check the associated document [DOCS.md](https://github.com/claudioverardo/roboeye/blob/develop/DOCS.md)
++ TODO Video
 
 <a name="contributors"></a>
 ## Contributors

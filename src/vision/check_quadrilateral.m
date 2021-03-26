@@ -20,7 +20,7 @@ function is_valid_quad = check_quadrilateral(points, varargin)
 %   ------------------
 %   is_valid_quad:      1 if the shape is a valid quadrilateral 0 otherwise
 %
-%   NOTE a shape is discarded when one of the following conditions is met:
+%   NOTE: a shape is discarded when one of the following conditions is met:
 %   - sum of the internal angles > 360° + sum_angles_tol 
 %   - angle between opposide sides > parallelism_tol
 %   - length of side lower than side_th_low
