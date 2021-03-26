@@ -31,6 +31,7 @@ This project implements a basic hand-eye coordination system between a UVC  came
 
 #### Hardware setup
 + Robot used [ThinkerKit Braccio](https://www.arduino.cc/en/Guide/Braccio)
++ Roffie UC20 webcam 1080p
 
 #### Run setup 
 1. Go to HOMEDIR / src
@@ -39,14 +40,20 @@ This project implements a basic hand-eye coordination system between a UVC  came
 <a name="overview"></a>
 ## Overview
 
+### Robot Calibration
+The code provides some utilities to calibrate the camera:
++ Intrinsics calibration via **SMZ** algorithm.
++ Extrinsics calibration wrt a **checkerboard pattern** as world frame.
++ Stereo calibration.
+
 ### Robot Vision
 The vision stage is composed by a pipeline that spots candidates regions of interest (**ROIs**), matches them with a set Aruco Markers and estimates its pose in space. Namely:
- + The first step extracts the contours from the input image deploying either **Adaptive Thresholding + Moore-Neighbor** or **Canny Edge Detector + Depth First Search** (DFS)
- + The second step selects only the contours with rectangular shapes and refines them in order to identify their corners. To this end, it resorts to either **Ramer–Douglas-Pecker** algorithm or **Geometric Corner Extractor**. The output are the ROIs candidated for the matching with the Aruco Markers.
- + The third step remove the prospective distortion of the input ROIs and try to match them with the Aruco Marker in a given dictionary (**Homography** and **Hamming Distance**).
- + The last step estimates the pose of the matched ROIs through the **Perspective-n-Points** (**PnP**).
+ + The first step extracts the contours from the input image deploying either **Adaptive Thresholding + Moore-Neighbor** or **Canny Edge Detector + Depth First Search** (DFS).
+ + The second step selects only the contours with rectangular shapes and refines them in order to identify their corners. To this end, it resorts to either the **Ramer–Douglas-Pecker** algorithm or a **Geometric Corner Extractor**. The output are the ROIs candidated for the matching with the Aruco Markers.
+ + The third step removes the perspective distortion of the input ROIs estimating a proper **Homography**. Then, it tries to match them with the Aruco Markers according to the **Hamming Distance 2D**.
+ + The last step estimates the poses in space of the matched Aruco Markers through the **Perspective-n-Points** (**PnP**) algorithm.
 
-A calibrated camera is assumeted, i.e., with known intrisics and extrinsics parameters. You can retrive this informations by using the **run_calibration** script
+A calibrated camera is assumeted, i.e., with known intrisics and extrinsics parameters.
 
 ### Robot Control
 TODO
@@ -60,12 +67,14 @@ A comprehensive documentation of the code is available in [docs/DOCS.md](./docs/
 
 ### Robot Vision
 To run an example of pose estimation of Aruco Markers, perform in order the following steps:
-1. Go to HOMEDIR / assets / config_files.
-2. Set the parameters of the pipeline (in this example we are using the 2nd pipeline, you must enable the verbose setting for plotting).
-3. Go to HOMEDIR / src.
-4. Run **run_pose_estimation** script.
+1. Retrive the intrisics matrix `K`, the extrinsics `R`, `t` and the radial distortion coefficients `k` of the camera. An example of this procedure can be found [here](./src/scripts/run_calibration_camera.m),
+2. Go to HOMEDIR / assets / config_files and create a m-file to set the parameters of the system. An example can be found [here](./assets/config_files/config_pose_estimantion.m).
+3. Create a set of Aruco Markers to be matched in the scene, as done [here](./src/scripts/create_aruco_markers.m).
+4. Acquire from camera or load from the disk an image of the scene.
+5. Go to HOMEDIR / src.
+6. Launch the Aruco pose estimation as done [here](./src/scripts/run_pose_estimation.m).
 
-Below there are some examples of the pipeline:
+Below there are some examples of the results:
 
 ![Demo1](./demo/1.png)
 ![Demo2](./demo/2.png)
@@ -74,7 +83,7 @@ Below there are some examples of the pipeline:
 
 The foregoing images has been obtained with the following configuration parameters (HOMEDIR / assets / config_files / config_pose_estimation.m)
 
-    %% CONFIGURATION FILE OF ROBOEYE
+    %% CONFIGURATION FILE
 
     % ROI extraction parameters
     ROI_EXTRACTION_METHOD = 'adaptth-moore'; % adaptth-moore, canny-dfs, canny-dfs-c
@@ -87,7 +96,7 @@ The foregoing images has been obtained with the following configuration paramete
     % ROI refinement parameters
     ROI_REFINEMENT_METHOD = 'geometric'; % rdp, geometric
     ROI_SIZE_TH = 50;
-    RDP_TH = 0.2;  % Ramerâ€“Douglasâ€“Peucker threshold
+    RDP_TH = 0.2;  % Ramers-Douglas-Peucker threshold
     ROI_SUM_ANGLES_TOL  = 10; % [degrees]
     ROI_PARALLELISM_TOL = 10; % [degrees]
     ROI_SIDE_TH_LOW  = 1/100; % [% diag(img)]
@@ -98,25 +107,51 @@ The foregoing images has been obtained with the following configuration paramete
     ROI_H_SIDE = 80;
     ROI_HAMMING_TH  = 2;
 
-    ...
+    % Debug/Analysis
+    % 1: show roi_extracted         
+    % 2: + show adaptth or canny/dfs 
+    ROI_EXTRACTION_VERBOSE        = 1;
+
+    % 1: show roi_refined           
+    % 2: + show roi_discarded
+    ROI_REFINEMENT_VERBOSE        = 1;
+
+    % 1: show roi_matched/markers   
+    % 2: + show H (roi_matched)         
+    % 3: + show H (all)
+    ROI_MATCHING_VERBOSE          = 1;
+
+    % 1: show roi_pnp               
+    % 2: + aruco id/error
+    ROI_POSE_ESTIMATION_VERBOSE   = 2;
+    
+    % 1: detection log
+    ARUCO_DETECTION_VERBOSE       = 1;
+    
+    % 1: pose estimation log
+    ARUCO_POSE_ESTIMATION_VERBOSE = 1; 
+
 
 ### Robot Control
 + TODO Video
 
 <a name="contributors"></a>
 ## Contributors
-+ [Mattia Balutto](https://github.com/mattiabalutto) - MSc Electronic Engineering, University of Udine (Italy)
-+ [Diego Perisutti](https://github.com/DiegoPerissutti) - MSc Mechanical Engineering, University of Udine (Italy)
-+ [Claudio Verardo](https://github.com/claudioverardo) - MSc Electronic Engineering, University of Udine (Italy)
++ [Mattia Balutto](https://github.com/mattiabalutto) - MSc Electronic Engineering, University of Udine (Italy).
++ [Diego Perisutti](https://github.com/DiegoPerissutti) - MSc Mechanical Engineering, University of Udine (Italy).
++ [Claudio Verardo](https://github.com/claudioverardo) - MSc Electronic Engineering, University of Udine (Italy).
 
-Equal contribution from all the contributors
+Equal contribution from all the contributors.
 
 <a name="credits"></a>
 ## Credits
-The project and the sample images are inspired from the:
-+ [Computer Vision Toolkit](http://www.diegm.uniud.it/fusiello/demo/toolkit/) by Professor Andrea Fusiello at University of Udine
+The project has been developed under the supervision of:
++ Professor Andrea Fusiello, University of Udine (Italy).
++ Professor Stefano Miani, University of Udine (Italy).
 
-Whenever we are missing some credits acknowledgements, please let us know and we will fix it.
+The implementation of the vision algorithms of the system takes inspiration from the [Computer Vision Toolkit](http://www.diegm.uniud.it/fusiello/demo/toolkit/), [Calibration Toolkit](http://www.diegm.uniud.it/fusiello/demo/toolkit/calibration.html) made by Professor Andrea Fusiello at University of Udine.
+
+Whenever we are missing some credits acknowledgements, please let us know and we will fix them.
 
 <a name="references"></a>
 ## References
@@ -124,4 +159,4 @@ TODO - Copiare quelli della relazione
 
 <a name="license"></a>
 ## License
-TODO dovrebbe essere MIT da controllare con fusiello
+The code is licensed under Creative Commons, check the [LICENSE](./LICENSE) file.
