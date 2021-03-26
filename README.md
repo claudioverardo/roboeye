@@ -68,7 +68,7 @@ A comprehensive documentation of the code is available in [docs/DOCS.md](./docs/
 ### Robot Vision
 To run an example of pose estimation of Aruco Markers, perform in order the following steps:
 1. Retrive the intrisics matrix `K`, the extrinsics `R`, `t` and the radial distortion coefficients `k` of the camera. An example of this procedure can be found [here](./src/scripts/run_calibration_camera.m),
-2. Go to HOMEDIR / assets / config_files and create a m-file to set the parameters of the system. An example can be found [here](./assets/config_files/config_pose_estimantion.m).
+2. Go to HOMEDIR / assets / config_files and create a m-file to set the parameters of the system. An example can be found [here](./assets/config_files/config_pose_estimation.m).
 3. Create a set of Aruco Markers to be matched in the scene, as done [here](./src/scripts/create_aruco_markers.m).
 4. Acquire from camera or load from the disk an image of the scene.
 5. Go to HOMEDIR / src.
@@ -81,7 +81,7 @@ Below there are some examples of the results:
 ![Demo4](./demo/4.png)
 ![Demo3](./demo/3.png)
 
-The foregoing images has been obtained with the following configuration parameters (HOMEDIR / assets / config_files / config_pose_estimation.m)
+The foregoing images has been obtained with the following configuration parameters
 
     %% CONFIGURATION FILE
 
