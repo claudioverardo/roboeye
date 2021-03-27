@@ -34,5 +34,6 @@ load('../assets/calibration/intrinsics_cam1/intrinsics.mat');
 k = intrinsics.radial;
 % dir = '../assets/calibration/extrinsics_cam1_tests_7x7';
 % dir = '../assets/calibration/extrinsics_cam1_tests_8x8';
+% dir = '../assets/calibration/extrinsics_cam1_tests_robot';
 
 % [R_cam, t_cam] = calibration_extrinsics_camera(cam, K, k, step_size, grid_arrangement, cm2px_scale, dir);

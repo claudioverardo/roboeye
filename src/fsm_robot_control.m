@@ -1,108 +1,203 @@
-close all % clear
+function fsm_robot_control(port, baud, cam, vision_args, cam2robot_coords)
 
-img_source = webcam(1);
-% 
-%% SERIAL PORT
-fprintf('---- CONNECTION -----\n');
-s = serialport('COM3',115200);
-% seriallist
-print_countdown(12);
-fprintf('DONE\n');
+    fprintf('\n-------- FSM Robot Control started --------\n');
 
-%%
-% fprintf('POSE ESTIMATION START IN');
-print_countdown(3);
+    STATE = {
+        'SETUP'
+        'NOP'
+        'INITIALIZE'
+        'HOME'
+        'LOAD_TRAJECTORY'
+        'FOLLOW_TRAJECTORY'
+        'DONE'
+        'BACK_HOME'
+        'RELEASE'
+        'ERR'
+    };
 
-%% ARUCO DETECTION+POSE ESTIMATION
-config_file = '../assets/config_files/config_pose_estimation';
-K_file = '../assets/calibration/intrinsics_cam1/K.mat';
-R_cam_file = '../assets/calibration/extrinsics_cam1_test_robot1/R_cam.mat';
-t_cam_file = '../assets/calibration/extrinsics_cam1_test_robot1/t_cam.mat';
-aruco_markers_file = '../assets/aruco_markers/aruco_markers_8x8.mat';
-aruco_real_sides = [3 3 3 4 4 6]; % [cm]
+    DELTA_T_SETUP = 3;
+    DELTA_T_INITIALIZE = 7;
+    DELTA_T_READ_TRAJECTORY = 2;
+    DELTA_T_BACK_HOME = 5;
+    DELTA_T_RELEASE = 3;
 
-run(config_file);
-load(aruco_markers_file);
-load(K_file, 'K');
-load(R_cam_file, 'R_cam');
-load(t_cam_file, 't_cam');
-img = get_image(img_source);
+    fn_val_nop = @(x) x == -1 || x == 1;
+    fn_val_home = @(x) x == -1 || x == 0 || x == 1;
+    fn_val_load_trajectory = @(x) x == -1 || x == 1 || x == 2;
+    fn_val_follow_trajectory = @(x) x == -1 || x == 0 || x == 1 || x == 2;
+    fn_val_done = @(x) x == -1 || x == 0 || x == 1;
+    
+    help_nop = 'Available commands:\n  -1: exit\n   1: initialize robot\n';
+    help_home = 'Available commands:\n  -1: exit\n   0: release robot\n   1: load trajectory\n';
+    help_load_trajectory = 'Available commands:\n  -1: exit\n   1: target from camera\n   2: target from user\n';
+    help_follow_trajectory = 'Available commands:\n  -1: exit\n   0: release robot\n   1: back to home\n   2: execute trajectory\n';
+    help_done = 'Available commands:\n  -1: exit\n   0: release robot\n   1: back to home\n';
 
-% literature -> Matlab convention
-K = K';       
-R_cam = R_cam';
-t_cam = t_cam';
+    % Connection to the serial port
+    fprintf('\nInitializing serial connection\n');
+    s = serialport(port, baud);
+    
+    fprintf('Waiting...');
+    print_countdown(DELTA_T_SETUP);
 
-% Launch Aruco Pose Estimation
-[rois, i_arucos, rois_R, rois_t] = aruco_pose_estimation( ...
-    img, aruco_markers, aruco_real_sides, K, R_cam, t_cam, ...
-    'roi_extraction_method', ROI_EXTRACTION_METHOD, ...
-    'adaptth_sensitivity', ADAPTTH_SENSITIVITY, ...
-    'adaptth_statistic', ADAPTTH_STATISTIC, ...
-    'adaptth_neighborhood', ADAPTTH_NEIGHBORHOOD, ...
-    'canny_th_low', CANNY_TH_LOW, ...
-    'canny_th_high', CANNY_TH_HIGH, ...
-    'roi_refinement_method', ROI_REFINEMENT_METHOD, ...
-    'roi_size_th', ROI_SIZE_TH, ...
-    'rdp_th', RDP_TH, ...
-    'roi_sum_angles_tol', ROI_SUM_ANGLES_TOL, ...
-    'roi_parallelism_tol', ROI_PARALLELISM_TOL, ...
-    'roi_side_th_low', ROI_SIDE_TH_LOW, ...
-    'roi_side_th_high', ROI_SIDE_TH_HIGH, ...
-    'roi_bb_padding', ROI_BB_PADDING, ...
-    'roi_h_side', ROI_H_SIDE, ...
-    'roi_hamming_th', ROI_HAMMING_TH, ...
-    'roi_extraction_verbose', ROI_EXTRACTION_VERBOSE, ...
-    'roi_refinement_verbose', ROI_REFINEMENT_VERBOSE, ...
-    'roi_matching_verbose', ROI_MATCHING_VERBOSE, ...
-    'roi_pose_estimation_verbose', ROI_POSE_ESTIMATION_VERBOSE, ...
-    'aruco_detection_verbose', ARUCO_DETECTION_VERBOSE, ...
-    'verbose', ARUCO_POSE_ESTIMATION_VERBOSE ...
-);
+    while 1
 
-t = rois_t{1};
-x_robot = t(2)*10 + 104;
-y_robot = - t(1)*10;
+        state_tm1_code = uint8(read(s,1,'uint8'));
+        state_code = uint8(read(s,1,'uint8'));
+        
+        state = STATE{state_code+1};
+        
+        fprintf('\nTransition %s --> %s\n', STATE{state_tm1_code+1}, state);
 
-%%
-% fprintf('TRAJECTORY START IN');
-% print_countdown(5);
+        switch state
+            
+            case STATE{1} % SETUP
 
-%% TREJECTORY PLANNING
+            case STATE{2} % NOP
+                cmd = acquire_command(help_nop, fn_val_nop);
+                if cmd == -1
+                    break;
+                end
+                write(s, uint8(cmd), 'uint8');
+                
+            case STATE{3} % INITIALIZE
+                fprintf('Initializing robot\n');
+                fprintf('Waiting...');
+                print_countdown(DELTA_T_INITIALIZE); 
+            
+            case STATE{4} % HOME
+                cmd = acquire_command(help_home, fn_val_home);
+                if cmd == -1
+                    break;
+                end
+                write(s, uint8(cmd), 'uint8');
+                
+            case STATE{5} % LOAD_TRAJECTORY
+                
+                invalid_trajectory = 1;
+                cmd = -1;
+                while invalid_trajectory
+                
+                    cmd = acquire_command(help_load_trajectory, fn_val_load_trajectory);
+                    switch cmd
 
-[trajectory, check_trajectory] = touchdown(x_robot, y_robot, 0);
+                        case -1
+                            break;
 
-if (check_trajectory == 1)
-    error('ERROR: TRAJECTORY NOT VALID')
+                        case 1
+                            fprintf('   Acquiring image\n');
+                            img = snapshot(cam);
+
+                            fprintf('   Launching Aruco pose estimation\n');
+                            [rois, i_arucos, rois_R, rois_t] = aruco_pose_estimation( ...
+                                img, vision_args.aruco_markers, vision_args.aruco_real_sides, ...
+                                vision_args.K, vision_args.R_cam, vision_args.t_cam, vision_args.k, ...
+                                vision_args.options ...
+                            );
+                        
+                            fprintf('\n');
+                            n_rois = length(rois);
+                            for i=1:n_rois
+                                fprintf('   ROI %d -- Aruco %d -- X = %g  Y = %g  Z = %g [cm]\n', i, i_arucos(i), rois_t{i}(1), rois_t{i}(2), rois_t{i}(3));
+                            end
+                        
+                            idx = input(sprintf('   Choose ROI target (1-%d): ', n_rois));
+                            t = rois_t{idx};
+
+                        case 2
+                            t = input('   Insert target\n   [X,Y,Z] = ');
+
+                    end
+
+                    fprintf('   Target (camera frame): X = %g  Y = %g  Z = %g [cm]\n', t(1), t(2), t(3));
+                    
+                    t_robot = cam2robot_coords(t);
+                    x_robot = t_robot(1);
+                    y_robot = t_robot(2);
+                    z_robot = t_robot(3);
+                    
+                    fprintf('   Target (robot frame):  X = %g  Y = %g  Z = %g [mm]\n', t_robot(1), t_robot(2), t_robot(3));
+
+                    fprintf('   Computing trajectory\n');
+                    [trajectory, invalid_trajectory] = touchdown(x_robot, y_robot, z_robot);
+
+                    if invalid_trajectory
+                        fprintf('   ERROR: trajectory not valid!\n\n');
+                    end
+                    
+                end
+                    
+                if cmd == -1
+                    break;
+                end
+                
+                fprintf('   Sending trajectory to robot\n');
+                
+                q_trajectory = uint8(trajectory);
+                MAXPOINTS = size(q_trajectory,1);
+                QNUM = size(q_trajectory,2);
+
+                M_TX = reshape(q_trajectory.',1,[]);
+
+                write(s, M_TX, 'uint8')
+                fprintf('   Waiting... '); 
+                print_countdown(DELTA_T_READ_TRAJECTORY);
+                
+                fprintf('   Receiving trajectory from robot\n');
+                M_RX = uint8(read(s,MAXPOINTS*QNUM,'uint8'));
+
+                if isequal(M_RX,M_TX)
+                   fprintf('   Check data PASSED\n'); 
+                else
+                   fprintf('   Check data FAILED!!!\n'); 
+                end
+                
+            case STATE{6} % FOLLOW_TRAJECTORY
+                
+                cmd = acquire_command(help_follow_trajectory, fn_val_follow_trajectory);
+                if cmd == -1
+                    break;
+                end
+                write(s, uint8(cmd), 'uint8');
+                
+            case STATE{7} % DONE
+                cmd = acquire_command(help_done, fn_val_done);
+                if cmd == -1
+                    break;
+                end
+                write(s, uint8(cmd), 'uint8');
+                
+            case STATE{8} % BACK_HOME
+                fprintf('Back to home position\n');
+                fprintf('Waiting...');
+                print_countdown(DELTA_T_BACK_HOME); 
+                
+            case STATE{9} % RELEASE
+                fprintf('Releasing robot\n');
+                fprintf('Waiting...');
+                print_countdown(DELTA_T_RELEASE); 
+        end
+
+    end
+
+    fprintf('\n-------- FSM Robot Control finished -------\n');
+    
+    delete(s);
+    clear('s');
+   
 end
 
-%%
-% fprintf('CONTROL START IN');
-% print_countdown(5);
-
-%% ROBOT CONTROL
-q_trajectory = uint8(trajectory);
-MAXPOINTS = size(q_trajectory,1);
-QNUM = size(q_trajectory,2);
-
-M_TX = reshape(q_trajectory.',1,[]);
-M_RX = zeros(size(M_TX));
-
-fprintf('-------- TX --------\n');
-write(s, M_TX, 'uint8')
-fprintf('DONE\n');
-pause(2);
-
-fprintf('-------- RX --------\n');
-M_RX = uint8(read(s,MAXPOINTS*QNUM,'uint8'));
-fprintf('DONE\n');           
-
-if isequal(M_RX,M_TX)
-   fprintf('DATA OK\n'); 
-else
-   fprintf('DATA ERROR!\n'); 
+function cmd = acquire_command(help, fn_val)
+   
+    fprintf(help);
+    
+    valid_command = 0;
+    while valid_command == 0
+        cmd = input('Command: ');
+        valid_command = fn_val(cmd);
+        if ~valid_command
+            fprintf('Command not valid\n');
+        end
+    end  
+    
 end
-
-fprintf('START TRAJECTORY\n');
-
-delete(s);
