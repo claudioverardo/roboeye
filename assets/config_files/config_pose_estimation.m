@@ -42,7 +42,9 @@ ROI_MATCHING_VERBOSE = 1;
 ROI_POSE_ESTIMATION_VERBOSE = 2;
 
 % 1: detection log
-ARUCO_DETECTION_VERBOSE = 1;
+% 2: advanced detection log
+ARUCO_DETECTION_VERBOSE = 2;
 
 % 1: pose estimation log
-ARUCO_POSE_ESTIMATION_VERBOSE = 1; 
+% 2: advanced pose estimation log
+ARUCO_POSE_ESTIMATION_VERBOSE = 2; 

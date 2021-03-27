@@ -38,4 +38,5 @@ ROI_REFINEMENT_VERBOSE = 1;
 ROI_MATCHING_VERBOSE = 1;
 
 % 1: detection log
-ARUCO_DETECTION_VERBOSE = 1;
+% 2: advanced detection log
+ARUCO_DETECTION_VERBOSE = 2;

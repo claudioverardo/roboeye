@@ -62,16 +62,20 @@ function [rois, i_arucos, rois_R, rois_t] = aruco_pose_estimation(img, aruco_mar
     aruco_detection_parameters.verbose = ARUCO_DETECTION_VERBOSE;
     [rois, i_arucos] = aruco_detection(img, aruco_markers, aruco_detection_parameters);
     
-    fprintf('\n----- Aruco Pose Estimation -----\n');
+    if VERBOSE > 0
+        fprintf('\n----- Aruco Pose Estimation -----\n');
+    end
 
     % Compute pose of matched ROIs in the camera frame
-    fprintf('roi_pose_estimation...\n');
+    if VERBOSE > 0
+        fprintf('roi_pose_estimation...\n');
+    end
     [rois_R, rois_t, err_lin, err_nonlin, time_roi_pose_estimation] = roi_pose_estimation( ...
         img, rois, i_arucos, aruco_real_sides, K, R_cam, t_cam, k, ...
         'verbose', ROI_POSE_ESTIMATION_VERBOSE ...
     );
 
-    if VERBOSE > 0
+    if VERBOSE > 1
         fprintf('  time: %f s\n', time_roi_pose_estimation);
         for i=1:length(rois)
             fprintf('  ROI %d -> RMS reproj error lin: %f -- nonlin: %f\n', i, err_lin(i), err_nonlin(i));
