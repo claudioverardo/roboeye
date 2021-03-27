@@ -30,7 +30,9 @@ step_size = 3;
 grid_arrangement = [16, 10];
 cm2px_scale = 0.05;
 load('../assets/calibration/intrinsics_cam1/K.mat');
-% dir = '../assets/calibration/extrinsics_cam1';
-dir = '../assets/calibration/extrinsics_cam1_test_robot1';
+load('../assets/calibration/intrinsics_cam1/intrinsics.mat');
+k = intrinsics.radial;
+% dir = '../assets/calibration/extrinsics_cam1_tests_7x7';
+% dir = '../assets/calibration/extrinsics_cam1_tests_8x8';
 
-% [R_cam, t_cam] = calibration_extrinsics_camera(cam, K, step_size, grid_arrangement, cm2px_scale, dir);
+% [R_cam, t_cam] = calibration_extrinsics_camera(cam, K, k, step_size, grid_arrangement, cm2px_scale, dir);

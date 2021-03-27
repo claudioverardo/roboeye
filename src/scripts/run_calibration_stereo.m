@@ -35,12 +35,14 @@ grid_arrangement = [16, 10];
 cm2px_scale = 0.05;
 
 load('../assets/calibration/intrinsics_cam1/K.mat'); K1 = K; clear('K');
+load('../assets/calibration/intrinsics_cam1/intrinsics.mat'); k1 = intrinsics.radial; clear('intrinsics');
 dir1 = '../assets/calibration/extrinsics_cam1';
-% [R_cam1, t_cam1] = calibration_extrinsics_camera(cam1, K1, step_size, grid_arrangement, cm2px_scale, dir1);
+% [R_cam1, t_cam1] = calibration_extrinsics_camera(cam1, K1, k1, step_size, grid_arrangement, cm2px_scale, dir1);
 
 load('../assets/calibration/intrinsics_cam2/K.mat'); K2 = K; clear('K');
+load('../assets/calibration/intrinsics_cam2/intrinsics.mat'); k2 = intrinsics.radial; clear('intrinsics');
 dir2 = '../assets/calibration/extrinsics_cam2';
-% [R_cam2, t_cam2] = calibration_extrinsics_camera(cam2, K2, step_size, grid_arrangement, cm2px_scale, dir2);
+% [R_cam2, t_cam2] = calibration_extrinsics_camera(cam2, K2, k2, step_size, grid_arrangement, cm2px_scale, dir2);
 
 %% Calculate the relative pose of the 2 cameras from their intrisics and extrinsics
 close all;

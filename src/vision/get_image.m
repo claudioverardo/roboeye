@@ -15,10 +15,10 @@ function img = get_image(img_source)
 
     if isa(img_source,'webcam') 
         img = snapshot(img_source);
-        fprintf('Image acquired\n');
+        fprintf('Image acquired from camera\n');
     elseif isa(img_source,'char') || isa(img_source,'string') 
         img = imread(img_source); 
-        fprintf('Image loaded\n');
+        fprintf('Image loaded\n%s\n', img_source);
     else
         error('Error, img_source not valid');
     end

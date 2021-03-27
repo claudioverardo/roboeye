@@ -9,8 +9,15 @@ function M_grid = generateGridPoints(gridArrangement, stepSize, method)
 % Output:
 %       - M_grid: grid points in 3D object-space (cm)
 %
-% Copyright © 2020 Prof. A. Fusiello, University of Udine
-% Calibration Toolkit: http://www.diegm.uniud.it/fusiello/demo/toolkit/calibration.html
+% Copyright by Andrea Fusiello, 2019
+% 
+% This work is licensed under the Creative Commons
+% Attribution-NonCommercial-ShareAlike License.
+% 
+% To view a copy of this license, visit
+% http://creativecommons.org/licenses/by-nc-sa/2.0/deed.en or send a
+% letter to Creative Commons, 559 Nathan Abbott Way, Stanford,
+% California 94305, USA.
 %
 % Modified by Claudio Verardo, Mattia Balutto (2021)
     

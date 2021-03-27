@@ -23,15 +23,26 @@ ROI_H_SIDE = 80;
 ROI_HAMMING_TH  = 2;
 
 % Debug/Analysis
-% 1: show roi_extracted         2: + show adaptth or canny/dfs 
-ROI_EXTRACTION_VERBOSE        = 0;
-% 1: show roi_refined           2: + show roi_discarded
-ROI_REFINEMENT_VERBOSE        = 0;
-% 1: show roi_matched/markers   2: + show H (roi_matched)         3: + show H (all)
-ROI_MATCHING_VERBOSE          = 0;
-% 1: show roi_pnp               2: + aruco id/error
-ROI_POSE_ESTIMATION_VERBOSE   = 2;
+
+% 1: show roi_extracted
+% 2: + show adaptth or canny/dfs 
+ROI_EXTRACTION_VERBOSE = 1;
+
+% 1: show roi_refined
+% 2: + show roi_discarded
+ROI_REFINEMENT_VERBOSE = 1;
+
+% 1: show roi_matched/markers
+% 2: + show H (roi_matched)
+% 3: + show H (all)
+ROI_MATCHING_VERBOSE = 1;
+
+% 1: show roi_pnp
+% 2: + aruco id/error
+ROI_POSE_ESTIMATION_VERBOSE = 2;
+
 % 1: detection log
-ARUCO_DETECTION_VERBOSE       = 1;
+ARUCO_DETECTION_VERBOSE = 1;
+
 % 1: pose estimation log
 ARUCO_POSE_ESTIMATION_VERBOSE = 1; 

@@ -66,18 +66,19 @@ function [R, t, reproj_err] = pnp_lin(X_image, X_world, K)
     R = R';
     t = t';
     
-    % Compute the reprojection error of each 2D-3D correspondence
-    n_points = size(X_world,1);
-    reproj_errs = zeros(n_points,1);
-    for i=1:n_points
-        reproj_errs(2*i-1:2*i) = reprojection_error(X_image(i,:), X_world(i,:), K, R, t);
+    if nargout > 2
+        
+        % Compute the reprojection error of each 2D-3D correspondence
+        reproj_errs = reprojection_error(X_image, X_world, K, R, t);
+
+        % Return the overall reprojection error (RMS value)
+        reproj_err = rms(reproj_errs);
+        
     end
-    
-    % Return the overall reprojection error (RMS value)
-    reproj_err = rms(reproj_errs);
 
     % PnP (Fiore algorithm) with Fusiello Computer Vision Toolkit [DEBUG]
     % [R, t] = exterior_lin(X_image', X_world', K');
     % R = R';
     % t = t'; 
+    
 end
