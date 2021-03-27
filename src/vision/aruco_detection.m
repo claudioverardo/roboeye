@@ -96,10 +96,14 @@ function [rois_matched, i_arucos] = aruco_detection(img, aruco_markers, varargin
     ROI_MATCHING_VERBOSE = p.Results.roi_matching_verbose;
     VERBOSE = p.Results.verbose;
     
-    fprintf('\n-------- Aruco Detection --------\n');
+    if VERBOSE > 0
+        fprintf('\n-------- Aruco Detection --------\n');
+    end
 
     % Extract ROIs from input image
-    fprintf('roi_extraction...\n');
+    if VERBOSE > 0
+        fprintf('roi_extraction...\n');
+    end
     [rois_raw, time_roi_extraction] = roi_extraction( ...
         img, img_gray, ... 
         'method', ROI_EXTRACTION_METHOD, ...
@@ -111,12 +115,14 @@ function [rois_matched, i_arucos] = aruco_detection(img, aruco_markers, varargin
         'verbose', ROI_EXTRACTION_VERBOSE ...
     );
 
-    if VERBOSE > 0
+    if VERBOSE > 1
         fprintf('  #rois_raw: %d\n  time: %f s\n', length(rois_raw), time_roi_extraction);
     end
 
     % Select candidate ROIs for matching
-    fprintf('roi_refinement...\n');
+    if VERBOSE > 0
+        fprintf('roi_refinement...\n');
+    end
     [rois_refined, i_rois_refined, time_roi_refined] = roi_refinement( ...
         img, rois_raw, ... 
         'method', ROI_REFINEMENT_METHOD, ...
@@ -129,13 +135,15 @@ function [rois_matched, i_arucos] = aruco_detection(img, aruco_markers, varargin
         'verbose', ROI_REFINEMENT_VERBOSE ...
     );
 
-    if VERBOSE > 0
+    if VERBOSE > 1
         fprintf('  #rois_refined: %d\n  time: %f s\n', length(rois_refined), time_roi_refined);
     end
 
     % Match Aruco markers with candidate ROIs.
     % NB: rois_matched contains sorted vertices of ROIs
-    fprintf('roi_matching...\n');
+    if VERBOSE > 0
+        fprintf('roi_matching...\n');
+    end
     [rois_matched, i_rois_matched, i_arucos, time_roi_matching] = roi_matching(...
         img, img_gray, rois_refined, aruco_markers, ...
         'roi_bb_padding', ROI_BB_PADDING, ...
@@ -144,7 +152,7 @@ function [rois_matched, i_arucos] = aruco_detection(img, aruco_markers, varargin
         'verbose', ROI_MATCHING_VERBOSE ...
     );
 
-    if VERBOSE > 0
+    if VERBOSE > 1
         n_rois_matched = length(rois_matched);
         fprintf('  #rois_matched: %d\n  time: %f s\n', n_rois_matched, time_roi_matching);
         for i=1:n_rois_matched
