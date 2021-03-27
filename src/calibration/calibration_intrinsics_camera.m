@@ -28,7 +28,7 @@ function [P, K, intrinsics] = calibration_intrinsics_camera(n_intrinsics, n_radi
 %
 %   See also RUNCALIBCHECKER, ACQUIRE_CALIBRATION_IMAGES
 
-    fprintf('------ Camera Calibration (Intrinsics) ------\n');
+    fprintf('\n------ Camera Calibration (Intrinsics) ------\n');
     fprintf('%s\n', dir_images);
 
     % Find images in dir_images
@@ -95,7 +95,7 @@ function [P, K, intrinsics] = calibration_intrinsics_camera(n_intrinsics, n_radi
     end
     
     % Calculate the P camera matrices and the K intrinsic matrices
-    fprintf('--------- Starting runCalibChecker ----------\n');
+    fprintf('\n--------- Starting runCalibChecker ----------\n');
     [P, K, intrinsics] = runCalibChecker(files, control_points, n_intrinsics, n_radial_dist, step_size, grid_arrangement, cm2px_scale);
     
     % Save results

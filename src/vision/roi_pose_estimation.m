@@ -1,8 +1,8 @@
-function [R, t, err_lin, err_nonlin, time] = roi_pose_estimation(img, rois, i_arucos, aruco_real_sides, K, R_cam, t_cam, varargin)
+function [R, t, err_lin, err_nonlin, time] = roi_pose_estimation(img, rois, i_arucos, aruco_real_sides, K, R_cam, t_cam, k, varargin)
 % ROI_POSE_ESTIMATION Compute the poses of the matched ROIs in the world frame.
 %
 %   [R, t, err_lin, err_nonlin, time] = ROI_POSE_ESTIMATION(img, rois, i_arucos, 
-%   aruco_real_sides, K, R_cam, t_cam)
+%   aruco_real_sides, K, R_cam, t_cam, k)
 %
 %   Input arguments:
 %   ------------------
@@ -15,6 +15,7 @@ function [R, t, err_lin, err_nonlin, time] = roi_pose_estimation(img, rois, i_ar
 %                       world frame (Matlab convention)
 %   t_cam:              translation vector of the camera extrinsics in the 
 %                       world frame (Matlab convention)
+%   k:                  radial distortion coefficients of the camera
 %   
 %   Parameters:
 %   --------
@@ -69,6 +70,7 @@ function [R, t, err_lin, err_nonlin, time] = roi_pose_estimation(img, rois, i_ar
 
     % Perform pose estimation
     n_rois = size(rois,1);
+    % rois_undist = cell(n_rois,1);
     R_pnp = cell(n_rois,1);
     t_pnp = cell(n_rois,1);
     P_pnp = cell(n_rois,1);
@@ -77,10 +79,15 @@ function [R, t, err_lin, err_nonlin, time] = roi_pose_estimation(img, rois, i_ar
     err_lin = zeros(n_rois,1);
     err_nonlin = zeros(n_rois,1);
     for i=1:n_rois
+
+        % Remove radial distortion from ROIs (already done in pnp_nonlin)
+        % rois_undist{i} = rad_dist_remove(rois{i}, K, k);
         
-        % Poses of the camera wrt the ROIs frames (PnP + non-linear refinement)
+        % Compute the poses of the camera wrt the ROIs frames (linear PnP)
         [R_pnp{i}, t_pnp{i}, err_lin(i)] = pnp_lin(rois{i}, rois_world_pnp{i_arucos(i)}, K);
-        [R_pnp{i}, t_pnp{i}, err_nonlin(i)] = pnp_nonlin(R_pnp{i}, t_pnp{i}, rois{i}, rois_world_pnp{i_arucos(i)}, K);
+        
+        % Non-linear refinement of PnP
+        [R_pnp{i}, t_pnp{i}, err_nonlin(i)] = pnp_nonlin(R_pnp{i}, t_pnp{i}, rois{i}, rois_world_pnp{i_arucos(i)}, K, k);
         
         % Projection matrices associated with the ROIs frames
         P_pnp{i} = [R_pnp{i}; t_pnp{i}]*K;
@@ -133,19 +140,17 @@ function [R, t, err_lin, err_nonlin, time] = roi_pose_estimation(img, rois, i_ar
             end
             
             % Plot control point
-            line_control_points = plot(roi(1,1),roi(1,2), 'gs', 'MarkerSize', 10, 'LineWidth', 1); % 'MarkerFaceColor', 'g'
+            line_control_points = plot(roi(1,1),roi(1,2), 'gs', 'MarkerSize', 10, 'LineWidth', 1);
             
             % Projection of marker centroid
             centroid_world_pnp = mean(roi_world_pnp);
-            % centroid_proj = htx(P_pnp{i}', centroid_world_pnp')'; % [Fusiello]
-            centroid_reproj = homography(centroid_world_pnp, P_pnp{i});
+            centroid_reproj = hom_tf(centroid_world_pnp, P_pnp{i}, K, k);
             
             % Plot the reprojected centroid of the marker
             % plot(centroid_reproj(1),centroid_reproj(2),'ro');
             
             % Projection of marker contours
-            % roi_reproj = htx(P_pnp{i}', roi_world_pnp')'; % [Fusiello]
-            roi_reproj = homography(roi_world_pnp, P_pnp{i});
+            roi_reproj = hom_tf(roi_world_pnp, P_pnp{i}, K, k);
             
             % Plot the projected marker contours
             line_reproj_rois = plot(roi_reproj(:,1),roi_reproj(:,2),'c+');
@@ -156,8 +161,7 @@ function [R, t, err_lin, err_nonlin, time] = roi_pose_estimation(img, rois, i_ar
                 0 1 0
                 0 0 1
             ];
-            % axes_pose_reproj = htx(P_pnp{i}', axes_pose')'; % [Fusiello]
-            axes_pose_reproj = homography(axes_pose, P_pnp{i});
+            axes_pose_reproj = hom_tf(axes_pose, P_pnp{i}, K, k);
 
             % Plot the projected pose axes of the marker
             for j=1:3
@@ -177,9 +181,8 @@ function [R, t, err_lin, err_nonlin, time] = roi_pose_estimation(img, rois, i_ar
             0 1 0
             0 0 1
         ];
-    
-        centroid_world_world = homography(centroid_world, P_cam);
-        axes_world_reproj = homography(axes_world, P_cam);
+        centroid_world_world = hom_tf(centroid_world, P_cam, K, k);
+        axes_world_reproj = hom_tf(axes_world, P_cam, K, k);
 
         colors_axes=['c' 'm' 'y'];
         for i=1:3
@@ -198,14 +201,6 @@ function [R, t, err_lin, err_nonlin, time] = roi_pose_estimation(img, rois, i_ar
                 'ROIs poses x-axis', 'ROIs poses y-axis', 'ROIs poses z-axis', ...
                 'World frame X-axis', 'World frame Y-axis', 'World frame Z-axis');
         end
-        
-        % TEST: find coordinates of ROI_2 wrt frame of ROI_1
-        % T1 = [R{1} zeros(3,1); t{1} 1];
-        % T2 = [R{2} zeros(3,1); t{2} 1];
-        % delta_T = T2*inv(T1);
-        % x_world = homography(0.5*[0 0 0; -3 3 0; 3 3 0; 3 -3 0; -3 -3 0], delta_T);
-        % x_image = homography(x_world, P{1});
-        % plot(x_image(:,1),x_image(:,2), 'yo', 'MarkerFaceColor', 'y');
 
     end
     

@@ -108,6 +108,7 @@ The foregoing images has been obtained with the following configuration paramete
     ROI_HAMMING_TH  = 2;
 
     % Debug/Analysis
+    
     % 1: show roi_extracted         
     % 2: + show adaptth or canny/dfs 
     ROI_EXTRACTION_VERBOSE        = 1;

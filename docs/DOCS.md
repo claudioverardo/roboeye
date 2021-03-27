@@ -41,11 +41,12 @@ NOTE: this function requires the MATLAB Support Package for USB Webcams.
 
 Retrive the rotation matrix and the translation vector (extrinsics) of a camera wrt a world frame attached to a checkerboard.
 
-    [R_cam, t_cam] = calibration_extrinsics_camera(cam, K, step_size, grid_arrangement, cm2px_scale, dir)
+    [R_cam, t_cam] = calibration_extrinsics_camera(cam, K, k, step_size, grid_arrangement, cm2px_scale, dir)
 
 Input arguments:
 + **cam**:                webcam object (cf. webcam(...))
 + **K**:                  intrinsics matrix of the camera (literature convention)
++ **k**:                  radial distortion coefficients of the camera
 + **step_size**:          side of the squares of the checkerboard [cm]
 + **grid_arrangement**:   [x-steps y-steps] steps of the checkerboard along x,y axes
 + **cm2px_scale**:        dimension in cm of 1 pixel of the rectified image
@@ -257,7 +258,7 @@ Output arguments:
 
 Build the Aruco pose estimation pipeline. It executes in order the functions aruco_detection(...), roi_pose_estimation(...).
 
-    [rois, i_arucos, rois_R, rois_t] = aruco_pose_estimation(img, aruco_markers, aruco_real_sides, K, R_cam, t_cam, varargin)
+    [rois, i_arucos, rois_R, rois_t] = aruco_pose_estimation(img, aruco_markers, aruco_real_sides, K, R_cam, t_cam, k, varargin)
 
 Input arguments:
 + **img**:                input image
@@ -266,6 +267,7 @@ Input arguments:
 + **K**:                  intrisics matrix of the camera (Matlab convention)
 + **R_cam**:              rotation matrix of the camera extrinsics in the world frame (Matlab convention)
 + **t_cam**:              translation vector of the camera extrinsics in the world frame (Matlab convention)
++ **k**:                  radial distortion coefficients of the camera
 + **varargin**:           collection of optional parameters, cf. the official Matlab documentation
 
 Parameters:
@@ -347,27 +349,31 @@ Output arguments:
 + **img**: image acquired from the camera or loaded from disk
 </details>
 
-<!-- homography matlab function -->
+<!-- hom_tf matlab function -->
 <details>
     <summary>
-        homography
+        hom_tf
     </summary>
 
-Apply the homogeneous transformation H to the set of points X. The points are arranged by rows X = [x1; ... ; xN] and Y = [y1; ... ; yN]. The transformation acts on the homogeneous coordinates, hom(Y) = hom(X)*H.
+Apply the homogeneous transformation H to the set of points X. The points are arranged by rows X = [x1; ... ; xN] and Y = [y1; ... ; yN]. The transformation acts on the homogeneous coordinates, hom(Y) = hom(X)*H. If required, apply also radial distortion to the results.
 
-    Y = homography(X, H)
+    Y = hom_tf(X, H)
+
+    Y = hom_tf(X, H, K, k)
 
 Input arguments:
 + **X**: input set of points (inhomogeneous coordinates)
-+ **H**: linear transformation between homogeneous coordinates (Matlab convention)
++ **H**: transformation between homogeneous coordinates (Matlab convention)
+    + H 4x3 is a projection 
+    + H 3x3 is a transformation in the projective plane
+    + H 4x4 is a transformation in the projective space
++ **K**: intrisics matrix of the camera (optional)
++ **k**:  radial distortion coefficients of the camera (optional)
 
 Output arguments:
 + **Y**: transformed set of points (inhomogeneous coordinates)
 
-NOTE: the kind of transformation depends on the dimensions of H
-+ H 4x3 is a projection 
-+ H 3x3 is a transformation in the projective plane
-+ H 4x4 is a transformation in the projective space
+NOTE: if intrinsics K and radial distortion coefficients k are provided, the points Y must be 2D image points.
 </details>
 
 <!-- plot_aruco_markers matlab function -->
@@ -415,7 +421,7 @@ NOTE: Matlab convention is assumed, `X_image = X_world*[R; t]*K`.
 
 Non-linear refinement of Perspective-n-Points (PnP) from 3D-2D correspondences. It iterativelly refines the input camera extrinsics through inimization of the reprojection errors of a set of 3D-2D correspondences. Also the RMS value of the final reprojection errors is returned.
 
-    [R, t, reproj_err] = pnp_nonlin(R0, t0, X_image, X_world, K)
+    [R, t, reproj_err] = pnp_nonlin(R0, t0, X_image, X_world, K, k)
 
 Input arguments:
 + **R0**:         initial guess for the rotation matrix of the camera extrinsics, e.g., calculated with pnp_lin(...)
@@ -423,13 +429,54 @@ Input arguments:
 + **X_image**:    Nx2 array, 2D image points
 + **X_world**:    Nx3 array, 3D world points
 + **K**:          intrisics matrix of the camera
++ **k**:          radial distortion coefficients of the camera
 
 Output arguments:
 + **R**:          rotation matrix of the (refined) camera extrinsics
 + **t**:          translation vector of the (refined) camera extrinsics
 + **reproj_err**: reprojection error (RMS value)
 
-NOTE: Matlab convention is assumed, `X_image = X_world*[R; t]*K`.
+NOTE: Matlab convention is assumed, `X_image = fd( X_world*[R; t]*K)` where `fd` is the function that applies the radial distortion.
+</details>
+
+<!-- rad_dist_apply matlab function -->
+<details>
+    <summary>
+        rad_dist_apply
+    </summary>
+
+Return the distorted pixel coordinates from the true ones.
+
+    [m_d, J_m] = rad_dist_apply(m, K, k)
+
+Input arguments:
++ **m**:      Nx2 array, undistorted image points
++ **K**:      intrisics matrix of the camera (Matlab convention)
++ **k**:      radial distortion coefficients of the camera
+
+Output arguments:
++ **m_d**:    Nx2 array, distorted image points
++ **J_m**:    cell array of Jacobians of m_d wrt m (2x2 matrices)
+</details>
+
+<!-- rad_dist_remove matlab function -->
+<details>
+    <summary>
+        rad_dist_remove
+    </summary>
+
+Return the true pixel coordinates from the distorted ones (solving a non-linear iterative LS problem).
+
+    [m, err] = rad_dist_remove(m_d, K, k)
+
+Input arguments:
++ **m_d**:    Nx2 array, distorted image points
++ **K**:      intrisics matrix of the camera (Matlab convention)
++ **k**:      radial distortion coefficients of the camera
+
+Output arguments:
++ **m**:      Nx2 array, undistorted image points
++ **err**:    final error of the iterative solver (RMS value)
 </details>
 
 <!-- reprojection_error matlab function -->
@@ -440,20 +487,21 @@ NOTE: Matlab convention is assumed, `X_image = X_world*[R; t]*K`.
 
 Reprojection error of a 3D-2D correspondence. It finds the component-wise reprojection error between a 2D point and a 3D point. The Jacobian wrt the extrinsics of the camera is also returned.
 
-    [err, J_ext] = reprojection_error(m, M, K, R, t)
+    [err, J_ext] = reprojection_error(m, M, K, R, t, k)
 
 Input arguments:
-+ **m**:      2D image point
-+ **M**:      3D world point
++ **m**:      Nx2 array, 2D image points
++ **M**:      Nx3 array, 3D world points
 + **K**:      intrisics matrix of the camera
 + **R**:      rotation matrix of the camera extrinsics
 + **t**:      translation vector of the camera extrinsics
++ **k**:      radial distortion coefficients of the camera
 
 Output arguments:
-+ **err**:    2x1 array, reprojection error between `m` and `reproj(M)`
-+ **J_ext**:  2x12 array, Jacobian of err wrt the camera extrinsics `[R11,R21,R31,R12,R22,R32,R13,R23,R33,t1,t2,t3]`
++ **err**:    2Nx1 array, reprojection error between `m` and `reproj(M)`
++ **J_ext**:  2Nx12 array, Jacobian of err wrt the camera extrinsics `[R11,R21,R31,R12,R22,R32,R13,R23,R33,t1,t2,t3]`
 
-NOTE: Matlab convention is assumed, `reproj(M) = M*[R; t]*K`.
+NOTE: Matlab convention is assumed, `reproj(M) = fd( M*[R; t]*K )` where `fd` is the function that applies the radial distortion.
 </details>
 
 <!-- roi_extraction matlab function -->
@@ -561,7 +609,7 @@ Output arguments:
 
 Compute the poses of the matched ROIs in the world frame.
 
-    [R, t, err_lin, err_nonlin, time] = roi_pose_estimation(img, rois, i_arucos, aruco_real_sides, K, R_cam, t_cam, varargin)
+    [R, t, err_lin, err_nonlin, time] = roi_pose_estimation(img, rois, i_arucos, aruco_real_sides, K, R_cam, t_cam, k, varargin)
 
 Input arguments:
 + **img**: input image
@@ -571,6 +619,7 @@ Input arguments:
 + **K**: intrisics matrix of the camera (Matlab convention)
 + **R_cam**: rotation matrix of the camera extrinsics in the world frame (Matlab convention)
 + **t_cam**: translation vector of the camera extrinsics in the world frame (Matlab convention)
++ **k**: radial distortion coefficients of the camera
 + **varargin**: collection of optional parameters, cf. the official Matlab documentation
 
 Parameters:

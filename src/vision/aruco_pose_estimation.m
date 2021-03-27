@@ -1,9 +1,9 @@
-function [rois, i_arucos, rois_R, rois_t] = aruco_pose_estimation(img, aruco_markers, aruco_real_sides, K, R_cam, t_cam, varargin)
+function [rois, i_arucos, rois_R, rois_t] = aruco_pose_estimation(img, aruco_markers, aruco_real_sides, K, R_cam, t_cam, k, varargin)
 % ARUCO_POSE_ESTIMATION Build the Aruco pose estimation pipeline. It executes
 % in order the functions aruco_detection(...), roi_pose_estimation(...).
 %
 %   [rois, i_arucos, rois_R, rois_t] = ARUCO_POSE_ESTIMATION(img, aruco_markers,
-%   aruco_real_sides, K, R_cam, t_cam)
+%   aruco_real_sides, K, R_cam, t_cam, k)
 %
 %   Input arguments:
 %   ------------------
@@ -15,6 +15,7 @@ function [rois, i_arucos, rois_R, rois_t] = aruco_pose_estimation(img, aruco_mar
 %                       world frame (Matlab convention)
 %   t_cam:              translation vector of the camera extrinsics in the 
 %                       world frame (Matlab convention)
+%   k:                  radial distortion coefficients of the camera
 %
 %   Parameters:
 %   ------------------
@@ -66,7 +67,7 @@ function [rois, i_arucos, rois_R, rois_t] = aruco_pose_estimation(img, aruco_mar
     % Compute pose of matched ROIs in the camera frame
     fprintf('roi_pose_estimation...\n');
     [rois_R, rois_t, err_lin, err_nonlin, time_roi_pose_estimation] = roi_pose_estimation( ...
-        img, rois, i_arucos, aruco_real_sides, K, R_cam, t_cam, ...
+        img, rois, i_arucos, aruco_real_sides, K, R_cam, t_cam, k, ...
         'verbose', ROI_POSE_ESTIMATION_VERBOSE ...
     );
 
