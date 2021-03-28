@@ -1,15 +1,15 @@
-void processSetup() {
+void processStart() {
   pinMode(LED_BUILTIN, OUTPUT);
   digitalWrite(LED_BUILTIN, HIGH);
   
   // Init serial communication with Matlab
   Serial.begin(BAUD_RATE);
   
-  delay(DELTA_T_SETUP);
+  delay(DELTA_T_START);
 
   digitalWrite(LED_BUILTIN, LOW);
   
-  transition_ACK(SETUP, NOP);
+  transitionACK(START, NOP);
   state = NOP;
 }
 
@@ -17,13 +17,21 @@ void processNOP() {
   // Wait for user commands, do nothing in the meanwhile
   if (Serial.available() > 0) {
     incomingByte = Serial.read();
-  }
 
-  // Next state transition -> INITIALIZE
-  if (incomingByte == 1) {
-    transition_ACK(NOP,INITIALIZE);
-    state = INITIALIZE;
-  } 
+    // Next state transition -> INITIALIZE
+    if (incomingByte == 1) {
+      cmdACK();
+      transitionACK(NOP,INITIALIZE);
+      state = INITIALIZE;
+    }
+    else if (incomingByte == 0) {
+      cmdACK();
+      transitionACK(NOP,END);
+      // Close serial communication with Matlab
+      Serial.end();
+      state = END;
+    }
+  }
 }
 
 void processInitialize() {
@@ -32,7 +40,7 @@ void processInitialize() {
   initializeRobot(SOFT_START_DEFAULT);
   
   // Next state transition -> HOME
-  transition_ACK(INITIALIZE,HOME);
+  transitionACK(INITIALIZE,HOME);
   state = HOME;
 }
 
@@ -43,20 +51,23 @@ void processHome(){
 
     // Next state transition -> RELEASE
     if (incomingByte == 0) {
-      transition_ACK(HOME,RELEASE);
+      cmdACK();
+      transitionACK(HOME,RELEASE);
       state = RELEASE;
     }
     // Next state transition -> HOME
     else if (incomingByte == 1) {
+      cmdACK();
       for (int i = 0; i < QNUM; i++) {
         q[i].write(homePosition[i]);
       }  
-      transition_ACK(HOME,HOME);
+      transitionACK(HOME,HOME);
       state = HOME;
     }
     // Next state transition -> LOAD_TRAJECTORY
     else if (incomingByte == 2) {
-      transition_ACK(HOME,LOAD_TRAJECTORY);
+      cmdACK();
+      transitionACK(HOME,LOAD_TRAJECTORY);
       state = LOAD_TRAJECTORY;
     }
   
@@ -85,7 +96,7 @@ void processLoadTrajectory() {
       }
       
       // Next state transition -> FOLLOW_TRAJECTORY
-      transition_ACK(LOAD_TRAJECTORY,FOLLOW_TRAJECTORY);
+      transitionACK(LOAD_TRAJECTORY,FOLLOW_TRAJECTORY);
       state = FOLLOW_TRAJECTORY;
     }
   }
@@ -96,13 +107,15 @@ void processFollowTrajectory() {
     incomingByte = Serial.read();
 
     if (incomingByte == 2) {
+      cmdACK();
       
       // Follow the loaded trajectory
       bool end_task;
       end_task = executeLoadedTrajectory();
           
+      // Next state transition -> ERROR
       if (!end_task) {
-        transition_ACK(FOLLOW_TRAJECTORY,ERROR_STATE);
+        transitionACK(FOLLOW_TRAJECTORY,ERROR_STATE);
         state = ERROR_STATE;
         return;
       }
@@ -113,17 +126,19 @@ void processFollowTrajectory() {
       }
       
       // Next state transition -> DONE
-      transition_ACK(FOLLOW_TRAJECTORY,DONE);
+      transitionACK(FOLLOW_TRAJECTORY,DONE);
       state = DONE;
     }
     // Next state transition -> BACK_HOME
     else if (incomingByte == 1) {
-      transition_ACK(FOLLOW_TRAJECTORY,BACK_HOME);
+      cmdACK();
+      transitionACK(FOLLOW_TRAJECTORY,BACK_HOME);
       state = BACK_HOME;
     }
     // Next state transition -> RELEASE
     else if (incomingByte == 0) {
-      transition_ACK(FOLLOW_TRAJECTORY,RELEASE);
+      cmdACK();
+      transitionACK(FOLLOW_TRAJECTORY,RELEASE);
       state = RELEASE;
     }
   }
@@ -135,12 +150,14 @@ void processDone() {
   
     // Next state transition -> RELEASE
     if (incomingByte == 0) {
-      transition_ACK(DONE,RELEASE);
+      cmdACK();
+      transitionACK(DONE,RELEASE);
       state = RELEASE;
     }
     // Next state transition -> BACK_HOME
     else if (incomingByte == 1) {
-      transition_ACK(DONE,BACK_HOME);
+      cmdACK();
+      transitionACK(DONE,BACK_HOME);
       state = BACK_HOME;
     }
   }
@@ -156,8 +173,9 @@ void processBackHome() {
   bool end_task;
   end_task = executeTrivialTrajectory(homePosition);
 
+  // Next state transition -> ERROR
   if (!end_task) {
-     transition_ACK(BACK_HOME,ERROR_STATE);
+     transitionACK(BACK_HOME,ERROR_STATE);
      state = ERROR_STATE;
      return;
   }
@@ -165,7 +183,7 @@ void processBackHome() {
   delay(DELTA_T_BACK_HOME);
 
   // Next state transition -> HOME
-  transition_ACK(BACK_HOME,HOME);
+  transitionACK(BACK_HOME,HOME);
   state = HOME;
 }
 
@@ -176,7 +194,7 @@ void processRelease() {
   delay(DELTA_T_RELEASE);
   
   // Next state transition -> NOP
-  transition_ACK(RELEASE,NOP);
+  transitionACK(RELEASE,NOP);
   state = NOP;
 }
 
@@ -189,8 +207,19 @@ void processErrorState() {
     
     // Next state transition -> RELEASE
     if (incomingByte == 0) {
-      transition_ACK(ERROR_STATE,RELEASE);
+      cmdACK();
+      transitionACK(ERROR_STATE,RELEASE);
       state = RELEASE;
     }
   }
+}
+
+void processEnd() {
+
+  pinMode(LED_BUILTIN, OUTPUT);
+  digitalWrite(LED_BUILTIN, HIGH);
+  delay(DELTA_T_END);
+  digitalWrite(LED_BUILTIN, LOW);
+  delay(DELTA_T_END);
+  
 }

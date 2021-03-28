@@ -1,9 +1,9 @@
-function fsm_robot_control(port, baud, cam, vision_args, cam2robot_coords)
+function fsm_robot_control(port, baud, cam, vision_args, fn_cam2robot_coords, fn_robot_input)
 
     fprintf('\n-------- FSM Robot Control start --------\n');
 
     STATE = {
-        'SETUP'
+        'START'
         'NOP'
         'INITIALIZE'
         'HOME'
@@ -13,22 +13,25 @@ function fsm_robot_control(port, baud, cam, vision_args, cam2robot_coords)
         'BACK_HOME'
         'RELEASE'
         'ERROR'
+        'END'
     };
 
-    DELTA_T_SETUP = 3;
+    ACK = 6;
+
+    DELTA_T_START = 3;
     DELTA_T_INITIALIZE = 7;
     DELTA_T_READ_TRAJECTORY = 2;
     DELTA_T_BACK_HOME = 4;
     DELTA_T_RELEASE = 3;
 
-    fn_val_nop = @(x) x == -1 || x == 1;
+    fn_val_nop = @(x) x == 0 || x == 1;
     fn_val_home = @(x) x == 0 || x == 1 || x == 2;
     fn_val_load_trajectory = @(x) x == 1 || x == 2;
     fn_val_follow_trajectory = @(x) x == 0 || x == 1 || x == 2;
     fn_val_done = @(x) x == 0 || x == 1;
     fn_val_error_state = @(x) x == 0;
     
-    help_nop = 'Available commands:\n  -1: exit\n   1: initialize robot\n';
+    help_nop = 'Available commands:\n   0: exit\n   1: initialize robot\n';
     help_home = 'Available commands:\n   0: release robot\n   1: adjust home\n   2: load trajectory\n';
     help_load_trajectory = 'Available commands:\n   1: target from camera\n   2: target from user\n';
     help_follow_trajectory = 'Available commands:\n   0: release robot\n   1: back to home\n   2: execute trajectory\n';
@@ -40,9 +43,10 @@ function fsm_robot_control(port, baud, cam, vision_args, cam2robot_coords)
     s = serialport(port, baud);
     
     fprintf('Waiting...');
-    print_countdown(DELTA_T_SETUP);
-
-    while 1
+    print_countdown(DELTA_T_START);
+    
+    exit = 0;
+    while ~exit
 
         state_tm1_code = uint8(read(s,1,'uint8'));
         state_code = uint8(read(s,1,'uint8'));
@@ -53,14 +57,10 @@ function fsm_robot_control(port, baud, cam, vision_args, cam2robot_coords)
 
         switch state
             
-            case STATE{1} % SETUP
+            case STATE{1} % START
 
             case STATE{2} % NOP
-                cmd = acquire_command(help_nop, fn_val_nop);
-                if cmd == -1
-                    break;
-                end
-                write(s, uint8(cmd), 'uint8');
+                cmd = acquire_execute_cmd(s, help_nop, fn_val_nop, fn_robot_input);
                 
             case STATE{3} % INITIALIZE
                 fprintf('Initializing robot\n');
@@ -68,15 +68,14 @@ function fsm_robot_control(port, baud, cam, vision_args, cam2robot_coords)
                 print_countdown(DELTA_T_INITIALIZE); 
             
             case STATE{4} % HOME
-                cmd = acquire_command(help_home, fn_val_home);
-                write(s, uint8(cmd), 'uint8');
+                cmd = acquire_execute_cmd(s, help_home, fn_val_home, fn_robot_input);
                 
             case STATE{5} % LOAD_TRAJECTORY
                 
                 invalid_trajectory = 1;
                 while invalid_trajectory
                 
-                    cmd = acquire_command(help_load_trajectory, fn_val_load_trajectory);
+                    cmd = acquire_cmd(help_load_trajectory, fn_val_load_trajectory, fn_robot_input);
                     switch cmd
 
                         case 1
@@ -96,17 +95,17 @@ function fsm_robot_control(port, baud, cam, vision_args, cam2robot_coords)
                                 fprintf('      ROI %d -- Aruco %d -- X = %g  Y = %g  Z = %g [cm]\n', i, i_arucos(i), rois_t{i}(1), rois_t{i}(2), rois_t{i}(3));
                             end
                         
-                            idx = input(sprintf('   Choose ROI target (1-%d): ', n_rois));
+                            idx = fn_robot_input(sprintf('   Choose ROI target (1-%d): ', n_rois));
                             t = rois_t{idx};
 
                         case 2
-                            t = input('   Insert target\n   [X,Y,Z] = ');
+                            t = fn_robot_input('   Insert target\n   [X,Y,Z] = ');
 
                     end
 
                     fprintf('   Target (camera frame): X = %g  Y = %g  Z = %g [cm]\n', t(1), t(2), t(3));
                     
-                    t_robot = cam2robot_coords(t);
+                    t_robot = fn_cam2robot_coords(t);
                     x_robot = t_robot(1);
                     y_robot = t_robot(2);
                     z_robot = t_robot(3);
@@ -144,13 +143,10 @@ function fsm_robot_control(port, baud, cam, vision_args, cam2robot_coords)
                 end
                 
             case STATE{6} % FOLLOW_TRAJECTORY
-                
-                cmd = acquire_command(help_follow_trajectory, fn_val_follow_trajectory);
-                write(s, uint8(cmd), 'uint8');
+                cmd = acquire_execute_cmd(s, help_follow_trajectory, fn_val_follow_trajectory, fn_robot_input);
                 
             case STATE{7} % DONE
-                cmd = acquire_command(help_done, fn_val_done);
-                write(s, uint8(cmd), 'uint8');
+                cmd = acquire_execute_cmd(s, help_done, fn_val_done, fn_robot_input);
                 
             case STATE{8} % BACK_HOME
                 fprintf('Back to home position\n');
@@ -163,8 +159,10 @@ function fsm_robot_control(port, baud, cam, vision_args, cam2robot_coords)
                 print_countdown(DELTA_T_RELEASE); 
                 
             case STATE{10} % ERROR
-                cmd = acquire_command(help_error_state, fn_val_error_state);
-                write(s, uint8(cmd), 'uint8');
+                cmd = acquire_execute_cmd(s, help_error_state, fn_val_error_state, fn_robot_input);
+
+            case STATE{11} % END
+                exit = 1;
                 
         end
 
@@ -177,17 +175,36 @@ function fsm_robot_control(port, baud, cam, vision_args, cam2robot_coords)
    
 end
 
-function cmd = acquire_command(help, fn_val)
+function cmd = acquire_cmd(help, fn_val, fn_robot_input)
    
     fprintf(help);
     
-    valid_command = 0;
-    while valid_command == 0
-        cmd = input('Command: ');
-        valid_command = fn_val(cmd);
-        if ~valid_command
+    check_cmd_sw = 0;
+    while ~check_cmd_sw
+        cmd = fn_robot_input('Command: ');
+        check_cmd_sw = fn_val(cmd);
+        if ~check_cmd_sw
             fprintf('Command not valid\n');
         end
     end  
     
+end
+
+function cmd = acquire_execute_cmd(s, help, fn_val, fn_robot_input)
+
+    ACK = 6;
+    
+    check_cmd_hw = 0;
+    while ~check_cmd_hw
+        cmd = acquire_cmd(help, fn_val, fn_robot_input);
+        write(s, uint8(cmd), 'uint8');
+        cmd_robot = uint8(read(s,1,'uint8'));
+        check_cmd_hw = cmd_robot == ACK;
+        if ~check_cmd_hw
+            fprintf('No ACK from the robot!!!\n');
+        else 
+            fprintf('ACK received\n');
+        end
+    end        
+
 end

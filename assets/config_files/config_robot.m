@@ -8,15 +8,10 @@ intrinsics_file = '../calibration/intrinsics_cam1/intrinsics.mat';
 
 vision_args.aruco_markers = load(aruco_markers_file).aruco_markers;
 vision_args.aruco_real_sides = [3 3 3 4 4 6]; % [cm]
-vision_args.K = load(K_file, 'K').K;
-vision_args.R_cam = load(R_cam_file, 'R_cam').R_cam;
-vision_args.t_cam = load(t_cam_file, 't_cam').t_cam;
+vision_args.K = load(K_file, 'K').K';
+vision_args.R_cam = load(R_cam_file, 'R_cam').R_cam';
+vision_args.t_cam = load(t_cam_file, 't_cam').t_cam';
 vision_args.k = load(intrinsics_file, 'intrinsics').intrinsics.radial;
-
-% literature -> Matlab convention
-vision_args.K = vision_args.K';       
-vision_args.R_cam = vision_args.R_cam';
-vision_args.t_cam = vision_args.t_cam';
 
 % ROI extraction parameters
 vision_args.options.roi_extraction_method = 'adaptth-moore'; % adaptth-moore, canny-dfs, canny-dfs-c
@@ -44,6 +39,6 @@ vision_args.options.roi_hamming_th = 2;
 vision_args.options.roi_extraction_verbose = 0;
 vision_args.options.roi_refinement_verbose = 0;
 vision_args.options.roi_matching_verbose = 0;
-vision_args.options.roi_pose_estimation_verbose = 2;
+vision_args.options.roi_pose_estimation_verbose = 0;
 vision_args.options.aruco_detection_verbose = 0;
 vision_args.options.verbose = 0; % aruco_pose_estimation_verbose

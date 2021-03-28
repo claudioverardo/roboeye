@@ -18,14 +18,17 @@
 #define LOW_LIMIT_TIMEOUT 2000
 #define HIGH_LIMIT_TIMEOUT 6000
 
-#define DELTA_T_SETUP 2000 // [ms]
+#define DELTA_T_START 1000 // [ms]
 #define DELTA_T_BACK_HOME 500 // [ms]
 #define DELTA_T_RELEASE 2000 // [ms]
 #define DELTA_T_LOADED_TRAJECTORY 10 // [ms]
 #define DELTA_T_TRIVIAL_TRAJECTORY 30 // [ms]
+#define DELTA_T_END 500 // [ms]
+
+#define ACK 6
 
 enum State {
-  SETUP,
+  START,
   NOP,
   INITIALIZE,
   HOME,
@@ -34,9 +37,10 @@ enum State {
   DONE,
   BACK_HOME,
   RELEASE,
-  ERROR_STATE
+  ERROR_STATE,
+  END
 };
-State state = SETUP;
+State state = START;
 
 Servo q[QNUM];
 const int qPin[QNUM] = {11, 10, 9, 6, 5, 3};
@@ -55,8 +59,8 @@ void setup() {}
 void loop() {
   // Run finite-state machine (FSM)
   switch (state) {
-    case SETUP:
-      processSetup();
+    case START:
+      processStart();
       break;
     case NOP:
       processNOP();
@@ -84,6 +88,9 @@ void loop() {
       break;
     case ERROR_STATE:
       processErrorState();
+      break;
+    case END:
+      processEnd();
       break;
   }
 }

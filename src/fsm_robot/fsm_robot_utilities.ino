@@ -120,11 +120,6 @@ bool executeTrivialTrajectory(byte targetPosition[]) {
   return done;
 }
 
-void transition_ACK(int prevState, int nextState) {
-  Serial.print((char) prevState);
-  Serial.print((char) nextState);
-}
-
 bool checkBoundaries(int joint, byte jointPosition) {
   /*
     Step Delay: a milliseconds delay between the movement of each servo. Allowed values from 10 to 30 msec.
@@ -148,4 +143,13 @@ bool checkBoundaries(int joint, byte jointPosition) {
   // }
 
   return ans;
+}
+
+void cmdACK() {
+  Serial.print((char) ACK);
+}
+
+void transitionACK(int prevState, int nextState) {
+  Serial.print((char) prevState);
+  Serial.print((char) nextState);
 }
