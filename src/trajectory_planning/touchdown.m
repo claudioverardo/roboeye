@@ -1,4 +1,4 @@
-function [Qrob,errorflag,controlvec,maxexcurtion,Q_tot] = touchdown(x,y,z)
+function [Qrob,errorflag,jointpos,controlvec,maxexcurtion,Q_tot] = touchdown(x,y,z)
 % Makes trakectory to the point in input (with the last part vertical)
 %   Do not use z to high (<= 40mm)
 %   stay in the range 140<=r<=360 r=sqrt(x^2+y^2)
@@ -46,7 +46,7 @@ else
        %check for dual solution:
        qloc(3)*qloc(2)
        if qloc(3)*qloc(2)<=0
-            disp('IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII');
+            %disp('IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII');
             qloc=dualsol(qloc);
        end
 
@@ -87,7 +87,9 @@ else
         end
     end
     
-    jointpos=plot_config([ones(npoints+npoints_first,1) Q_tot]);
+    %jointpos=plot_config([ones(npoints+npoints_first,1) Q_tot]);
+    jointpos=plot_config_rob(Qrob);
+
 
     print_for_arduino(Qrob,5);
     
