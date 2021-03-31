@@ -26,6 +26,7 @@ r=sqrt(x^2+y^2);
 
 if r<rmin || r>rmax
     disp('####### ERROR: POSITION OUT OF RANGE #######')
+    errorflag = 1;
 else
     %compute end effector angle by linear interpolation
     eulr2 = 175-(r-rmin)/(rmax-rmin)*45;
@@ -44,7 +45,7 @@ else
        qloc=mod(qloc+180,360)-180;
        
        %check for dual solution:
-       qloc(3)*qloc(2)
+       qloc(3)*qloc(2);
        if qloc(3)*qloc(2)<=0
             %disp('IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII');
             qloc=dualsol(qloc);

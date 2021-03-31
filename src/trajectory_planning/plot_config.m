@@ -38,7 +38,7 @@ function [jointpos,Aloc_out]=plot_config(Q)
     jointpos(i+1,:)=Afin([1 2 3],4)';
   end
 
-  fig=figure(1)
+  fig=figure;
     set(gca,'DataAspectRatio',[1 1 1]);
     hold on
     quiver3(XX(:,2), XX(:,3), XX(:,4), zax(:,1), zax(:,2), zax(:,3),'b');

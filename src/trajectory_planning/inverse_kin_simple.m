@@ -5,7 +5,7 @@ function [qloc, fval, info]=inverse_kin_simple(transl,eulr,startingpos_in)
   startingpos=startingpos_in([2 4]);
 
   %set fsolve options
-  options = optimoptions('fsolve','MaxIterations',50000,'MaxFunctionEvaluations',50000); 
+  options = optimoptions('fsolve','MaxIterations',50000,'MaxFunctionEvaluations',50000,'Display','off'); 
   %define Roto-translation matrix in the end effector's rf
   global transl2
   global eulr2
