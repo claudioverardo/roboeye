@@ -37,7 +37,12 @@ else
     disp("------solution found------")
 end
 
-jp=plot_config_rob(qrob)
+jp=plot_config_rob(qrob);
+
+%set grabber angle
+qrob(6)=73;
+
+
 %jp=plot_config([0 q])
 end
 

@@ -10,7 +10,7 @@ function [qrob,q,foundflag] = scanEFangle(transl,dirindex,ang_pos_rob_min,ang_po
     cycle=0;
 
     while exitflag == false
-        cycle=cycle+1
+        cycle=cycle+1;
         errorflag=false;
 
 
@@ -21,12 +21,7 @@ function [qrob,q,foundflag] = scanEFangle(transl,dirindex,ang_pos_rob_min,ang_po
         %solve inverse kinematics
         [qloc, fval, info] = inverse_kin_super_simple(transl,joint4,startingpos);
         qloc=mod(qloc+180,360)-180;
-        q([1 2 3 4 5])=qloc;
-
-        %check for dual solution
-        if qloc(3)*qloc(2)<=0
-           qloc=dualsol(qloc);
-        end
+        %q([1 2 3 4 5])=qloc;       
 
         %check for solver errors
         controlvec=[sum(sum(fval.^2)) info];
@@ -35,12 +30,24 @@ function [qrob,q,foundflag] = scanEFangle(transl,dirindex,ang_pos_rob_min,ang_po
         if controlvec(2)<=0
             errorflag=true;
         end
+        
+        %check for dual solution
+        if qloc(3)*qloc(2)<=0
+           qloc=dualsol(qloc);
+        end
 
         %convert joint pos into robot's rf
         qrob=[braccio_angles(qloc) q(6)];    
-        if any(qrob<ang_pos_rob_min) || any(qrob>ang_pos_rob_max)
-           errorflag=true;
+        if any(qrob<ang_pos_rob_min) || any(qrob>ang_pos_rob_max) %if the solution is not in the range check for dual
+           qloc=dualsol(qloc);
+           qrob=[braccio_angles(qloc) q(6)];
+           if any(qrob<ang_pos_rob_min) || any(qrob>ang_pos_rob_max) %if even dual is out of range trigger error flag
+               errorflag=true;
+           end    
         end
+        
+        % define q in algorithm rf
+        q([1 2 3 4 5])=qloc; 
 
         if errorflag==false
             exitflag=true;
@@ -50,7 +57,7 @@ function [qrob,q,foundflag] = scanEFangle(transl,dirindex,ang_pos_rob_min,ang_po
         if eulr_index>99
             exitflag=true;
         end
-
+        plot_config_rob(qrob)
     end
 end
 
