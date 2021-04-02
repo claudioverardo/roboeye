@@ -47,6 +47,20 @@ img_source = '../assets/img_tests/7x7/img_7x7_12_02.png';
 % img_source = '../assets/img_tests/8x8/img_8x8_08_03.png';
 
 
+%% TESTS - POSE ESTIMATION - ARUCO MARKERS REPORT
+%--------------------------------------------------------------------------
+
+% config_file = '../assets/config_files/config_pose_estimation';
+% K_file = '../assets/calibration/intrinsics_cam1/K.mat';
+% R_cam_file = '../assets/calibration/extrinsics_cam1_tests_report/R_cam.mat';
+% t_cam_file = '../assets/calibration/extrinsics_cam1_tests_report/t_cam.mat';
+% intrinsics_file = '../assets/calibration/intrinsics_cam1/intrinsics.mat';
+% aruco_markers_file = '../assets/aruco_markers/aruco_markers_report.mat';
+% aruco_real_sides = [3 3 3 3 3 3 3 3 3 3 3.5 3.5 3.5 3.5 3.5 4 4 4 4 4]; % [cm]
+% 
+% img_source = webcam(1);
+
+
 %% TESTS - POSE ESTIMATION (TEMPLATE)
 %--------------------------------------------------------------------------
 

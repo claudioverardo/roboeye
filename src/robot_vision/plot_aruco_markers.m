@@ -10,10 +10,12 @@ function plot_aruco_markers(aruco_markers)
 %   See also ARUCO_DETECTION
     
     n_aruco_markers = size(aruco_markers,1);
+    n_cols = min(n_aruco_markers, 10);
+    n_rows = ceil(n_aruco_markers / n_cols);
     
     figure;
     for i=1:n_aruco_markers
-        subplot(1,n_aruco_markers,i)
+        subplot(n_rows,n_cols,i);
         imshow(aruco_markers{i},'InitialMagnification','fit');
         title(sprintf('Aruco %d', i));
     end
