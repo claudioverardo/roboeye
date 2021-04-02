@@ -76,10 +76,10 @@ To run an example of pose estimation of Aruco Markers, perform in order the foll
 
 Below there are some examples of the results:
 
-![Demo1](./demo/1.png)
-![Demo2](./demo/2.png)
-![Demo4](./demo/4.png)
-![Demo3](./demo/3.png)
+![Demo1](./docs/1.png)
+![Demo2](./docs/2.png)
+![Demo4](./docs/4.png)
+![Demo3](./docs/3.png)
 
 The foregoing images has been obtained with the following configuration parameters
 
