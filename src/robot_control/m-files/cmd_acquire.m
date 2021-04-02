@@ -1,4 +1,21 @@
 function cmd = cmd_acquire(help, fn_val, fn_robot_input, cmd_ask_str, cmd_not_valid_str)
+% CMD_ACQUIRE TODO
+%
+%   cmd = CMD_ACQUIRE(help, fn_val, fn_robot_input, cmd_ask_str, cmd_not_valid_str)
+%
+%   Input arguments:
+%   ------------------
+%   help:
+%   fn_val:
+%   fn_robot_input: 
+%   cmd_ask_str:
+%   cmd_not_valid_str:
+%
+%   Output arguments:
+%   ------------------
+%   cmd:   
+%
+%   See also TODO
 
     if nargin <= 3
         cmd_ask_str = 'Command: ';

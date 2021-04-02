@@ -1,4 +1,18 @@
 function robot_fsm_interface(port, baud, cam, vision_args, fn_cam2robot_coords, fn_robot_input)
+% ROBOT_FSM_INTERFACE TODO
+%
+%   ROBOT_FSM_INTERFACE(port, baud, cam, vision_args, fn_cam2robot_coords, fn_robot_input)
+%
+%   Input arguments:
+%   ------------------
+%   port:
+%   baud:
+%   cam: 
+%   vision_args:
+%   fn_cam2robot_coords: 
+%   fn_robot_input: 
+%
+%   See also TODO
 
     fprintf('\n-------- FSM Robot Control start --------\n');
     

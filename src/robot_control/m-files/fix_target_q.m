@@ -1,4 +1,20 @@
 function target_q_fixed = fix_target_q(target_q, current_q, last_q)
+% FIX_TARGET_Q TODO
+%
+%   
+%   target_q_fixed = FIX_TARGET_Q(target_q, current_q, last_q)
+%
+%   Input arguments:
+%   ------------------
+%   target_q:
+%   current_q:
+%   last_q:
+%
+%   Output arguments:
+%   ------------------
+%   target_q_fixed:   
+%
+%   See also TODO
 
     QNUM = numel(current_q);
     

@@ -1,4 +1,21 @@
 function [t, R, i_aruco] = target_from_vision(cam, vision_args, fn_robot_input)
+% TARGET_FROM_VISION TODO
+%
+%   [t, R, i_aruco] = TARGET_FROM_VISION(cam, vision_args, fn_robot_input)
+%
+%   Input arguments:
+%   ------------------
+%   cam:
+%   vision_args:
+%   fn_robot_input:
+%
+%   Output arguments:
+%   ------------------
+%   t:   
+%   R: 
+%   i_aruco: 
+%
+%   See also TODO
 
     fprintf('   Acquiring image\n');
     img = snapshot(cam);

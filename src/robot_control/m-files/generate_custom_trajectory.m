@@ -1,5 +1,22 @@
 function [trajectory, confirm] = generate_custom_trajectory(cam, vision_args, fn_cam2robot_coords, fn_robot_input)
-    
+% GENERATE_CUSTOM_TRAJECTORY TODO
+%
+%   [trajectory, confirm] = GENERATE_CUSTOM_TRAJECTORY(cam, vision_args, fn_cam2robot_coords, fn_robot_input)
+%
+%   Input arguments:
+%   ------------------
+%   cam:
+%   vision_args:
+%   fn_cam2robot_coords: 
+%   fn_robot_input:
+%
+%   Output arguments:
+%   ------------------
+%   trajectory:   
+%   confirm: 
+%
+%   See also TODO
+
     invalid_trajectory = 1;
     while invalid_trajectory
 

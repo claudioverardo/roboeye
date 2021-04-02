@@ -1,4 +1,21 @@
 function cmd_err = cmd_execute(s, cmd, data_tx, cmd_ack_str, cmd_no_ack_str)
+% CMD_EXECUTE TODO
+%
+%   cmd_err = CMD_EXECUTE(s, cmd, data_tx, cmd_ack_str, cmd_no_ack_str)
+%
+%   Input arguments:
+%   ------------------
+%   s:
+%   cmd:
+%   data_tx: 
+%   cmd_ack_str:
+%   cmd_no_ack_str:
+%
+%   Output arguments:
+%   ------------------
+%   cmd_err:   
+%
+%   See also TODO
 
     if nargin <= 3
         cmd_ack_str = 'ACK received\n';

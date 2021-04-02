@@ -1,4 +1,24 @@
 function [t_robot_q_fixed, t_robot_q, confirm] = generate_built_in_trajectory(current_q, last_q, cam, vision_args, fn_cam2robot_coords, fn_robot_input)
+% GENERATE_BUILT_IN_TRAJECTORY TODO
+%
+%   [t_robot_q_fixed, t_robot_q, confirm] = GENERATE_BUILT_IN_TRAJECTORY(current_q, last_q, cam, vision_args, fn_cam2robot_coords, fn_robot_input)
+%
+%   Input arguments:
+%   ------------------
+%   current_q:
+%   last_q:
+%   cam:
+%   vision_args: 
+%   fn_cam2robot_coords:
+%   fn_robot_input:
+%
+%   Output arguments:
+%   ------------------
+%   t_robot_q_fixed:   
+%   t_robot_q:
+%   confirm: 
+%
+%   See also TODO
 
     QNUM = numel(current_q);
     
