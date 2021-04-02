@@ -17,9 +17,11 @@ function out=braccio_angles(in)
   out=in+[90 90 90 90 90]+incr;
   
   % a posteriori experimental corrections
-  out(3)=out(3)-5;
+  %out(3)=out(3)-5;
+  out(3)=out(3)-1;
   out(4)=out(4)+4;
   out(2)=out(2)-1;
+  %out(2)=out(2)+9;
 
 
 end

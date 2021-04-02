@@ -20,22 +20,20 @@
 
 #define DELTA_T_START 1000 // [ms]
 #define DELTA_T_BACK_HOME 500 // [ms]
+#define DELTA_T_EXECUTE_LOADED_TRAJECTORY 10 // [ms]
+#define DELTA_T_EXECUTE_BUILT_IN_TRAJECTORY 30 // [ms]
+#define DELTA_T_BUILT_IN_TRAJECTORY 500 // [ms]
 #define DELTA_T_RELEASE 2000 // [ms]
-#define DELTA_T_LOADED_TRAJECTORY 10 // [ms]
-#define DELTA_T_TRIVIAL_TRAJECTORY 30 // [ms]
 #define DELTA_T_END 500 // [ms]
-
-#define ACK 6
 
 enum State {
   START,
   NOP,
   INITIALIZE,
-  HOME,
+  READY,
   LOAD_TRAJECTORY,
   FOLLOW_TRAJECTORY,
-  DONE,
-  BACK_HOME,
+  BUILT_IN_TRAJECTORY,
   RELEASE,
   ERROR_STATE,
   END
@@ -47,7 +45,8 @@ const int qPin[QNUM] = {11, 10, 9, 6, 5, 3};
 
 // const byte homePosition[QNUM] = {90, 90, 90, 90, 90, 73}; // nominal
 const byte homePosition[QNUM] = {90, 83, 98, 97, 90, 0}; // corrected
-byte actualPosition[QNUM];
+byte currentPosition[QNUM];
+bool currentPositionPlotted = false;
 
 byte trajectory[MAXPOINTS][QNUM];
 int trajectoryBytesCounter = 0;
@@ -68,8 +67,8 @@ void loop() {
     case INITIALIZE:
       processInitialize();
       break;
-    case HOME:
-      processHome();
+    case READY:
+      processReady();
       break;
     case LOAD_TRAJECTORY:
       processLoadTrajectory();
@@ -77,11 +76,8 @@ void loop() {
     case FOLLOW_TRAJECTORY:
       processFollowTrajectory();
       break;
-    case DONE:
-      processDone();
-      break;
-    case BACK_HOME:
-      processBackHome();
+    case BUILT_IN_TRAJECTORY:
+      processBuiltInTrajectory();
       break;
     case RELEASE:
       processRelease();

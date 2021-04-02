@@ -13,7 +13,7 @@ void initializeRobot(int soft_start_level) {
   // For each step motor this set up the initial degree
   for (int i = 0; i < QNUM; i++) {
     q[i].write(homePosition[i]);
-    actualPosition[i] = homePosition[i];
+    currentPosition[i] = homePosition[i];
   }
  
   // Turn ON the Braccio softly and save it from brokes.
@@ -58,7 +58,7 @@ void releaseRobot(int soft_start_level) {
   }
 }
 
-bool executeLoadedTrajectory() {
+bool executeLoadedTrajectory(int deltaT) {
   
   bool end_task;
   
@@ -72,31 +72,31 @@ bool executeLoadedTrajectory() {
         return end_task;
       }
     }
-    delay(DELTA_T_LOADED_TRAJECTORY);
+    delay(deltaT);
   }
 
   end_task = true;
   return end_task;
 }
 
-bool executeTrivialTrajectory(byte targetPosition[]) {
+bool executeBuiltInTrajectory(byte targetPosition[], int deltaT) {
 
   bool done = false;
 
-  //Until the all motors are in the desired position
+  // Until the all motors are in the desired position
   while (!done) {     
-    //For each servo motor if next degree is not the same of the previuos than do the movement   
+    // For each servo motor if next degree is not the same of the previuos than do the movement   
     for (int i = 0; i < QNUM; i++) {
-      //One step ahead
-      if (targetPosition[i] > actualPosition[i]) {
-        actualPosition[i]++;
+      // One step ahead
+      if (targetPosition[i] > currentPosition[i]) {
+        currentPosition[i]++;
       }
-      //One step beyond
-      else if (targetPosition[i] < actualPosition[i]) {
-        actualPosition[i]--;
+      // One step beyond
+      else if (targetPosition[i] < currentPosition[i]) {
+        currentPosition[i]--;
       }
-      if (checkBoundaries(i, actualPosition[i])) {
-        q[i].write(actualPosition[i]);
+      if (checkBoundaries(i, currentPosition[i])) {
+        q[i].write(currentPosition[i]);
       }
       else {
         done = false;
@@ -104,12 +104,12 @@ bool executeTrivialTrajectory(byte targetPosition[]) {
       }
     }
     
-    //delay between each movement
-    delay(DELTA_T_TRIVIAL_TRAJECTORY);
+    // Delay between each movement
+    delay(deltaT);
     
     // It checks if all the servo motors are in the desired position
     for (int i = 0; i < QNUM; i++) {
-      if (targetPosition[i] != actualPosition[i]) {
+      if (targetPosition[i] != currentPosition[i]) {
         done = false;
         break;
       }
@@ -145,8 +145,8 @@ bool checkBoundaries(int joint, byte jointPosition) {
   return ans;
 }
 
-void cmdACK() {
-  Serial.print((char) ACK);
+void commandACK(int command) {
+  Serial.print((char) command);
 }
 
 void transitionACK(int prevState, int nextState) {

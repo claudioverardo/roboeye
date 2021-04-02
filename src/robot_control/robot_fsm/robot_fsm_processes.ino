@@ -20,12 +20,13 @@ void processNOP() {
 
     // Next state transition -> INITIALIZE
     if (incomingByte == 1) {
-      cmdACK();
+      commandACK(incomingByte);
       transitionACK(NOP,INITIALIZE);
       state = INITIALIZE;
     }
+    // Next state transition -> END
     else if (incomingByte == 0) {
-      cmdACK();
+      commandACK(incomingByte);
       transitionACK(NOP,END);
       // Close serial communication with Matlab
       Serial.end();
@@ -39,35 +40,52 @@ void processInitialize() {
   // All the servo motors will be positioned in the "home" position (cf above)
   initializeRobot(SOFT_START_DEFAULT);
   
-  // Next state transition -> HOME
-  transitionACK(INITIALIZE,HOME);
-  state = HOME;
+  // Next state transition -> READY
+  currentPositionPlotted = false;
+  transitionACK(INITIALIZE,READY);
+  state = READY;
 }
 
-void processHome(){
+void processReady(){
+  // Plot the actual position of the robot
+  if (!currentPositionPlotted) {
+    for (int i=0; i<QNUM; i++) {
+      Serial.print((char) currentPosition[i]);
+    }
+    currentPositionPlotted = true;
+  }
+  
   // Robot in home position, wait commands
   if (Serial.available() > 0) {
     incomingByte = Serial.read();
 
     // Next state transition -> RELEASE
     if (incomingByte == 0) {
-      cmdACK();
-      transitionACK(HOME,RELEASE);
+      commandACK(incomingByte);
+      transitionACK(READY,RELEASE);
       state = RELEASE;
     }
-    // Next state transition -> HOME
-    else if (incomingByte == 1) {
-      cmdACK();
+    // Next state transition -> BUILT_IN_TRAJECTORY
+    else if (incomingByte == 1 || incomingByte == 4) {
+      commandACK(incomingByte);
+      transitionACK(READY,BUILT_IN_TRAJECTORY);
+      state = BUILT_IN_TRAJECTORY;
+    }
+    // Next state transition -> READY
+    else if (incomingByte == 2) {
+      commandACK(incomingByte);
       for (int i = 0; i < QNUM; i++) {
         q[i].write(homePosition[i]);
-      }  
-      transitionACK(HOME,HOME);
-      state = HOME;
+        currentPosition[i] = homePosition[i];
+      }
+      currentPositionPlotted = false;
+      transitionACK(READY,READY);
+      state = READY;
     }
     // Next state transition -> LOAD_TRAJECTORY
-    else if (incomingByte == 2) {
-      cmdACK();
-      transitionACK(HOME,LOAD_TRAJECTORY);
+    else if (incomingByte == 3) {
+      commandACK(incomingByte);
+      transitionACK(READY,LOAD_TRAJECTORY);
       state = LOAD_TRAJECTORY;
     }
   
@@ -103,88 +121,60 @@ void processLoadTrajectory() {
 }
 
 void processFollowTrajectory() {
-  if (Serial.available() > 0) {
-    incomingByte = Serial.read();
-
-    if (incomingByte == 2) {
-      cmdACK();
-      
-      // Follow the loaded trajectory
-      bool end_task;
-      end_task = executeLoadedTrajectory();
-          
-      // Next state transition -> ERROR
-      if (!end_task) {
-        transitionACK(FOLLOW_TRAJECTORY,ERROR_STATE);
-        state = ERROR_STATE;
-        return;
-      }
-
-      // Update the actual position
-      for (int j = 0; j < QNUM; j++) {
-        actualPosition[j] = trajectory[MAXPOINTS-1][j];
-      }
-      
-      // Next state transition -> DONE
-      transitionACK(FOLLOW_TRAJECTORY,DONE);
-      state = DONE;
-    }
-    // Next state transition -> BACK_HOME
-    else if (incomingByte == 1) {
-      cmdACK();
-      transitionACK(FOLLOW_TRAJECTORY,BACK_HOME);
-      state = BACK_HOME;
-    }
-    // Next state transition -> RELEASE
-    else if (incomingByte == 0) {
-      cmdACK();
-      transitionACK(FOLLOW_TRAJECTORY,RELEASE);
-      state = RELEASE;
-    }
-  }
-}
-
-void processDone() {  
-  if (Serial.available() > 0) {
-    incomingByte = Serial.read();
-  
-    // Next state transition -> RELEASE
-    if (incomingByte == 0) {
-      cmdACK();
-      transitionACK(DONE,RELEASE);
-      state = RELEASE;
-    }
-    // Next state transition -> BACK_HOME
-    else if (incomingByte == 1) {
-      cmdACK();
-      transitionACK(DONE,BACK_HOME);
-      state = BACK_HOME;
-    }
-  }
-}
-
-void processBackHome() {
-  // For each step motor this set up the initial degree
-  // for (int i = 0; i < QNUM; i++) {
-  //   q[i].write(homePosition[i]);
-  // }
-  
-  // Reach the home position with constant-velocity motion
+  // Follow the loaded trajectory
   bool end_task;
-  end_task = executeTrivialTrajectory(homePosition);
-
+  end_task = executeLoadedTrajectory(DELTA_T_EXECUTE_LOADED_TRAJECTORY);
+      
   // Next state transition -> ERROR
   if (!end_task) {
-     transitionACK(BACK_HOME,ERROR_STATE);
-     state = ERROR_STATE;
-     return;
+    transitionACK(FOLLOW_TRAJECTORY,ERROR_STATE);
+    state = ERROR_STATE;
+    return;
+  }
+
+  // Update the actual position
+  for (int j = 0; j < QNUM; j++) {
+    currentPosition[j] = trajectory[MAXPOINTS-1][j];
   }
   
-  delay(DELTA_T_BACK_HOME);
+  // Next state transition -> READY
+  currentPositionPlotted = false;
+  transitionACK(FOLLOW_TRAJECTORY,READY);
+  state = READY;
+}
 
-  // Next state transition -> HOME
-  transitionACK(BACK_HOME,HOME);
-  state = HOME;
+void processBuiltInTrajectory() {
+  
+  if (Serial.available() > 0) {
+
+    byte targetPosition[QNUM];
+    byte numTargetPositions;
+
+    numTargetPositions = Serial.read();
+  
+    for (int i=0; i<numTargetPositions; i++) {
+    
+      Serial.readBytes(targetPosition, QNUM);
+      
+      // Reach the target position with constant-velocity motion
+      bool end_task;
+      end_task = executeBuiltInTrajectory(targetPosition, DELTA_T_EXECUTE_BUILT_IN_TRAJECTORY);
+    
+      // Next state transition -> ERROR
+      if (!end_task) {
+         transitionACK(BUILT_IN_TRAJECTORY,ERROR_STATE);
+         state = ERROR_STATE;
+         return;
+      }
+    }
+    
+    delay(DELTA_T_BUILT_IN_TRAJECTORY);
+  
+    // Next state transition -> READY
+    currentPositionPlotted = false;
+    transitionACK(BUILT_IN_TRAJECTORY,READY);
+    state = READY;
+  }
 }
 
 void processRelease() {
@@ -207,7 +197,7 @@ void processErrorState() {
     
     // Next state transition -> RELEASE
     if (incomingByte == 0) {
-      cmdACK();
+      commandACK(incomingByte);
       transitionACK(ERROR_STATE,RELEASE);
       state = RELEASE;
     }

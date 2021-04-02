@@ -92,7 +92,7 @@ else
     jointpos=plot_config_rob(Qrob);
 
 
-    print_for_arduino(Qrob,5);
+    % print_for_arduino(Qrob,5);
     
     disp(eulr2)
     maxexcurtion=max(Qrob);
