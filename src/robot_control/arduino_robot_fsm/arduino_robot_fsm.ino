@@ -19,11 +19,9 @@
 #define HIGH_LIMIT_TIMEOUT 6000
 
 #define DELTA_T_START 1000 // [ms]
-#define DELTA_T_BACK_HOME 500 // [ms]
 #define DELTA_T_EXECUTE_LOADED_TRAJECTORY 10 // [ms]
 #define DELTA_T_EXECUTE_BUILT_IN_TRAJECTORY 30 // [ms]
-#define DELTA_T_BUILT_IN_TRAJECTORY 500 // [ms]
-#define DELTA_T_RELEASE 2000 // [ms]
+#define DELTA_T_RELEASE 1000 // [ms]
 #define DELTA_T_END 500 // [ms]
 
 enum State {

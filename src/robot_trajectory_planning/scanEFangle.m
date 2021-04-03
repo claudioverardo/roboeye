@@ -1,4 +1,4 @@
-function [qrob,q_teo,foundflag] = scanEFangle(transl,dirindex,ang_pos_rob_min,ang_pos_rob_max)
+function [qrob,q_teo,foundflag] = scanEFangle(transl,dirindex)
 %Find a suitable EF angle in one direction (dirindex)
     exitflag=false;
     foundflag=false;
@@ -60,10 +60,10 @@ function [qrob,q_teo,foundflag] = scanEFangle(transl,dirindex,ang_pos_rob_min,an
 
         %convert joint pos into robot's rf
         qrob=[braccio_angles(qloc) q(6)];    
-        if any(qrob<ang_pos_rob_min) || any(qrob>ang_pos_rob_max) %if the solution is not in the range check for dual
+        if ~check_limits_joints(qrob) %if the solution is not in the range check for dual
            qloc=dualsol(qloc);
            qrob=[braccio_angles(qloc) q(6)];
-           if any(qrob<ang_pos_rob_min) || any(qrob>ang_pos_rob_max) %if even dual is out of range trigger error flag
+           if ~check_limits_joints(qrob) %if even dual is out of range trigger error flag
                errorflag=true;
            end    
         end

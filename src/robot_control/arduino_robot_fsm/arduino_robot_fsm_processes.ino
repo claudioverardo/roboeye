@@ -66,7 +66,7 @@ void processReady(){
       state = RELEASE;
     }
     // Next state transition -> BUILT_IN_TRAJECTORY
-    else if (incomingByte == 1 || incomingByte == 4) {
+    else if (incomingByte == 1 || incomingByte == 4 || incomingByte == 5) {
       commandACK(incomingByte);
       transitionACK(READY,BUILT_IN_TRAJECTORY);
       state = BUILT_IN_TRAJECTORY;
@@ -167,8 +167,6 @@ void processBuiltInTrajectory() {
          return;
       }
     }
-    
-    delay(DELTA_T_BUILT_IN_TRAJECTORY);
   
     // Next state transition -> READY
     currentPositionPlotted = false;

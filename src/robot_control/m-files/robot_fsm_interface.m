@@ -1,4 +1,4 @@
-function robot_fsm_interface(port, baud, cam, vision_args, fn_cam2robot_coords, fn_robot_input)
+function robot_fsm_interface(port, baud, cam, vision_args, objects_dict, fn_cam2robot_coords, fn_robot_input)
 % ROBOT_FSM_INTERFACE TODO
 %
 %   ROBOT_FSM_INTERFACE(port, baud, cam, vision_args, fn_cam2robot_coords, fn_robot_input)
@@ -29,19 +29,19 @@ function robot_fsm_interface(port, baud, cam, vision_args, fn_cam2robot_coords, 
         'END'
     };
 
-    DELTA_T_START = 3;
+    DELTA_T_START = 2;
     DELTA_T_INITIALIZE = 7;
     DELTA_T_READ_TRAJECTORY = 1;
-    DELTA_T_BUILT_IN_TRAJECTORY = 4;
-    DELTA_T_FOLLOW_TRAJECTORY = 2;
-    DELTA_T_RELEASE = 3;
+    DELTA_T_EXECUTE_LOADED_TRAJECTORY = 10;
+    DELTA_T_EXECUTE_BUILT_IN_TRAJECTORY = 30;
+    DELTA_T_RELEASE = 2;
 
     fn_val_nop = @(x) isscalar(x) && ( x == 0 || x == 1 );
-    fn_val_ready = @(x) isscalar(x) && ( x == 0 || x == 1 || x == 2 || x == 3 || x == 4 );
+    fn_val_ready = @(x) isscalar(x) && ( x == 0 || x == 1 || x == 2 || x == 3 || x == 4 || x == 5 );
     fn_val_error_state = @(x) isscalar(x) && ( x == 0 );
     
     help_nop = 'Available commands:\n   0: exit\n   1: initialize robot\n';
-    help_ready = 'Available commands:\n   0: release robot\n   1: back to home\n   2: back to home (force)\n   3: custom trajectory\n   4: built-in trajectory\n';
+    help_ready = 'Available commands:\n   0: release robot\n   1: back to home\n   2: back to home (force)\n   3: move to target (custom trajectory)\n   4: move to target (built-in trajectory)\n   5: grasp target (built-in trajectory)\n';
     help_error_state = 'Oh no!!!!!!\n   0: release robot\n';
 
     % Connection to the serial port
@@ -96,20 +96,26 @@ function robot_fsm_interface(port, baud, cam, vision_args, fn_cam2robot_coords, 
 
                         % back home
                         case 1
-                            home_position_fixed = fix_target_q(home_position, current_position, last_position);
-                            data_tx = uint8( [ size(home_position_fixed,1) reshape(home_position_fixed',1,[]) ] );
+                            target_positions = fix_target_q(home_position, current_position, last_position);
+                            data_tx = uint8( [ size(target_positions,1) reshape(target_positions',1,[]) ] );
                             confirm = 1;
 
-                        % custom trajectory
+                        % move to target (custom trajectory)
                         case 3
                             [trajectory, confirm] = generate_custom_trajectory(cam, vision_args, fn_cam2robot_coords, fn_robot_input);
                             data_tx = uint8(reshape(trajectory',1,[]));
                             fprintf('\n');
 
-                        % built-in trajectory
+                        % move to target (built-in trajectory)
                         case 4
-                            [target_position_fixed, ~, confirm] = generate_built_in_trajectory(current_position, last_position, cam, vision_args, fn_cam2robot_coords, fn_robot_input);
-                            data_tx = uint8( [ size(target_position_fixed,1) reshape(target_position_fixed',1,[]) ] );
+                            [target_positions, confirm] = generate_built_in_trajectory('move', current_position, last_position, cam, vision_args, [], fn_cam2robot_coords, fn_robot_input);
+                            data_tx = uint8( [ size(target_positions,1) reshape(target_positions',1,[]) ] );
+                            fprintf('\n');
+                        
+                        % grasp target (built-in trajectory)
+                        case 5
+                            [target_positions, confirm] = generate_built_in_trajectory('grasp', current_position, last_position, cam, vision_args, objects_dict, fn_cam2robot_coords, fn_robot_input);
+                            data_tx = uint8( [ size(target_positions,1) reshape(target_positions',1,[]) ] );
                             fprintf('\n');
 
                         % release / back-home (force)
@@ -123,26 +129,29 @@ function robot_fsm_interface(port, baud, cam, vision_args, fn_cam2robot_coords, 
                 
             case STATE{5} % LOAD_TRAJECTORY
                 
-                fprintf('   Waiting... '); 
+                fprintf('Waiting... '); 
                 print_countdown(DELTA_T_READ_TRAJECTORY);
                 
-                fprintf('   Receiving trajectory from robot\n');
+                fprintf('Receiving trajectory from robot\n');
                 data_rx = uint8(read(s,MAXPOINTS*QNUM,'uint8'));
 
                 if isequal(data_rx,data_tx)
-                   fprintf('   Check data PASSED\n'); 
+                   fprintf('Check data PASSED\n'); 
                 else
-                   fprintf('   Check data FAILED!!!\n'); 
+                   fprintf('Check data FAILED!!!\n'); 
                 end
                 
             case STATE{6} % FOLLOW_TRAJECTORY
-                fprintf('   Waiting... '); 
-                print_countdown(DELTA_T_FOLLOW_TRAJECTORY);
+                fprintf('Executing custom trajectory\n');
+                fprintf('Waiting... '); 
+                delta_t_custom_trajectory = estimate_time_trajectory('custom', trajectory, DELTA_T_EXECUTE_LOADED_TRAJECTORY);
+                print_countdown(delta_t_custom_trajectory);
                 
             case STATE{7} % BUILT_IN_TRAJECTORY
-                fprintf('Moving to %s\n', mat2str(data_tx(end-QNUM+1:end)));
+                fprintf('Executing built-in trajectory\n');
                 fprintf('Waiting...');
-                print_countdown(DELTA_T_BUILT_IN_TRAJECTORY); 
+                delta_t_built_in_trajectory = estimate_time_trajectory('built-in', target_positions, DELTA_T_EXECUTE_BUILT_IN_TRAJECTORY);
+                print_countdown(delta_t_built_in_trajectory); 
                 
             case STATE{8} % RELEASE
                 fprintf('Releasing robot\n');

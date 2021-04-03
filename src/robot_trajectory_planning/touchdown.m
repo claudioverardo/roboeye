@@ -5,9 +5,6 @@ function [Qrob,errorflag,jointpos,controlvec,maxexcurtion,Q_tot] = touchdown(x,y
 
 errorflag=0;
 
-ang_pos_rob_max=[180 165 180 180 180 73];
-ang_pos_rob_min=[0 15 0 0 0 0];
-
 
 rmax=360;
 rmin=150;
@@ -77,7 +74,7 @@ else
     
     for i=1:length(Q_tot(:,1))
         Qrob(i,:)=[braccio_angles(Q_tot(i,[1 2 3 4 5])) Q_tot(i,6)];
-        if any(Qrob(i,:)<ang_pos_rob_min) || any(Qrob(i,:)>ang_pos_rob_max)
+        if ~check_limits_joints(Qrob(i,:))
             errorflag=1;
         end
     end
@@ -89,12 +86,12 @@ else
     end
     
     %jointpos=plot_config([ones(npoints+npoints_first,1) Q_tot]);
-    jointpos=plot_config_rob(Qrob);
+    %jointpos=plot_config_rob(Qrob);
 
 
     % print_for_arduino(Qrob,5);
     
-    disp(eulr2)
+    %disp(eulr2)
     maxexcurtion=max(Qrob);
     
 end
