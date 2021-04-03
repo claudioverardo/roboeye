@@ -1,4 +1,4 @@
-% close all; % clear
+close all; % clear
 
 %% TESTS - DETECTION - ARUCO MARKERS 7x7
 %--------------------------------------------------------------------------
@@ -42,7 +42,6 @@ img_source = '../assets/img_tests/7x7/img_7x7_12_02.png';
 
 % config_file = 'path/to/config/file.m';
 % aruco_markers_file = 'path/to/aruco/markers.mat';
-% aruco_real_sides = [side_aruco1 side_aruco2 ...]; % [cm]
 
 % img_source = ...; % webcam(1) or 'path/to/image'
 

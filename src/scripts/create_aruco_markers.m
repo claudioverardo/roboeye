@@ -81,7 +81,10 @@ aruco_markers{8,1} = [
     0 0 0 0 0 0 0
 ];
 
+aruco_real_sides = [3 3 3 3 4 4 5 5]; % [cm]
+
 % save('../assets/aruco_markers/aruco_markers_7x7', 'aruco_markers');
+% save('../assets/aruco_markers/aruco_markers_7x7_real_sides', 'aruco_real_sides');
 plot_aruco_markers(aruco_markers);
 
 %% Examples of Aruco 8x8
@@ -153,7 +156,10 @@ aruco_markers{6,1} = [
     0 0 0 0 0 0 0 0
 ];
 
+aruco_real_sides = [3 3 3 4 4 6]; % [cm]
+
 % save('../assets/aruco_markers/aruco_markers_8x8', 'aruco_markers');
+% save('../assets/aruco_markers/aruco_markers_8x8_real_sides', 'aruco_real_sides');
 plot_aruco_markers(aruco_markers);
 
 %% Aruco 8x8 for report
@@ -379,5 +385,8 @@ aruco_markers{20,1} = [ % 64
     0 0 0 0 0 0 0 0
 ];
 
-% save('../assets/aruco_markers/aruco_markers_report', 'aruco_markers');
+aruco_real_sides = [3 3 3 3 3 3 3 3 3 3 3.5 3.5 3.5 3.5 3.5 4 4 4 4 4]; % [cm]
+
+% save('../assets/aruco_markers/aruco_markers_vision_eval', 'aruco_markers');
+% save('../assets/aruco_markers/aruco_markers_vision_eval_real_sides', 'aruco_real_sides');
 plot_aruco_markers(aruco_markers);
