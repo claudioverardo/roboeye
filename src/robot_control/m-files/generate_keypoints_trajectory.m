@@ -1,7 +1,7 @@
-function [t_robot_q, confirm] = generate_built_in_trajectory(method, current_q, last_q, cam, vision_args, trajectory_planning_args, objects_dict, fn_cam2robot_coords, fn_robot_input)
-% GENERATE_BUILT_IN_TRAJECTORY TODO
+function [t_robot_q, confirm] = generate_keypoints_trajectory(method, current_q, last_q, cam, vision_args, trajectory_planning_args, objects_dict, fn_cam2robot_coords, fn_robot_input)
+% GENERATE_KEYPOINTS_TRAJECTORY TODO
 %
-%   [t_robot_q_fixed, t_robot_q, confirm] = GENERATE_BUILT_IN_TRAJECTORY(current_q, last_q, cam, vision_args, fn_cam2robot_coords, fn_robot_input)
+%   [t_robot_q_fixed, t_robot_q, confirm] = GENERATE_KEYPOINTS_TRAJECTORY(current_q, last_q, cam, vision_args, fn_cam2robot_coords, fn_robot_input)
 %
 %   Input arguments:
 %   ------------------
@@ -75,9 +75,11 @@ function [t_robot_q, confirm] = generate_built_in_trajectory(method, current_q, 
                     if i_aruco == 0 % default offsets
                         offset_h = 0;
                         offset_r = 0;
+                        offset_ef = 0;
                     else
                         offset_h = objects_dict(i_aruco).offset_h;
                         offset_r = objects_dict(i_aruco).offset_r;
+                        offset_ef = objects_dict(i_aruco).offset_ef;
                     end
                     
                     nz = [0 0 1];
@@ -101,7 +103,7 @@ function [t_robot_q, confirm] = generate_built_in_trajectory(method, current_q, 
                     fprintf('   Computing trajectory...\n');
                     [t_robot_q, invalid_trajectory, t_robot_q_enc] = gothere( ...
                         trajectory_planning_args.braccio_params, ...
-                        t_robot_off(1),t_robot_off(2),t_robot_off(3),90,0,-10, ...
+                        t_robot_off(1),t_robot_off(2),t_robot_off(3),90,0,offset_ef, ...
                         'verbose', trajectory_planning_args.verbose ...
                     );
                 

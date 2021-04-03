@@ -1,8 +1,8 @@
-void initializeRobot(int soft_start_level) {
-  // initializeRobot(SOFT_START_DISABLED) the Softstart is disabled and you can use the pin 12
-  if (soft_start_level != SOFT_START_DISABLED) {
-    pinMode(SOFT_START_CONTROL_PIN, OUTPUT);
-    digitalWrite(SOFT_START_CONTROL_PIN, LOW);
+void initializeRobot(int soft_init_level) {
+  // initializeRobot(SOFT_INIT_DISABLED) the softInit is disabled and you can use the pin 12
+  if (soft_init_level != SOFT_INIT_DISABLED) {
+    pinMode(SOFT_INIT_CONTROL_PIN, OUTPUT);
+    digitalWrite(SOFT_INIT_CONTROL_PIN, LOW);
   }
 
   // Initialization pin Servo motors
@@ -17,48 +17,48 @@ void initializeRobot(int soft_start_level) {
   }
  
   // Turn ON the Braccio softly and save it from brokes.
-  if (soft_start_level != SOFT_START_DISABLED) {
-    _softStart(soft_start_level);
+  if (soft_init_level != SOFT_INIT_DISABLED) {
+    _softInit(soft_init_level);
   }
 }
 
 void _softwarePWM(int high_time, int low_time) {
-  digitalWrite(SOFT_START_CONTROL_PIN, HIGH);
+  digitalWrite(SOFT_INIT_CONTROL_PIN, HIGH);
   delayMicroseconds(high_time);
-  digitalWrite(SOFT_START_CONTROL_PIN, LOW);
+  digitalWrite(SOFT_INIT_CONTROL_PIN, LOW);
   delayMicroseconds(low_time);
 }
 
 /*
   This function, used only with the Braccio Shield V4 and greater,
   turn ON the Braccio softly and save it from brokes.
-  The SOFT_START_CONTROL_PIN is used as a software PWM
-  @param soft_start_level: the minimum value is -70, default value is 0 (SOFT_START_DEFAULT)
+  The SOFT_INIT_CONTROL_PIN is used as a software PWM
+  @param soft_init_level: the minimum value is -70, default value is 0 (SOFT_INIT_DEFAULT)
 */
-void _softStart(int soft_start_level) {
+void _softInit(int soft_init_level) {
   long int tmp = millis();
-  while (millis() - tmp < LOW_LIMIT_TIMEOUT)
-    _softwarePWM(80 + soft_start_level, 450 - soft_start_level); //the sum should be 530usec
+  while (millis() - tmp < DELTA_T_INIT_LOW_LIMIT)
+    _softwarePWM(80 + soft_init_level, 450 - soft_init_level); //the sum should be 530usec
 
-  while (millis() - tmp < HIGH_LIMIT_TIMEOUT)
-    _softwarePWM(75 + soft_start_level, 430 - soft_start_level); //the sum should be 505usec
+  while (millis() - tmp < DELTA_T_INIT_HIGH_LIMIT)
+    _softwarePWM(75 + soft_init_level, 430 - soft_init_level); //the sum should be 505usec
 
-  digitalWrite(SOFT_START_CONTROL_PIN, HIGH);
+  digitalWrite(SOFT_INIT_CONTROL_PIN, HIGH);
 }
 
-void releaseRobot(int soft_start_level) {
+void releaseRobot(int soft_init_level) {
   // Turn off Servo motors
   for (int i = 0; i < QNUM; i++) {
     q[i].detach();
   }
   
-  if (soft_start_level != SOFT_START_DISABLED) {
-    digitalWrite(SOFT_START_CONTROL_PIN, LOW);
-    pinMode(SOFT_START_CONTROL_PIN, INPUT);
+  if (soft_init_level != SOFT_INIT_DISABLED) {
+    digitalWrite(SOFT_INIT_CONTROL_PIN, LOW);
+    pinMode(SOFT_INIT_CONTROL_PIN, INPUT);
   }
 }
 
-bool executeLoadedTrajectory(int deltaT) {
+bool executeCustomTrajectory(int deltaT) {
   
   bool end_task;
   
@@ -79,7 +79,7 @@ bool executeLoadedTrajectory(int deltaT) {
   return end_task;
 }
 
-bool executeBuiltInTrajectory(byte targetPosition[], int deltaT) {
+bool executeKeypointsTrajectory(byte targetPosition[], int deltaT) {
 
   bool done = false;
 

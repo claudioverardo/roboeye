@@ -4,11 +4,19 @@ void processStart() {
   
   // Init serial communication with Matlab
   Serial.begin(BAUD_RATE);
+
+  // Send robot informations to Matlab
+  Serial.write(QNUM);
+  Serial.write(MAXPOINTS);
+  Serial.write(homePosition,QNUM);
+  Serial.write(DELTA_T_INIT_HIGH_LIMIT/1000);
+  Serial.write(DELTA_T_CUSTOM_TRAJECTORY);
+  Serial.write(DELTA_T_KEYPOINTS_TRAJECTORY);
   
   delay(DELTA_T_START);
-
   digitalWrite(LED_BUILTIN, LOW);
   
+  // Next state transition -> NOP
   transitionACK(START, NOP);
   state = NOP;
 }
@@ -38,7 +46,7 @@ void processNOP() {
 void processInitialize() {
   // Initialization functions and set up the initial position for Braccio
   // All the servo motors will be positioned in the "home" position (cf above)
-  initializeRobot(SOFT_START_DEFAULT);
+  initializeRobot(SOFT_INIT_DEFAULT);
   
   // Next state transition -> READY
   currentPositionPlotted = false;
@@ -123,7 +131,7 @@ void processLoadTrajectory() {
 void processFollowTrajectory() {
   // Follow the loaded trajectory
   bool end_task;
-  end_task = executeLoadedTrajectory(DELTA_T_EXECUTE_LOADED_TRAJECTORY);
+  end_task = executeCustomTrajectory(DELTA_T_CUSTOM_TRAJECTORY);
       
   // Next state transition -> ERROR
   if (!end_task) {
@@ -158,7 +166,7 @@ void processBuiltInTrajectory() {
       
       // Reach the target position with constant-velocity motion
       bool end_task;
-      end_task = executeBuiltInTrajectory(targetPosition, DELTA_T_EXECUTE_BUILT_IN_TRAJECTORY);
+      end_task = executeKeypointsTrajectory(targetPosition, DELTA_T_KEYPOINTS_TRAJECTORY);
     
       // Next state transition -> ERROR
       if (!end_task) {
@@ -177,7 +185,7 @@ void processBuiltInTrajectory() {
 
 void processRelease() {
   // Turn off all the servo motors
-  releaseRobot(SOFT_START_DEFAULT);
+  releaseRobot(SOFT_INIT_DEFAULT);
   
   delay(DELTA_T_RELEASE);
   

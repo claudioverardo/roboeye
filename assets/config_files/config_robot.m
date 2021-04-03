@@ -42,7 +42,7 @@ vision_args.options.roi_hamming_th = 2;
 vision_args.options.roi_extraction_verbose = 0;
 vision_args.options.roi_refinement_verbose = 0;
 vision_args.options.roi_matching_verbose = 0;
-vision_args.options.roi_pose_estimation_verbose = 2;
+vision_args.options.roi_pose_estimation_verbose = 0;
 vision_args.options.aruco_detection_verbose = 0;
 vision_args.options.verbose = 0; % aruco_pose_estimation_verbose
 
@@ -57,35 +57,44 @@ trajectory_planning_args.verbose = 0;
 %--------------------------------------------------------------------------
 % Dictionary of objects
 % offsets in [mm]
+
 objects_dict(1).name = '';
 objects_dict(1).offset_h = 0;
 objects_dict(1).offset_r = 0;
+objects_dict(1).offset_ef = 0;
 
 objects_dict(2).name = '';
 objects_dict(2).offset_h = 0;
 objects_dict(2).offset_r = 0;
+objects_dict(2).offset_ef = 0;
 
 objects_dict(3).name = '';
 objects_dict(3).offset_h = 0;
 objects_dict(3).offset_r = 0;
+objects_dict(3).offset_ef = 0;
 
 objects_dict(4).name = '';
 objects_dict(4).offset_h = 0;
 objects_dict(4).offset_r = 0;
+objects_dict(4).offset_ef = 0;
 
 objects_dict(5).name = 'sharpener';
-objects_dict(5).offset_h = -40;
-objects_dict(5).offset_r = 20;
+objects_dict(5).offset_h = -30;
+objects_dict(5).offset_r = 0; %20
+objects_dict(5).offset_ef = -23;
 
 objects_dict(6).name = 'tissues';
 objects_dict(6).offset_h = -15;
-objects_dict(6).offset_r = 20;
+objects_dict(6).offset_r = 0; %20
+objects_dict(6).offset_ef = -10;
 
 objects_dict(7).name = '';
 objects_dict(7).offset_h = 0;
 objects_dict(7).offset_r = 0;
+objects_dict(7).offset_ef = 0;
 
 objects_dict(8).name = '';
 objects_dict(8).offset_h = 0;
 objects_dict(8).offset_r = 0;
+objects_dict(8).offset_ef = 0;
 

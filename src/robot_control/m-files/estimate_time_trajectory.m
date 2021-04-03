@@ -1,6 +1,6 @@
 function time = estimate_time_trajectory(type_trajectory, trajectory, delta_t)
     
-    if strcmp(type_trajectory, 'built-in') == 1
+    if strcmp(type_trajectory, 'keypoints') == 1
         
         steps = diff(trajectory);
         max_steps = max(abs(steps),[],2);
