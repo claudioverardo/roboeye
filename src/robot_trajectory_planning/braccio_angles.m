@@ -31,6 +31,7 @@ function out=braccio_angles(in,post_corr,AHposition,THposition)
     
     if nargin <=1
         post_corr = zeros(size(out));
+        post_corr(1)=-4;
         post_corr(2)=-1;
         post_corr(3)=-1;
         post_corr(4)=4;
