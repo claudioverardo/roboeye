@@ -9,7 +9,9 @@ void processStart() {
   Serial.write(QNUM);
   Serial.write(MAXPOINTS);
   Serial.write(homePosition,QNUM);
+  Serial.write(DELTA_T_START/1000);
   Serial.write(DELTA_T_INIT_HIGH_LIMIT/1000);
+  Serial.write(DELTA_T_RELEASE/1000);
   Serial.write(DELTA_T_CUSTOM_TRAJECTORY);
   Serial.write(DELTA_T_KEYPOINTS_TRAJECTORY);
   

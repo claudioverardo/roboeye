@@ -19,10 +19,10 @@
 #define DELTA_T_START 1000 // [ms]
 #define DELTA_T_INIT_LOW_LIMIT  2000 // [ms] -- softStart
 #define DELTA_T_INIT_HIGH_LIMIT 6000 // [ms] -- softStart
-#define DELTA_T_CUSTOM_TRAJECTORY 10 // [ms]
-#define DELTA_T_KEYPOINTS_TRAJECTORY 30 // [ms]
 #define DELTA_T_RELEASE 1000 // [ms]
 #define DELTA_T_END 500 // [ms]
+#define DELTA_T_CUSTOM_TRAJECTORY 10 // [ms]
+#define DELTA_T_KEYPOINTS_TRAJECTORY 30 // [ms]
 
 enum State {
   START,

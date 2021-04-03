@@ -29,10 +29,6 @@ function robot_fsm_interface(port, baud, cam, vision_args, trajectory_planning_a
         'END'
     };
 
-    DELTA_T_START = 2;
-    DELTA_T_READ_TRAJECTORY = 1;
-    DELTA_T_RELEASE = 2;
-
     fn_val_nop = @(x) isscalar(x) && ( x == 0 || x == 1 );
     fn_val_ready = @(x) isscalar(x) && ( x == 0 || x == 1 || x == 2 || x == 3 || x == 4 || x == 5 );
     fn_val_error_state = @(x) isscalar(x) && ( x == 0 );
@@ -52,8 +48,12 @@ function robot_fsm_interface(port, baud, cam, vision_args, trajectory_planning_a
     fprintf('   MAXPOINTS = %d\n', MAXPOINTS);
     home_position = read(s,QNUM,'uint8');
     fprintf('   home_position = %s\n', mat2str(home_position));
-    DELTA_T_INITIALIZE = read(s,1,'uint8');
+    DELTA_T_START = read(s,1,'uint8') + 1;
+    fprintf('   DELTA_T_START = %d [s]\n', DELTA_T_START);
+    DELTA_T_INITIALIZE = read(s,1,'uint8') + 1;
     fprintf('   DELTA_T_INITIALIZE = %d [s]\n', DELTA_T_INITIALIZE);
+    DELTA_T_RELEASE = read(s,1,'uint8') + 1;
+    fprintf('   DELTA_T_RELEASE = %d [s]\n', DELTA_T_RELEASE);
     DELTA_T_CUSTOM_TRAJECTORY = read(s,1,'uint8');
     fprintf('   DELTA_T_CUSTOM_TRAJECTORY = %d [ms]\n', DELTA_T_CUSTOM_TRAJECTORY);
     DELTA_T_KEYPOINTS_TRAJECTORY = read(s,1,'uint8');
@@ -61,6 +61,8 @@ function robot_fsm_interface(port, baud, cam, vision_args, trajectory_planning_a
     
     fprintf('Waiting...');
     print_countdown(DELTA_T_START);
+
+    DELTA_T_READ_TRAJECTORY = 1;
     
 	% home_position = [90, 83, 98, 97, 90, 0];
     current_position = home_position;
