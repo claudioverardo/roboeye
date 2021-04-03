@@ -1,5 +1,7 @@
-%% CONFIGURATION FILE OF ROBOEYE
+% CONFIGURATION FILE OF ROBOEYE
 
+%% ROBOT VISION
+%--------------------------------------------------------------------------
 aruco_markers_file = '../aruco_markers/aruco_markers_7x7.mat';
 aruco_real_sides_file = '../aruco_markers/aruco_markers_7x7_real_sides.mat';
 K_file = '../calibration/intrinsics_cam1/K.mat';
@@ -44,6 +46,15 @@ vision_args.options.roi_pose_estimation_verbose = 2;
 vision_args.options.aruco_detection_verbose = 0;
 vision_args.options.verbose = 0; % aruco_pose_estimation_verbose
 
+
+%% ROBOT TRAJECTORY PLANNING
+%--------------------------------------------------------------------------
+trajectory_planning_args.braccio_params = [71 125 125 195 0];
+trajectory_planning_args.verbose = 0;
+
+
+%% ROBOT CONTROL
+%--------------------------------------------------------------------------
 % Dictionary of objects
 % offsets in [mm]
 objects_dict(1).name = '';

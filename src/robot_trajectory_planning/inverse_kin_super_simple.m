@@ -1,16 +1,13 @@
 %COMPUTE INVERSE KINEMATICS
 
-function [qloc, fval, info]=inverse_kin_super_simple(transl,joint4,startingpos_in)
+function [qloc, fval, info]=inverse_kin_super_simple(transl,joint4,startingpos_in,braccio_params)
 
   startingpos=startingpos_in([2 4]);
 
   %set fsolve options
   options = optimoptions('fsolve','MaxIterations',50000,'MaxFunctionEvaluations',50000,'Display','off'); 
   %define Roto-translation matrix in the end effector's rf
-  global transl2
-  global q4rad
-  
-  transl2=transl;
+
   if transl(1)<0 
      q4rad=joint4*pi/180;
   else
@@ -18,7 +15,9 @@ function [qloc, fval, info]=inverse_kin_super_simple(transl,joint4,startingpos_i
   end
 
   %solve numerically inverse kinematics problem finding the nearest zero of inv_kin_prob from startingpos
-  [var, fval, info] = fsolve ("inv_kin_prob_super_simple", startingpos,options);
+  iks_obj = @(x) inv_kin_prob_super_simple(x,transl,q4rad,braccio_params);
+  
+  [var, fval, info] = fsolve (iks_obj, startingpos,options);
   
   qloc_2(1)=var(1);
   qloc_2(2)=var(2)-var(1);

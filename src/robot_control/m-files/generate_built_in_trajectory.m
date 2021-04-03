@@ -1,4 +1,4 @@
-function [t_robot_q, confirm] = generate_built_in_trajectory(method, current_q, last_q, cam, vision_args, objects_dict, fn_cam2robot_coords, fn_robot_input)
+function [t_robot_q, confirm] = generate_built_in_trajectory(method, current_q, last_q, cam, vision_args, trajectory_planning_args, objects_dict, fn_cam2robot_coords, fn_robot_input)
 % GENERATE_BUILT_IN_TRAJECTORY TODO
 %
 %   [t_robot_q_fixed, t_robot_q, confirm] = GENERATE_BUILT_IN_TRAJECTORY(current_q, last_q, cam, vision_args, fn_cam2robot_coords, fn_robot_input)
@@ -64,7 +64,11 @@ function [t_robot_q, confirm] = generate_built_in_trajectory(method, current_q, 
                 if strcmp(method,'move') == 1
                     
                     fprintf('   Computing trajectory...\n');
-                    [t_robot_q, invalid_trajectory, t_robot_q_enc] = gothere(t_robot(1),t_robot(2),t_robot(3));
+                    [t_robot_q, invalid_trajectory, t_robot_q_enc] = gothere( ...
+                        trajectory_planning_args.braccio_params, ...
+                        t_robot(1),t_robot(2),t_robot(3),90,73,0, ...
+                        'verbose', trajectory_planning_args.verbose ...
+                     );
                     
                 elseif strcmp(method,'grasp') == 1
                     
@@ -95,7 +99,11 @@ function [t_robot_q, confirm] = generate_built_in_trajectory(method, current_q, 
                     fprintf('   Target (robot frame):  X = %g  Y = %g  Z = %g [mm]\n', t_robot_off(1), t_robot_off(2), t_robot_off(3));
                 
                     fprintf('   Computing trajectory...\n');
-                    [t_robot_q, invalid_trajectory, t_robot_q_enc] = gothere(t_robot_off(1),t_robot_off(2),t_robot_off(3),90,0);
+                    [t_robot_q, invalid_trajectory, t_robot_q_enc] = gothere( ...
+                        trajectory_planning_args.braccio_params, ...
+                        t_robot_off(1),t_robot_off(2),t_robot_off(3),90,0,-10, ...
+                        'verbose', trajectory_planning_args.verbose ...
+                    );
                 
                 end
                 

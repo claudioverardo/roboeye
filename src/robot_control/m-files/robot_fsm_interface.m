@@ -1,4 +1,4 @@
-function robot_fsm_interface(port, baud, cam, vision_args, objects_dict, fn_cam2robot_coords, fn_robot_input)
+function robot_fsm_interface(port, baud, cam, vision_args, trajectory_planning_args, objects_dict, fn_cam2robot_coords, fn_robot_input)
 % ROBOT_FSM_INTERFACE TODO
 %
 %   ROBOT_FSM_INTERFACE(port, baud, cam, vision_args, fn_cam2robot_coords, fn_robot_input)
@@ -108,13 +108,13 @@ function robot_fsm_interface(port, baud, cam, vision_args, objects_dict, fn_cam2
 
                         % move to target (built-in trajectory)
                         case 4
-                            [target_positions, confirm] = generate_built_in_trajectory('move', current_position, last_position, cam, vision_args, [], fn_cam2robot_coords, fn_robot_input);
+                            [target_positions, confirm] = generate_built_in_trajectory('move', current_position, last_position, cam, vision_args, trajectory_planning_args, [], fn_cam2robot_coords, fn_robot_input);
                             data_tx = uint8( [ size(target_positions,1) reshape(target_positions',1,[]) ] );
                             fprintf('\n');
                         
                         % grasp target (built-in trajectory)
                         case 5
-                            [target_positions, confirm] = generate_built_in_trajectory('grasp', current_position, last_position, cam, vision_args, objects_dict, fn_cam2robot_coords, fn_robot_input);
+                            [target_positions, confirm] = generate_built_in_trajectory('grasp', current_position, last_position, cam, vision_args, trajectory_planning_args, objects_dict, fn_cam2robot_coords, fn_robot_input);
                             data_tx = uint8( [ size(target_positions,1) reshape(target_positions',1,[]) ] );
                             fprintf('\n');
 

@@ -1,4 +1,4 @@
-function [qrob,q_teo,foundflag] = scanEFangle(transl,dirindex)
+function [qrob,q_teo,foundflag] = scan_EF_pitch(transl,dirindex,braccio_params)
 %Find a suitable EF angle in one direction (dirindex)
     exitflag=false;
     foundflag=false;
@@ -19,7 +19,7 @@ function [qrob,q_teo,foundflag] = scanEFangle(transl,dirindex)
         joint4=eulr_index*dirindex;
 
         %solve inverse kinematics
-        [qloc, fval, info] = inverse_kin_super_simple(transl,joint4,startingpos);
+        [qloc, fval, info] = inverse_kin_super_simple(transl,joint4,startingpos,braccio_params);
         qloc=mod(qloc+180,360)-180;
         %q([1 2 3 4 5])=qloc;
         

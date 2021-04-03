@@ -1,19 +1,16 @@
 %define the equation which has to be numerically solved in order to comput inverse kinematics
 
-function sol=inv_kin_prob_super_simple(var)
+function sol=inv_kin_prob_super_simple(var,transl,q4rad,braccio)
   
   %variable definition
   %var(1)=q2
   %var(2)=q2+q3
-  
-  global transl2;
-  global q4rad;
     
-  braccio=[71 125 125 195 0];
+  %braccio=[71 125 125 195 0];
   
-  x=transl2(1);
-  y=transl2(2);
-  z=transl2(3);
+  x=transl(1);
+  y=transl(2);
+  z=transl(3);
   
 %   cos1=sqrt(1-var(1)^2);
 %   cos2=sqrt(1-var(2)^2);
