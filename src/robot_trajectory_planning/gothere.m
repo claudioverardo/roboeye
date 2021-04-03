@@ -47,8 +47,8 @@ function [qrob,errorflag,q] = gothere(braccio_params,x,y,z,roll,grasp,offset,var
     end
     
     if VERBOSE > 0
-        jp=plot_config_rob(qrob);
-        jp=plot_config([0 q]);
+        jp=plot_config_rob(qrob,braccio_params);
+        jp=plot_config([0 q],braccio_params);
     end
 
     % Set grabber angle

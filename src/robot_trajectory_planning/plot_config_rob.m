@@ -1,5 +1,14 @@
-function [jointpos,Aloc_out]=plot_config_rob(Q_rob)
+function [jointpos,Aloc_out]=plot_config_rob(Q_rob,braccio_params,delta)
   %GIVEN TRAJECTORY IN INPUT PLOT ROBOT CONFIGURATION
+  
+  if nargin <= 1
+      braccio_params=[71 125 125 195 0];
+  end
+  
+  if nargin <=2
+      %delta=-10;
+      delta=0;
+  end
   
   Q=Q_rob;
   
@@ -23,7 +32,7 @@ function [jointpos,Aloc_out]=plot_config_rob(Q_rob)
     
     Qcorr=Q(i,[1 2 3 4 5])+[0 90 0 -90 0]; %convert angles to DH convenction
     
-    Aloc=direct_kin(Qcorr,5);
+    Aloc=direct_kin(Qcorr,5,braccio_params,delta);
     Rloc=Aloc([1 2 3],[1 2 3]);
     XX(i,[2 3 4])=Aloc([1 2 3],4);
     
@@ -40,7 +49,7 @@ function [jointpos,Aloc_out]=plot_config_rob(Q_rob)
   %compute joints' positions
   for i=1:5
     %Afin=direct_kin(Q(1,[2 3 4 5 6]),i);
-    Afin=direct_kin(Qcorr,i);
+    Afin=direct_kin(Qcorr,i,braccio_params,delta);
     jointpos(i+1,:)=Afin([1 2 3],4)';
   end
 
