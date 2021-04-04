@@ -1,4 +1,4 @@
-function [Q,error_flag] = parabolic_traj(p1,p2,z_ap,roll_in,braccio_params,grasp,offset,varargin)
+function [Q,error_flag] = parabolic_traj(p1,p2,z_ap,roll_in,npoints,braccio_params,grasp,offset,varargin)
     % FUNCTION THAT COMPUTE PARABOLIC TRAJECTORY FROM P1 TO P2 WITH APEX AT
     % Z_AP
     
@@ -14,7 +14,7 @@ function [Q,error_flag] = parabolic_traj(p1,p2,z_ap,roll_in,braccio_params,grasp
     % Parse function parameters
     VERBOSE = p.Results.verbose;
 
-    if nargin <= 6
+    if nargin <= 7
         offset=0;
     end
     
@@ -22,13 +22,16 @@ function [Q,error_flag] = parabolic_traj(p1,p2,z_ap,roll_in,braccio_params,grasp
         grasp=73;
     end
     
-    if nargin <= 4
+    if nargin <= 5
         braccio_params=[71 125 125 195 0];
+    end
+    
+    if nargin <= 4
+        npoints=8;
     end
 
     error_flag=0;
 
-    npoints=8;
     Q=zeros(npoints,6);
     ef=zeros(6,1);
 
