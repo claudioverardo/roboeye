@@ -2,6 +2,8 @@ function [Q,error_flag] = parabolic_traj(p1,p2,z_ap,roll_in,braccio_params,grasp
     % FUNCTION THAT COMPUTE PARABOLIC TRAJECTORY FROM P1 TO P2 WITH APEX AT
     % Z_AP
     
+    %box coordinates: [90 250 120];
+    
     default_verbose = 0;
     
     % Input parser
