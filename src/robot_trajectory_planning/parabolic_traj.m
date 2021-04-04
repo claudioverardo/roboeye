@@ -1,4 +1,4 @@
-function [Q,error_flag] = parabolic_traj(p1,p2,z_ap,roll_in,npoints,braccio_params,grasp,offset,VERBOSE)
+function [Q_def,error_flag,singularity] = parabolic_traj(p1,p2,z_ap,roll_in,npoints,braccio_params,grasp,offset,VERBOSE)
     % FUNCTION THAT COMPUTE PARABOLIC TRAJECTORY FROM P1 TO P2 WITH APEX AT
     % Z_AP
     
@@ -31,6 +31,7 @@ function [Q,error_flag] = parabolic_traj(p1,p2,z_ap,roll_in,npoints,braccio_para
 
     Q=zeros(npoints+1,6);
     ef=zeros(npoints+1,1);
+    singflag=false(npoints,1);
 
     theta1 = atan2(p1(2),p1(1));
     theta2 = atan2(p2(2),p2(1));
@@ -78,15 +79,27 @@ function [Q,error_flag] = parabolic_traj(p1,p2,z_ap,roll_in,npoints,braccio_para
     for i=2:npoints+1
         [Q(i,:), ef(1)]=gothere(braccio_params,x_discr(i),y_discr(i),z_discr(i),roll_vec(i),grasp,offset,Q(i-1,:));
     end
+    
+    %%% check singularities
+    for i=1:length(Q(:,1))-1
+        singflag(i)=check_sing(Q(i,[1:1:5]),Q(i+1,[1:1:5]));
+    end
+    
+    singularity=any(singflag == true(size(singflag)));
 
-    if (any(ef == true(size(ef)))) || any(z_discr < zeros(size(z_discr)))
+    if (any(ef == true(size(ef)))) || any(z_discr < zeros(size(z_discr))) || singularity
         error_flag=1;
     end
+    
     if VERBOSE >0
         for i=1:length(Q(:,1))
             jp=plot_config_rob(Q(i,:),braccio_params);
         end
     end
+    disp(singflag)
+    
+    %truncate first line
+    Q_def=Q([2:1:end],:);
 end
 
 function params = tr_params_parab(theta1,theta2,z1,z2,z_ap)

@@ -1,7 +1,7 @@
 function [sing_flag, sing_vec, Q] = check_sing(start,target)
     %Check if singular config is reached fron servomovment trajectory
     
-    sing_flag=0;
+    sing_flag=false;
     
     Q = braccio_servo_mat(start,target);
     
@@ -11,7 +11,7 @@ function [sing_flag, sing_vec, Q] = check_sing(start,target)
         J=jacob_diff_kin(Q(i,:));
         if rank(J)<5
             sing_vec(i)=1;
-            sing_flag=1;
+            sing_flag=true;
         end
     end
 
