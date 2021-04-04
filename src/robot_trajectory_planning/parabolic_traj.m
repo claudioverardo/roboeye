@@ -1,4 +1,4 @@
-function [Q_def,error_flag,singularity] = parabolic_traj(p1,p2,z_ap,roll_in,npoints,braccio_params,grasp,offset,VERBOSE)
+function [Q_def,error_flag,singularity,Q_sing] = parabolic_traj(p1,p2,z_ap,roll_in,npoints,braccio_params,grasp,offset,VERBOSE)
     % FUNCTION THAT COMPUTE PARABOLIC TRAJECTORY FROM P1 TO P2 WITH APEX AT
     % Z_AP
     
@@ -6,6 +6,7 @@ function [Q_def,error_flag,singularity] = parabolic_traj(p1,p2,z_ap,roll_in,npoi
 
     % z_ap-auto margin 
     margin_z=100;
+    Q_sing=[];
 
     if nargin <= 8
         VERBOSE=0;
@@ -82,7 +83,8 @@ function [Q_def,error_flag,singularity] = parabolic_traj(p1,p2,z_ap,roll_in,npoi
     
     %%% check singularities
     for i=1:length(Q(:,1))-1
-        singflag(i)=check_sing(Q(i,[1:1:5]),Q(i+1,[1:1:5]));
+        [singflag(i),sub_flag,sub_Q]=check_sing(Q(i,[1:1:5]),Q(i+1,[1:1:5]));
+        Q_sing=[Q_sing; sub_Q(find(sub_flag),:)];
     end
     
     singularity=any(singflag == true(size(singflag)));
