@@ -2,10 +2,11 @@ function [Q_def,error_flag,singularity,Q_sing] = parabolic_traj(p1,p2,z_ap,roll_
     % FUNCTION THAT COMPUTE PARABOLIC TRAJECTORY FROM P1 TO P2 WITH APEX AT
     % Z_AP
     
+   
     %box coordinates: [90 250 120];
 
     % z_ap-auto margin 
-    margin_z=100;
+    margin_z=60;
     Q_sing=[];
 
     if nargin <= 8

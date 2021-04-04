@@ -40,14 +40,14 @@ function [qrob,errorflag,q] = gothere(braccio_params,x,y,z,roll,grasp,offset,q_p
         end
     else
         %%%%% Search nearest solution
-        [Q_poss,n_el] =all_config(transl,braccio_params);
+        Q_poss =all_config(transl,braccio_params);
         
-        if Q_poss==zeros(size(Q_poss))
-            foundflag=0;
+        if Q_poss == zeros(size(Q_poss))
+            foundflag=false;
         else
-            foundflag=1;
+            foundflag=true;
 
-            dist=vecnorm(Q_poss([1:1:n_el],:)-q_pre,2,2);
+            dist=vecnorm(Q_poss-q_pre,2,2);
 
             [~,pos_min]=min(dist);
 
