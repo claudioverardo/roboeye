@@ -21,8 +21,6 @@
 #define DELTA_T_INIT_HIGH_LIMIT 6000 // [ms] -- softStart
 #define DELTA_T_RELEASE 1000 // [ms]
 #define DELTA_T_END 500 // [ms]
-#define DELTA_T_CUSTOM_TRAJECTORY 10 // [ms]
-#define DELTA_T_KEYPOINTS_TRAJECTORY 30 // [ms]
 
 enum State {
   START,
@@ -30,8 +28,8 @@ enum State {
   INITIALIZE,
   READY,
   LOAD_TRAJECTORY,
-  FOLLOW_TRAJECTORY,
-  BUILT_IN_TRAJECTORY,
+  CUSTOM_TRAJECTORY,
+  KEYPOINTS_TRAJECTORY,
   RELEASE,
   ERROR_STATE,
   END
@@ -44,10 +42,16 @@ const int qPin[QNUM] = {11, 10, 9, 6, 5, 3};
 // const byte homePosition[QNUM] = {90, 90, 90, 90, 90, 73}; // nominal
 const byte homePosition[QNUM] = {90, 83, 98, 97, 90, 0}; // corrected
 byte currentPosition[QNUM];
-bool currentPositionPlotted = false;
+bool currentPositionChanged = false;
 
 byte trajectory[MAXPOINTS][QNUM];
-int trajectoryBytesCounter = 0;
+byte trajectoryType = 0; // 0: unknown 1: custom 2: keypoints
+bool trajectoryTypeLoaded = false;
+byte trajectoryNumPoints = 0;
+bool trajectoryNumPointsLoaded = false;
+byte trajectoryDeltaT = 30;
+bool trajectoryDeltaTLoaded = false;
+int  trajectoryBytesCounter = 0;
 
 byte incomingByte;
 
@@ -71,11 +75,11 @@ void loop() {
     case LOAD_TRAJECTORY:
       processLoadTrajectory();
       break;
-    case FOLLOW_TRAJECTORY:
-      processFollowTrajectory();
+    case CUSTOM_TRAJECTORY:
+      processCustomTrajectory();
       break;
-    case BUILT_IN_TRAJECTORY:
-      processBuiltInTrajectory();
+    case KEYPOINTS_TRAJECTORY:
+      processKeypointsTrajectory();
       break;
     case RELEASE:
       processRelease();

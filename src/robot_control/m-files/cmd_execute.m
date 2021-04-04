@@ -1,4 +1,4 @@
-function cmd_err = cmd_execute(s, cmd, data_tx, cmd_ack_str, cmd_no_ack_str)
+function cmd_err = cmd_execute(s, cmd, data_tx, cmd_ack_str, cmd_nack_str)
 % CMD_EXECUTE TODO
 %
 %   cmd_err = CMD_EXECUTE(s, cmd, data_tx, cmd_ack_str, cmd_no_ack_str)
@@ -24,7 +24,7 @@ function cmd_err = cmd_execute(s, cmd, data_tx, cmd_ack_str, cmd_no_ack_str)
     
     write(s, uint8(cmd), 'uint8');
     cmd_robot = uint8(read(s,1,'uint8'));
-    check_cmd_hw = cmd_robot == cmd;
+    check_cmd_hw = ~isempty(cmd_robot) && ( cmd_robot == cmd );
     if ~check_cmd_hw
         fprintf(cmd_nack_str);
         cmd_err = 1;

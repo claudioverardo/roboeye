@@ -13,7 +13,6 @@ void initializeRobot(int soft_init_level) {
   // For each step motor this set up the initial degree
   for (int i = 0; i < QNUM; i++) {
     q[i].write(homePosition[i]);
-    currentPosition[i] = homePosition[i];
   }
  
   // Turn ON the Braccio softly and save it from brokes.
@@ -63,66 +62,69 @@ bool executeCustomTrajectory(int deltaT) {
   bool end_task;
   
   for (int i = 0; i < MAXPOINTS; i++) {
-    for (int j = 0; j < QNUM; j++) {
-      if (checkBoundaries(j, trajectory[i][j])) {
+    if (checkBoundaries(trajectory[i])) {
+      for (int j = 0; j < QNUM; j++) {
         q[j].write(trajectory[i][j]);
       }
-      else {
-        end_task = false;
-        return end_task;
-      }
+      delay(deltaT);
     }
-    delay(deltaT);
+    else {
+      end_task = false;
+      return end_task;
+    }
   }
 
   end_task = true;
   return end_task;
 }
 
-bool executeKeypointsTrajectory(byte targetPosition[], int deltaT) {
+bool braccioServoMovement(byte targetPosition[], int deltaT) {
 
   bool done = false;
 
-  // Until the all motors are in the desired position
-  while (!done) {     
-    // For each servo motor if next degree is not the same of the previuos than do the movement   
-    for (int i = 0; i < QNUM; i++) {
-      // One step ahead
-      if (targetPosition[i] > currentPosition[i]) {
-        currentPosition[i]++;
-      }
-      // One step beyond
-      else if (targetPosition[i] < currentPosition[i]) {
-        currentPosition[i]--;
-      }
-      if (checkBoundaries(i, currentPosition[i])) {
+  // Check if the target position is permitted
+  if (checkBoundaries(targetPosition)) {
+
+    // Until the all motors are in the desired position
+    while (!done) {
+         
+      // For each servo motor if next degree is not the same of the previuos than do the movement   
+      for (int i = 0; i < QNUM; i++) {
+        // One step ahead
+        if (targetPosition[i] > currentPosition[i]) {
+          currentPosition[i]++;
+        }
+        // One step beyond
+        else if (targetPosition[i] < currentPosition[i]) {
+          currentPosition[i]--;
+        }
+        // Move
         q[i].write(currentPosition[i]);
       }
-      else {
-        done = false;
-        return done;
+      
+      // Delay between each movement
+      delay(deltaT);
+      
+      // Check if all the servo motors are in the desired position
+      for (int i = 0; i < QNUM; i++) {
+        if (targetPosition[i] != currentPosition[i]) {
+          done = false;
+          break;
+        }
+        done = true;
       }
     }
     
-    // Delay between each movement
-    delay(deltaT);
-    
-    // It checks if all the servo motors are in the desired position
-    for (int i = 0; i < QNUM; i++) {
-      if (targetPosition[i] != currentPosition[i]) {
-        done = false;
-        break;
-      }
-      done = true;
-    }
   }
-
+  
   return done;
 }
 
-bool checkBoundaries(int joint, byte jointPosition) {
+bool checkBoundaries(byte jointPositions[]) {
+
+  bool ans = true;
+
   /*
-    Step Delay: a milliseconds delay between the movement of each servo. Allowed values from 10 to 30 msec.
     M1 (q[0]) = base degrees. Allowed values from 0 to 180 degrees
     M2 (q[1]) = shoulder degrees. Allowed values from 15 to 165 degrees
     M3 (q[2]) = elbow degrees. Allowed values from 0 to 180 degrees
@@ -130,26 +132,53 @@ bool checkBoundaries(int joint, byte jointPosition) {
     M5 (q[4]) = wrist rotation degrees. Allowed values from 0 to 180 degrees
     M6 (q[5]) = gripper degrees. Allowed values from 10 to 73 degrees. 10: the toungue is open, 73: the gripper is closed.
   */
-  bool ans = true;
-  
-  // switch (joint) {
-  //   case BASE:       ans = jointPosition >  0 && jointPosition < 180; break;
-  //   case SHOULDER:   ans = jointPosition > 15 && jointPosition < 165; break;
-  //   case ELBOW:      ans = jointPosition >  0 && jointPosition < 180; break;
-  //   case WRIST_ROT:  ans = jointPosition >  0 && jointPosition < 180; break;
-  //   case WRIST_VER:  ans = jointPosition >  0 && jointPosition < 180; break;
-  //   case GRIPPER:    ans = jointPosition > 10 && jointPosition <  73; break;
-  //   default:         ans = false;
-  // }
+
+  /*
+  ans =  ( jointPositions[BASE]      >=  0 && jointPositions[BASE]      <= 180 )
+      && ( jointPositions[SHOULDER]  >= 15 && jointPositions[SHOULDER]  <= 165 )
+      && ( jointPositions[ELBOW]     >=  0 && jointPositions[ELBOW]     <= 180 )
+      && ( jointPositions[WRIST_ROT] >=  0 && jointPositions[WRIST_ROT] <= 180 )
+      && ( jointPositions[WRIST_VER] >=  0 && jointPositions[WRIST_VER] <= 180 )
+      && ( jointPositions[GRIPPER]   >= 10 && jointPositions[GRIPPER]   <= 73  );
+  */
 
   return ans;
 }
 
-void commandACK(int command) {
-  Serial.print((char) command);
+void commandACK(byte command) {
+  Serial.write( command);
 }
 
-void transitionACK(int prevState, int nextState) {
-  Serial.print((char) prevState);
-  Serial.print((char) nextState);
+void transitionACK(byte prevState, byte nextState) {
+  Serial.write(prevState);
+  Serial.write(nextState);
+}
+
+void printTrajectory() {
+  // Print the trajectory on the serial line in order to check it on Matlab
+  Serial.write(trajectoryType);
+  Serial.write(trajectoryNumPoints);
+  Serial.write(trajectoryDeltaT);
+  for (int i = 0; i < trajectoryNumPoints; i++) {
+    for (int j = 0; j < QNUM; j++) {
+      Serial.write(trajectory[i][j]);
+    }
+  }
+}
+
+void finalizeTrajectory(byte finalPosition[]) {
+  // Update the current position
+  currentPositionChanged = true;
+  for (int j = 0; j < QNUM; j++) {
+    currentPosition[j] = finalPosition[j];
+  }
+  
+  // Reset trajectory informations
+  trajectoryType = 0;
+  trajectoryTypeLoaded = false;
+  trajectoryNumPoints = 0;
+  trajectoryNumPointsLoaded = false;
+  trajectoryDeltaT = 30;
+  trajectoryDeltaTLoaded = false;
+  trajectoryBytesCounter = 0;
 }

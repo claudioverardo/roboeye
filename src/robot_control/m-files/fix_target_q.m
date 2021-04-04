@@ -23,13 +23,13 @@ function target_q_fixed = fix_target_q(target_q, current_q, last_q)
     end
     
     if     target_q(1) > current_q(1) && current_q(1) >= last_q(1)
-        offset = 15;
+        offset = 5;
     elseif target_q(1) > current_q(1) && current_q(1) <  last_q(1)
-        offset = 15;
+        offset = 5;
     elseif target_q(1) < current_q(1) && current_q(1) <= last_q(1)
-        offset = -15;
+        offset = -5;
     elseif target_q(1) < current_q(1) && current_q(1) >  last_q(1)
-        offset = -15;
+        offset = -5;
     else 
         offset = 0;
     end

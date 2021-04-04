@@ -12,8 +12,6 @@ void processStart() {
   Serial.write(DELTA_T_START/1000);
   Serial.write(DELTA_T_INIT_HIGH_LIMIT/1000);
   Serial.write(DELTA_T_RELEASE/1000);
-  Serial.write(DELTA_T_CUSTOM_TRAJECTORY);
-  Serial.write(DELTA_T_KEYPOINTS_TRAJECTORY);
   
   delay(DELTA_T_START);
   digitalWrite(LED_BUILTIN, LOW);
@@ -49,20 +47,22 @@ void processInitialize() {
   // Initialization functions and set up the initial position for Braccio
   // All the servo motors will be positioned in the "home" position (cf above)
   initializeRobot(SOFT_INIT_DEFAULT);
+
+  // Reset trajectory informations, update current position
+  finalizeTrajectory(homePosition);
   
   // Next state transition -> READY
-  currentPositionPlotted = false;
   transitionACK(INITIALIZE,READY);
   state = READY;
 }
 
 void processReady(){
   // Plot the actual position of the robot
-  if (!currentPositionPlotted) {
+  if (currentPositionChanged) {
     for (int i=0; i<QNUM; i++) {
       Serial.print((char) currentPosition[i]);
     }
-    currentPositionPlotted = true;
+    currentPositionChanged = false;
   }
   
   // Robot in home position, wait commands
@@ -75,11 +75,12 @@ void processReady(){
       transitionACK(READY,RELEASE);
       state = RELEASE;
     }
-    // Next state transition -> BUILT_IN_TRAJECTORY
-    else if (incomingByte == 1 || incomingByte == 4 || incomingByte == 5) {
+    // Next state transition -> LOAD_TRAJECTORY
+    else if (incomingByte == 1 || incomingByte == 3 || incomingByte == 4 || incomingByte == 5 || 
+             incomingByte == 6 || incomingByte == 7 || incomingByte == 8) {
       commandACK(incomingByte);
-      transitionACK(READY,BUILT_IN_TRAJECTORY);
-      state = BUILT_IN_TRAJECTORY;
+      transitionACK(READY,LOAD_TRAJECTORY);
+      state = LOAD_TRAJECTORY;
     }
     // Next state transition -> READY
     else if (incomingByte == 2) {
@@ -88,15 +89,9 @@ void processReady(){
         q[i].write(homePosition[i]);
         currentPosition[i] = homePosition[i];
       }
-      currentPositionPlotted = false;
+      currentPositionChanged = true;
       transitionACK(READY,READY);
       state = READY;
-    }
-    // Next state transition -> LOAD_TRAJECTORY
-    else if (incomingByte == 3) {
-      commandACK(incomingByte);
-      transitionACK(READY,LOAD_TRAJECTORY);
-      state = LOAD_TRAJECTORY;
     }
   
   }
@@ -105,84 +100,126 @@ void processReady(){
 void processLoadTrajectory() {
   if (Serial.available() > 0) {
     incomingByte = Serial.read();
+
+    if (!trajectoryTypeLoaded) {
+      trajectoryType = incomingByte;
+      trajectoryTypeLoaded = true;
+    }
+    else if (!trajectoryNumPointsLoaded) {
+      trajectoryNumPoints = incomingByte;
+      trajectoryNumPointsLoaded = true;
+    }
+    else if (!trajectoryDeltaTLoaded) {
+      trajectoryDeltaT = incomingByte;
+      trajectoryDeltaTLoaded = true;
+    }
+    else {
+      // Load trajectory array
+      trajectory[trajectoryBytesCounter / QNUM][trajectoryBytesCounter % QNUM] = incomingByte;
+      trajectoryBytesCounter++;
+  
+      // Check if the trajectory is complete
+      if (trajectoryBytesCounter >= QNUM * trajectoryNumPoints) {
+  
+        // Next state transition -> CUSTOM_TRAJECTORY
+        if (trajectoryType == 1) {
+          pinMode(LED_BUILTIN, OUTPUT);
+          digitalWrite(LED_BUILTIN, HIGH);
+          printTrajectory();
+          transitionACK(LOAD_TRAJECTORY,CUSTOM_TRAJECTORY);
+          state = CUSTOM_TRAJECTORY;
+        }
+        // Next state transition -> KEYPOINTS_TRAJECTORY
+        else if (trajectoryType == 2) {
+          printTrajectory();
+          transitionACK(LOAD_TRAJECTORY,KEYPOINTS_TRAJECTORY);
+          state = KEYPOINTS_TRAJECTORY;
+        }
+        // Next state transition -> ERROR_STATE
+        else {
+          transitionACK(LOAD_TRAJECTORY,ERROR_STATE);
+          state = ERROR_STATE;
+        }
+        
+      }
+    }
+  }
+}
+
+void processCustomTrajectory() {
+  // Wait data check from Matlab
+  if (Serial.available() > 0) {
+    incomingByte = Serial.read();
+
+    // ACK from Matlab of the data check
+    if (incomingByte == 1) {
+      commandACK(incomingByte);
+      
+      // Follow the loaded trajectory
+      bool end_task;
+      end_task = executeCustomTrajectory(trajectoryDeltaT);
+          
+      // Next state transition -> ERROR_STATE
+      if (!end_task) {
+        transitionACK(CUSTOM_TRAJECTORY,ERROR_STATE);
+        state = ERROR_STATE;
+        return;
+      }
     
-    // Load trajectory array
-    trajectory[trajectoryBytesCounter / QNUM][trajectoryBytesCounter % QNUM] = incomingByte;
-    trajectoryBytesCounter++;
+      // Reset trajectory informations, update current position
+      finalizeTrajectory(trajectory[trajectoryNumPoints-1]);
+      
+      // Next state transition -> READY
+      transitionACK(CUSTOM_TRAJECTORY,READY);
+      state = READY;
+    }
+    // Next state transition -> ERROR_STATE
+    else {
+      commandACK(incomingByte);
+      transitionACK(CUSTOM_TRAJECTORY,ERROR_STATE);
+      state = ERROR_STATE;
+    }
+  }
+}
 
-    // Check if the trajectory is complete
-    if (trajectoryBytesCounter >= QNUM * MAXPOINTS) {
+void processKeypointsTrajectory() {
+  // Wait data check from Matlab
+  if (Serial.available() > 0) {
+    incomingByte = Serial.read();
 
-      // Reset the counter
-      trajectoryBytesCounter = 0;
-
-      // Print the trajectory on the serial line to check it on Matlab
-      for (int i = 0; i < MAXPOINTS; i++) {
-        for (int j = 0; j < QNUM; j++) {
-          Serial.print((char) trajectory[i][j]);
+    // ACK from Matlab of the data check
+    if (incomingByte == 1) {
+      commandACK(incomingByte);
+      
+      // Follow the loaded trajectory
+      bool end_task;
+      for (int i=0; i<trajectoryNumPoints; i++) {
+        // Reach the target position with constant-velocity motion
+        end_task = braccioServoMovement(trajectory[i], trajectoryDeltaT);
+  
+        // Next state transition -> ERROR_STATE
+        if (!end_task) {
+          transitionACK(KEYPOINTS_TRAJECTORY,ERROR_STATE);
+          state = ERROR_STATE;
+          return;
         }
       }
+
+      // Reset trajectory informations, update current position
+      finalizeTrajectory(trajectory[trajectoryNumPoints-1]);
       
-      // Next state transition -> FOLLOW_TRAJECTORY
-      transitionACK(LOAD_TRAJECTORY,FOLLOW_TRAJECTORY);
-      state = FOLLOW_TRAJECTORY;
+      // Next state transition -> READY
+      transitionACK(KEYPOINTS_TRAJECTORY,READY);
+      state = READY;
+    }
+    // Next state transition -> ERROR_STATE
+    else {
+      commandACK(incomingByte);
+      transitionACK(KEYPOINTS_TRAJECTORY,ERROR_STATE);
+      state = ERROR_STATE;
     }
   }
-}
-
-void processFollowTrajectory() {
-  // Follow the loaded trajectory
-  bool end_task;
-  end_task = executeCustomTrajectory(DELTA_T_CUSTOM_TRAJECTORY);
-      
-  // Next state transition -> ERROR
-  if (!end_task) {
-    transitionACK(FOLLOW_TRAJECTORY,ERROR_STATE);
-    state = ERROR_STATE;
-    return;
-  }
-
-  // Update the actual position
-  for (int j = 0; j < QNUM; j++) {
-    currentPosition[j] = trajectory[MAXPOINTS-1][j];
-  }
   
-  // Next state transition -> READY
-  currentPositionPlotted = false;
-  transitionACK(FOLLOW_TRAJECTORY,READY);
-  state = READY;
-}
-
-void processBuiltInTrajectory() {
-  
-  if (Serial.available() > 0) {
-
-    byte targetPosition[QNUM];
-    byte numTargetPositions;
-
-    numTargetPositions = Serial.read();
-  
-    for (int i=0; i<numTargetPositions; i++) {
-    
-      Serial.readBytes(targetPosition, QNUM);
-      
-      // Reach the target position with constant-velocity motion
-      bool end_task;
-      end_task = executeKeypointsTrajectory(targetPosition, DELTA_T_KEYPOINTS_TRAJECTORY);
-    
-      // Next state transition -> ERROR
-      if (!end_task) {
-         transitionACK(BUILT_IN_TRAJECTORY,ERROR_STATE);
-         state = ERROR_STATE;
-         return;
-      }
-    }
-  
-    // Next state transition -> READY
-    currentPositionPlotted = false;
-    transitionACK(BUILT_IN_TRAJECTORY,READY);
-    state = READY;
-  }
 }
 
 void processRelease() {
@@ -213,11 +250,9 @@ void processErrorState() {
 }
 
 void processEnd() {
-
   pinMode(LED_BUILTIN, OUTPUT);
   digitalWrite(LED_BUILTIN, HIGH);
   delay(DELTA_T_END);
   digitalWrite(LED_BUILTIN, LOW);
   delay(DELTA_T_END);
-  
 }

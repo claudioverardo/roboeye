@@ -13,10 +13,8 @@ baud = 115200;
 port = 'COM3';
 
 % function that maps camera coordinates in robot coordinates
-% cam2robot_coords = @(t) [t(2)*10 + 104, -(t(1)-3)*10, 0];
-% cam2robot_coords = @(t) [t(2)*10 + 104, -(t(1)-24)*10, max((t(3)+1)*10-5,0.5)];
-% cam2robot_coords = @(t) [t(2)*10 + 104, -(t(1)-24)*10, max((t(3)-3)*10-5,0.5)];
 cam2robot_coords = @(t) [t(2)*10 + 104, -(t(1)-24)*10, max(t(3)*10-5,0)];
+% cam2robot_coords = @(t) [t(2)*10 + 134, -(t(1)-24)*10, max(t(3)*10-5,0)];
 
 % function that defines from whete to acquire the commands
 robot_input = @(x) input(x); % command window

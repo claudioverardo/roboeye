@@ -7,6 +7,8 @@ aruco_real_sides_file = '../aruco_markers/aruco_markers_7x7_real_sides.mat';
 K_file = '../calibration/intrinsics_cam1/K.mat';
 R_cam_file = '../calibration/extrinsics_cam1_tests_robot/R_cam.mat';
 t_cam_file = '../calibration/extrinsics_cam1_tests_robot/t_cam.mat';
+% R_cam_file = '../calibration/extrinsics_cam1_tests_robot2/R_cam.mat';
+% t_cam_file = '../calibration/extrinsics_cam1_tests_robot2/t_cam.mat';
 intrinsics_file = '../calibration/intrinsics_cam1/intrinsics.mat';
 
 vision_args.aruco_markers = load(aruco_markers_file).aruco_markers;
@@ -50,7 +52,12 @@ vision_args.options.verbose = 0; % aruco_pose_estimation_verbose
 %% ROBOT TRAJECTORY PLANNING
 %--------------------------------------------------------------------------
 trajectory_planning_args.braccio_params = [71 125 125 195 0];
-trajectory_planning_args.verbose = 0;
+trajectory_planning_args.box_coords_grasp = [20 117 0 122 90 73];
+% trajectory_planning_args.box_coords_grasp_parabola = [-1 -1 12.5]; % [17.6 107 0.863 133 90 73]
+% trajectory_planning_args.box_coords_grasp_parabola = [-1 -4 12.5]; % [11.4 110 0.637 137 90 73]
+trajectory_planning_args.box_coords_grasp_parabola = [-4 1 12.5];
+trajectory_planning_args.gothere_verbose = 0;
+trajectory_planning_args.parabolic_traj_verbose = 0;
 
 
 %% ROBOT CONTROL
@@ -58,20 +65,20 @@ trajectory_planning_args.verbose = 0;
 % Dictionary of objects
 % offsets in [mm]
 
-objects_dict(1).name = '';
-objects_dict(1).offset_h = 0;
+objects_dict(1).name = 'cup';
+objects_dict(1).offset_h = -30;
 objects_dict(1).offset_r = 0;
-objects_dict(1).offset_ef = 0;
+objects_dict(1).offset_ef = -30;
 
-objects_dict(2).name = '';
-objects_dict(2).offset_h = 0;
+objects_dict(2).name = 'sharpener';
+objects_dict(2).offset_h = -10;
 objects_dict(2).offset_r = 0;
-objects_dict(2).offset_ef = 0;
+objects_dict(2).offset_ef = -30;
 
-objects_dict(3).name = '';
-objects_dict(3).offset_h = 0;
+objects_dict(3).name = 'glass';
+objects_dict(3).offset_h = -30;
 objects_dict(3).offset_r = 0;
-objects_dict(3).offset_ef = 0;
+objects_dict(3).offset_ef = -30;
 
 objects_dict(4).name = '';
 objects_dict(4).offset_h = 0;
