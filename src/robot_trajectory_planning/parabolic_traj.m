@@ -1,19 +1,16 @@
-function [Q,error_flag] = parabolic_traj(p1,p2,z_ap,roll_in,npoints,braccio_params,grasp,offset,varargin)
+function [Q,error_flag] = parabolic_traj(p1,p2,z_ap,roll_in,npoints,braccio_params,grasp,offset,VERBOSE)
     % FUNCTION THAT COMPUTE PARABOLIC TRAJECTORY FROM P1 TO P2 WITH APEX AT
     % Z_AP
     
     %box coordinates: [90 250 120];
-    
-    default_verbose = 0;
-    
-    % Input parser
-    p = inputParser;
-    addParameter(p, 'verbose', default_verbose, @(x) x>=0);
-    parse(p, varargin{:});
-    
-    % Parse function parameters
-    VERBOSE = p.Results.verbose;
 
+    % z_ap-auto margin 
+    margin_z=30;
+
+    if nargin <= 8
+        VERBOSE=0;
+    end
+    
     if nargin <= 7
         offset=0;
     end
@@ -40,6 +37,12 @@ function [Q,error_flag] = parabolic_traj(p1,p2,z_ap,roll_in,npoints,braccio_para
 
     r1=norm(p1([1 2]));
     r2=norm(p2([1 2]));
+    rm=(r1+r2)/2;
+    
+    if z_ap == 'auto'
+        z_ap_max = sqrt((braccio_params([2 3 4])*[1 1 1]')^2-rm^2)+braccio_params(1);
+        z_ap=z_ap_max-margin_z;
+    end
 
     z1=p1(3);
     z2=p2(3);
