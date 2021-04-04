@@ -5,7 +5,7 @@ function [Q,error_flag] = parabolic_traj(p1,p2,z_ap,roll_in,npoints,braccio_para
     %box coordinates: [90 250 120];
 
     % z_ap-auto margin 
-    margin_z=30;
+    margin_z=100;
 
     if nargin <= 8
         VERBOSE=0;
@@ -19,7 +19,7 @@ function [Q,error_flag] = parabolic_traj(p1,p2,z_ap,roll_in,npoints,braccio_para
         grasp=73;
     end
     
-    if nargin <= 5
+    if nargin <= 5 || strcmp(braccio_params,'def')
         braccio_params=[71 125 125 195 0];
     end
     
@@ -29,8 +29,8 @@ function [Q,error_flag] = parabolic_traj(p1,p2,z_ap,roll_in,npoints,braccio_para
 
     error_flag=0;
 
-    Q=zeros(npoints,6);
-    ef=zeros(6,1);
+    Q=zeros(npoints+1,6);
+    ef=zeros(npoints+1,1);
 
     theta1 = atan2(p1(2),p1(1));
     theta2 = atan2(p2(2),p2(1));
@@ -39,7 +39,7 @@ function [Q,error_flag] = parabolic_traj(p1,p2,z_ap,roll_in,npoints,braccio_para
     r2=norm(p2([1 2]));
     rm=(r1+r2)/2;
     
-    if z_ap == 'auto'
+    if strcmp(z_ap,'auto')
         z_ap_max = sqrt((braccio_params([2 3 4])*[1 1 1]')^2-rm^2)+braccio_params(1);
         z_ap=z_ap_max-margin_z;
     end
@@ -58,7 +58,7 @@ function [Q,error_flag] = parabolic_traj(p1,p2,z_ap,roll_in,npoints,braccio_para
     x_discr=r_discr.*cos(theta_discr);
     y_discr=r_discr.*sin(theta_discr);
     
-    if VERBOSE > 0
+    if VERBOSE >0
         fig=figure;
         arc_plot=linspace(0,pi);
         hold on;
@@ -72,13 +72,20 @@ function [Q,error_flag] = parabolic_traj(p1,p2,z_ap,roll_in,npoints,braccio_para
     end
 
     roll_vec=linspace(roll_in,90,npoints+1);
-
+    
+    i=1;
+    [Q(i,:), ef(i)]=gothere(braccio_params,x_discr(i),y_discr(i),z_discr(i),roll_vec(i),grasp,offset,[]);
     for i=2:npoints+1
-        [Q(i-1,:), ef(i-1)]=gothere(braccio_params,x_discr(i),y_discr(i),z_discr(i),roll_vec(i),grasp,offset);
+        [Q(i,:), ef(1)]=gothere(braccio_params,x_discr(i),y_discr(i),z_discr(i),roll_vec(i),grasp,offset,Q(i-1,:));
     end
 
     if (any(ef == true(size(ef)))) || any(z_discr < zeros(size(z_discr)))
         error_flag=1;
+    end
+    if VERBOSE >0
+        for i=1:length(Q(:,1))
+            jp=plot_config_rob(Q(i,:),braccio_params);
+        end
     end
 end
 

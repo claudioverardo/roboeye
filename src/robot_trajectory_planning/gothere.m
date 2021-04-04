@@ -1,4 +1,4 @@
-function [qrob,errorflag,q] = gothere(braccio_params,x,y,z,roll,grasp,offset,varargin)
+function [qrob,errorflag,q] = gothere(braccio_params,x,y,z,roll,grasp,offset,q_pre,varargin)
 %Returns joint's angular position for a given spacial position in phisical
 %space
 %   the function decides autonomously the end effector orientation in order
@@ -23,21 +23,38 @@ function [qrob,errorflag,q] = gothere(braccio_params,x,y,z,roll,grasp,offset,var
 
     % Define translation
     transl=[x y z];
+    
+    if isempty(q_pre)
+        if x>=0 % Frontal workspace
+            dirindex=-1;
+        else % Backward workspace
+            dirindex=1;
+        end
 
-    if x>=0 % Frontal workspace
-        dirindex=-1;
-    else % Backward workspace
-        dirindex=1;
-    end
-
-    [qrob,q,foundflag] = scan_EF_pitch(transl,dirindex,braccio_params);
-
-    % Check if the algorithm have found a solution and if not check the other direction
-    if foundflag==false 
-        dirindex=-dirindex;
         [qrob,q,foundflag] = scan_EF_pitch(transl,dirindex,braccio_params);
-    end
 
+        % Check if the algorithm have found a solution and if not check the other direction
+        if foundflag==false 
+            dirindex=-dirindex;
+            [qrob,q,foundflag] = scan_EF_pitch(transl,dirindex,braccio_params);
+        end
+    else
+        %%%%% Search nearest solution
+        [Q_poss,n_el] =all_config(transl,braccio_params);
+        
+        if Q_poss==zeros(size(Q_poss))
+            foundflag=0;
+        else
+            foundflag=1;
+
+            dist=vecnorm(Q_poss([1:1:n_el],:)-q_pre,2,2);
+
+            [~,pos_min]=min(dist);
+
+            qrob=Q_poss(pos_min,:);
+        end
+    end
+    
     % Check if no solution was found
     if foundflag==false 
         errorflag=true;
