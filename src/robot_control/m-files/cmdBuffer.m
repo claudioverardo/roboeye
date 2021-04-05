@@ -1,11 +1,15 @@
 classdef cmdBuffer < handle
+% CMDBUFFER Create LIFO buffer to automatically provide input commands.
+
     properties
+        % Cell array of input commands.
         buffer
     end
     
     methods
         
         function obj = cmdBuffer(initial_buffer)
+        % Constructor that set the initial buffer.
             if nargin > 0
                 obj.buffer = initial_buffer;
             else
@@ -14,6 +18,8 @@ classdef cmdBuffer < handle
         end
         
         function cmd = getCmd(obj, str)
+        % Get the last command and remove it from the buffer.
+        % The interface is the same of input(...)
             if numel(obj.buffer) ~= 0 
                 cmd = obj.buffer{1};
                 obj.buffer(1) = [];
@@ -24,6 +30,7 @@ classdef cmdBuffer < handle
         end
         
         function str = cmd2str(obj, cmd)
+        % Convert a command to string to be plotted.
             if isscalar(cmd)
                 str = int2str(cmd);
             elseif isvector(cmd)

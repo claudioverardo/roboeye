@@ -28,7 +28,7 @@ enum State {
   INITIALIZE,
   READY,
   LOAD_TRAJECTORY,
-  CUSTOM_TRAJECTORY,
+  POINTWISE_TRAJECTORY,
   KEYPOINTS_TRAJECTORY,
   RELEASE,
   ERROR_STATE,
@@ -45,7 +45,7 @@ byte currentPosition[QNUM];
 bool currentPositionChanged = false;
 
 byte trajectory[MAXPOINTS][QNUM];
-byte trajectoryType = 0; // 0: unknown 1: custom 2: keypoints
+byte trajectoryType = 0; // 0: unknown 1: pointwise 2: keypoints
 bool trajectoryTypeLoaded = false;
 byte trajectoryNumPoints = 0;
 bool trajectoryNumPointsLoaded = false;
@@ -75,8 +75,8 @@ void loop() {
     case LOAD_TRAJECTORY:
       processLoadTrajectory();
       break;
-    case CUSTOM_TRAJECTORY:
-      processCustomTrajectory();
+    case POINTWISE_TRAJECTORY:
+      processPointwiseTrajectory();
       break;
     case KEYPOINTS_TRAJECTORY:
       processKeypointsTrajectory();

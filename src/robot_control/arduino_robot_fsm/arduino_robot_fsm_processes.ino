@@ -60,7 +60,7 @@ void processReady(){
   // Plot the actual position of the robot
   if (currentPositionChanged) {
     for (int i=0; i<QNUM; i++) {
-      Serial.print((char) currentPosition[i]);
+      Serial.write(currentPosition[i]);
     }
     currentPositionChanged = false;
   }
@@ -121,13 +121,13 @@ void processLoadTrajectory() {
       // Check if the trajectory is complete
       if (trajectoryBytesCounter >= QNUM * trajectoryNumPoints) {
   
-        // Next state transition -> CUSTOM_TRAJECTORY
+        // Next state transition -> POINTWISE_TRAJECTORY
         if (trajectoryType == 1) {
           pinMode(LED_BUILTIN, OUTPUT);
           digitalWrite(LED_BUILTIN, HIGH);
           printTrajectory();
-          transitionACK(LOAD_TRAJECTORY,CUSTOM_TRAJECTORY);
-          state = CUSTOM_TRAJECTORY;
+          transitionACK(LOAD_TRAJECTORY,POINTWISE_TRAJECTORY);
+          state = POINTWISE_TRAJECTORY;
         }
         // Next state transition -> KEYPOINTS_TRAJECTORY
         else if (trajectoryType == 2) {
@@ -146,7 +146,7 @@ void processLoadTrajectory() {
   }
 }
 
-void processCustomTrajectory() {
+void processPointwiseTrajectory() {
   // Wait data check from Matlab
   if (Serial.available() > 0) {
     incomingByte = Serial.read();
@@ -157,11 +157,11 @@ void processCustomTrajectory() {
       
       // Follow the loaded trajectory
       bool end_task;
-      end_task = executeCustomTrajectory(trajectoryDeltaT);
+      end_task = executePointwiseTrajectory(trajectoryDeltaT);
           
       // Next state transition -> ERROR_STATE
       if (!end_task) {
-        transitionACK(CUSTOM_TRAJECTORY,ERROR_STATE);
+        transitionACK(POINTWISE_TRAJECTORY,ERROR_STATE);
         state = ERROR_STATE;
         return;
       }
@@ -170,13 +170,13 @@ void processCustomTrajectory() {
       finalizeTrajectory(trajectory[trajectoryNumPoints-1]);
       
       // Next state transition -> READY
-      transitionACK(CUSTOM_TRAJECTORY,READY);
+      transitionACK(POINTWISE_TRAJECTORY,READY);
       state = READY;
     }
     // Next state transition -> ERROR_STATE
     else {
       commandACK(incomingByte);
-      transitionACK(CUSTOM_TRAJECTORY,ERROR_STATE);
+      transitionACK(POINTWISE_TRAJECTORY,ERROR_STATE);
       state = ERROR_STATE;
     }
   }

@@ -1,18 +1,25 @@
-function robot_fsm_interface(port, baud, cam, vision_args, trajectory_planning_args, objects_dict, fn_cam2robot_coords, fn_robot_input)
-% ROBOT_FSM_INTERFACE TODO
+function robot_fsm_interface(port, baud, cam, vision_args, trajectory_planning_args, fn_cam2robot_coords, fn_robot_input)
+% ROBOT_FSM_INTERFACE High level interface with the robot FSM on Arduino.
 %
-%   ROBOT_FSM_INTERFACE(port, baud, cam, vision_args, fn_cam2robot_coords, fn_robot_input)
+%   ROBOT_FSM_INTERFACE(port, baud, cam, vision_args, trajectory_planning_args,
+%   fn_cam2robot_coords, fn_robot_input)
 %
 %   Input arguments:
 %   ------------------
-%   port:
-%   baud:
-%   cam: 
-%   vision_args:
-%   fn_cam2robot_coords: 
-%   fn_robot_input: 
+%   port: port of the Arduino serial connection, cf. serialport(...)
+%   baud: baud rate of the Arduino serial connection, cf. serialport(...)
+%   cam: webcam object of the camera, cf. webcam(...)
+%   vision_args: vision parameters, cf below
+%   trajectory_planning_args: trajectory planning parameters, cf below
+%   fn_cam2robot_coords: function to convert points from vision to robot frame 
+%   fn_robot_input: function to acquire input, cf. input(...) or cmdBuffer
+%   
+%   For details regarding vision_args and trajectory_planning_args refers to
+%   get_target_from_vision(...) and generate_trajectory(...) respectively.
 %
-%   See also TODO
+%   NOTE: this function requires the MATLAB Support Package for USB Webcams.
+%
+%   See also GENERATE_TRAJECTORY, GET_TARGET, GET_TARGET_FROM_VISION
 
     fprintf('\n-------- FSM Robot Control start --------\n');
     
@@ -23,7 +30,7 @@ function robot_fsm_interface(port, baud, cam, vision_args, trajectory_planning_a
         'INITIALIZE'
         'READY'
         'LOAD_TRAJECTORY'
-        'CUSTOM_TRAJECTORY'
+        'POINTWISE_TRAJECTORY'
         'KEYPOINTS_TRAJECTORY'
         'RELEASE'
         'ERROR_STATE'
@@ -31,17 +38,35 @@ function robot_fsm_interface(port, baud, cam, vision_args, trajectory_planning_a
     };
     
     % Help messages of the interface commands
-    help_nop = 'Available commands:\n   0: exit\n   1: initialize robot\n';
-    help_ready = 'Available commands:\n   0: release robot\n   1: back to home\n   2: back to home (force)\n   3: move joints\n   4: move to n points\n   5: move to target (custom trajectory)\n   6: move to target (keypoints trajectory)\n   7: pick/place object (keypoints trajectory)\n   8: pick/place object (keypoints trajectory + parabola)\n';
-    help_error_state = 'Oh no!!!!!!\n   0: release robot\n';
+    help_nop = strcat( ...
+        'Available commands:\n', ...
+        '   0: exit\n', ...
+        '   1: initialize robot\n' ...
+    );
+    help_ready = strcat( ...
+        'Available commands:\n', ...
+        '   0: release robot\n', ...
+        '   1: back to home\n', ...
+        '   2: back to home (force)\n', ...
+        '   3: move joints\n', ...
+        '   4: move to n points\n', ...
+        '   5: move to target (pointwise trajectory)\n', ...
+        '   6: move to target (keypoints trajectory)\n', ...
+        '   7: pick/place object (keypoints trajectory)\n', ...
+        '   8: pick/place object (keypoints trajectory + parabola)\n' ...
+    );
+    help_error_state = strcat( ...
+        'Oh no!!!!!!\n', ...
+        '   0: release robot\n' ...
+    );
 
     % Validation functions of the interface commands
-    fn_val_nop = @(x) isscalar(x) && ( x == 0 || x == 1 );
-    fn_val_ready = @(x) isscalar(x) && ( x == 0 || x == 1 || x == 2 || x == 3 || x == 4 || x == 5 || x == 6 || x == 7 || x == 8 );
-    fn_val_error_state = @(x) isscalar(x) && ( x == 0 );
+    fn_val_nop = @(x) isscalar(x) && ismember(x,[0,1]);
+    fn_val_ready = @(x) isscalar(x) && ismember(x,[0,1,2,3,4,5,6,7,8]);
+    fn_val_error_state = @(x) isscalar(x) && x == 0;
     
     % Time-steps trajectories
-    DELTA_T_CUSTOM_TRAJECTORY = 50;
+    DELTA_T_POINTWISE_TRAJECTORY = 50;
     DELTA_T_KEYPOINTS_TRAJECTORY = 30;
     
     fprintf('\nTransition --> %s\n', STATE{1});
@@ -66,7 +91,6 @@ function robot_fsm_interface(port, baud, cam, vision_args, trajectory_planning_a
     fprintf('   DELTA_T_RELEASE = %d [s]\n', DELTA_T_RELEASE);
     
     current_position = home_position;
-    last_position = home_position;
     
     fprintf('Waiting...');
     print_countdown(DELTA_T_START);
@@ -98,7 +122,6 @@ function robot_fsm_interface(port, baud, cam, vision_args, trajectory_planning_a
             
             case STATE{4} % READY
                 % Update current position of the robot
-                last_position = current_position;
                 current_position = uint8(read(s,QNUM,'uint8'));
                 fprintf('Position: %s\n', mat2str(current_position));
                 
@@ -115,7 +138,8 @@ function robot_fsm_interface(port, baud, cam, vision_args, trajectory_planning_a
                             confirm = 1;
 
                         case 1 % back home
-                            trajectory = fix_target_q(home_position, current_position, last_position);
+                            trajectory = fix_target_q(home_position, current_position);
+                            time_trajectory = get_time_trajectory('keypoints', trajectory, current_position, DELTA_T_KEYPOINTS_TRAJECTORY);
                             data_tx = trajectory2serialdata('keypoints', DELTA_T_KEYPOINTS_TRAJECTORY, trajectory);
                             confirm = 1;
                             
@@ -125,32 +149,57 @@ function robot_fsm_interface(port, baud, cam, vision_args, trajectory_planning_a
                             confirm = 1;
                         
                         case 3 % move joints
-                            [trajectory, confirm] = generate_keypoints_trajectory('move-q', current_position, last_position, cam, vision_args, trajectory_planning_args, [], fn_cam2robot_coords, fn_robot_input);
+                            [trajectory, time_trajectory, confirm] = generate_trajectory( ...
+                                'move-q', current_position, DELTA_T_KEYPOINTS_TRAJECTORY, ...
+                                [], [], trajectory_planning_args, [], fn_robot_input ...
+                            );
                             data_tx = trajectory2serialdata('keypoints', DELTA_T_KEYPOINTS_TRAJECTORY, trajectory);
                             fprintf('\n');
                         
                         case 4 % move to n points
-                            [trajectory, confirm] = generate_keypoints_trajectory('move-n', current_position, last_position, cam, vision_args, trajectory_planning_args, [], fn_cam2robot_coords, fn_robot_input);
+                            [trajectory, time_trajectory, confirm] = generate_trajectory( ...
+                                'move-t-npoints', current_position, DELTA_T_KEYPOINTS_TRAJECTORY, ...
+                                [], [], trajectory_planning_args, fn_cam2robot_coords, fn_robot_input ...
+                            );
                             data_tx = trajectory2serialdata('keypoints', DELTA_T_KEYPOINTS_TRAJECTORY, trajectory);
                             fprintf('\n');
 
-                        case 5 % move to target (custom trajectory)
-                            [trajectory, confirm] = generate_custom_trajectory(current_position, home_position, cam, vision_args, fn_cam2robot_coords, fn_robot_input);
-                            data_tx = trajectory2serialdata('custom', DELTA_T_CUSTOM_TRAJECTORY, trajectory);
+                        case 5 % move to target (pointwise trajectory)
+                            if ~all(current_position == home_position)
+                                fprintf('ERROR: robot must be in home position!!\n');
+                                trajectory = [];
+                                data_tx = [];
+                                confirm = 0;
+                            else
+                                [trajectory, time_trajectory, confirm] = generate_trajectory( ...
+                                    'move-t-pointwise', [], DELTA_T_POINTWISE_TRAJECTORY, ...
+                                    cam, vision_args, trajectory_planning_args, fn_cam2robot_coords, fn_robot_input ...
+                                );
+                                data_tx = trajectory2serialdata('pointwise', DELTA_T_POINTWISE_TRAJECTORY, trajectory);
+                            end
                             fprintf('\n');
 
                         case 6 % move to target (keypoints trajectory)
-                            [trajectory, confirm] = generate_keypoints_trajectory('move', current_position, last_position, cam, vision_args, trajectory_planning_args, [], fn_cam2robot_coords, fn_robot_input);
+                            [trajectory, time_trajectory, confirm] = generate_trajectory( ...
+                                'move-t', current_position, DELTA_T_KEYPOINTS_TRAJECTORY, ...
+                                cam, vision_args, trajectory_planning_args, fn_cam2robot_coords, fn_robot_input ...
+                            );
                             data_tx = trajectory2serialdata('keypoints', DELTA_T_KEYPOINTS_TRAJECTORY, trajectory);
                             fprintf('\n');
                         
                         case 7 % pick/place object (keypoints trajectory)
-                            [trajectory, confirm] = generate_keypoints_trajectory('grasp', current_position, last_position, cam, vision_args, trajectory_planning_args, objects_dict, fn_cam2robot_coords, fn_robot_input);
+                            [trajectory, time_trajectory, confirm] = generate_trajectory( ...
+                                'grasp', current_position, DELTA_T_KEYPOINTS_TRAJECTORY, ...
+                                cam, vision_args, trajectory_planning_args, fn_cam2robot_coords, fn_robot_input ...
+                            );
                             data_tx = trajectory2serialdata('keypoints', DELTA_T_KEYPOINTS_TRAJECTORY, trajectory);
                             fprintf('\n');
                         
                         case 8 % pick/place object (keypoints trajectory + parabola)
-                            [trajectory, confirm] = generate_keypoints_trajectory('grasp-parabola', current_position, last_position, cam, vision_args, trajectory_planning_args, objects_dict, fn_cam2robot_coords, fn_robot_input);
+                            [trajectory, time_trajectory, confirm] = generate_trajectory( ...
+                                'grasp-parabola', current_position, DELTA_T_KEYPOINTS_TRAJECTORY, ...
+                                cam, vision_args, trajectory_planning_args, fn_cam2robot_coords, fn_robot_input ...
+                            );
                             data_tx = trajectory2serialdata('keypoints', DELTA_T_KEYPOINTS_TRAJECTORY, trajectory);
                             fprintf('\n');
                             
@@ -173,28 +222,26 @@ function robot_fsm_interface(port, baud, cam, vision_args, trajectory_planning_a
                    check_trajectory = 0;
                 end
                 
-            case STATE{6} % CUSTOM_TRAJECTORY
-                cmd_err = cmd_execute(s, check_trajectory, [], 'ACK data check received\n', 'ACK data check not received!!!\n');
+            case STATE{6} % POINTWISE_TRAJECTORY
+                cmd_err = cmd_execute(s, check_trajectory, [], 'ACK data check\n', 'No ACK data check!!!\n');
                 
-                % Execute the loaded custom trajectory
+                % Execute the loaded pointwise trajectory
                 if check_trajectory && ~cmd_err
-                    fprintf('Executing custom trajectory\n');
+                    fprintf('Executing pointwise trajectory\n');
                     fprintf('Waiting... '); 
-                    delta_t_custom_trajectory = estimate_time_trajectory('custom', trajectory, DELTA_T_CUSTOM_TRAJECTORY);
-                    print_countdown(delta_t_custom_trajectory);
+                    print_countdown(time_trajectory);
                 else
                     fprintf('Aborting trajectory\n');
                 end
                 
             case STATE{7} % KEYPOINTS_TRAJECTORY
-                cmd_err = cmd_execute(s, check_trajectory, [], 'ACK data check received\n', 'ACK data check not received!!!\n');
+                cmd_err = cmd_execute(s, check_trajectory, [], 'ACK data check\n', 'No ACK data check!!!\n');
                 
                 % Execute the loaded keypoints trajectory
                 if check_trajectory && ~cmd_err
                     fprintf('Executing keypoints trajectory\n');
                     fprintf('Waiting...');
-                    delta_t_keypoints_trajectory = estimate_time_trajectory('keypoints', trajectory, DELTA_T_KEYPOINTS_TRAJECTORY);
-                    print_countdown(delta_t_keypoints_trajectory); 
+                    print_countdown(time_trajectory); 
                 else
                     fprintf('Aborting trajectory\n');
                 end

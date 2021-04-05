@@ -1,6 +1,6 @@
 # Roboeye
 
-![MainImage](./demo/Main1.png)
+![MainImage](./docs/Main1.png)
 This project implements a basic hand-eye coordination system between a UVC  camera and the TinkerKit Braccio Robot. It is composed by two main stages. The former is a vision algorithm that detects and estimates the poses of some Aruco Markers in the scene. The latter plans a tracjectory and control the robot in order to reach the positions extimated by the vision stage.  
 
 ![Badge](https://img.shields.io/badge/matlab-2020b-blue?logo=mathworks)
@@ -41,7 +41,7 @@ This project implements a basic hand-eye coordination system between a UVC  came
 ## Overview
 
 ### Robot Calibration
-The code provides some utilities to calibrate the camera:
+The code provides some utilities for camera calibration:
 + Intrinsics calibration via **SMZ** algorithm.
 + Extrinsics calibration wrt a **checkerboard pattern** as world frame.
 + Stereo calibration.
@@ -54,6 +54,9 @@ The vision stage is composed by a pipeline that spots candidates regions of inte
  + The last step estimates the poses in space of the matched Aruco Markers through the **Perspective-n-Points** (**PnP**) algorithm.
 
 A calibrated camera is assumeted, i.e., with known intrisics and extrinsics parameters.
+
+### Robot Trajectory Planning
+TODO
 
 ### Robot Control
 TODO
@@ -132,6 +135,8 @@ The foregoing images has been obtained with the following configuration paramete
     % 1: pose estimation log
     ARUCO_POSE_ESTIMATION_VERBOSE = 1; 
 
+### Robot Trajectory Planning
+TODO
 
 ### Robot Control
 + TODO Video

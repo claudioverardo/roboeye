@@ -13,15 +13,16 @@ baud = 115200;
 port = 'COM3';
 
 % function that maps camera coordinates in robot coordinates
-cam2robot_coords = @(t) [t(2)*10 + 104, -(t(1)-24)*10, max(t(3)*10-5,0)];
-% cam2robot_coords = @(t) [t(2)*10 + 134, -(t(1)-24)*10, max(t(3)*10-5,0)];
+cam2robot_coords = @(t) [t(2)*10 + 104, -(t(1)-24)*10, t(3)*10-5];
 
-% function that defines from whete to acquire the commands
+% function that defines from where to acquire the commands
 robot_input = @(x) input(x); % command window
 
-% robot_buffer = cmdBuffer({1 3 2 [18 10 0] 2 1 0 0});
-% robot_buffer = cmdBuffer({1 5 1 1 0 1 5 1 1 0 1 5 1 1 0 1 1 0 0});
+% pick the only one object in the scene
+% robot_buffer = cmdBuffer({1 7 1 0 1 1 0 0});
+% pick glass -> sharpener -> cup -> candies -> glue -> tissues
+% robot_buffer = cmdBuffer({1 7 1 2 3 0 1 7 1 2 2 0 1 7 1 2 1 0 1 7 1 2 5 0 1 7 1 2 4 0 1 7 1 2 6 0 1 1 0 0});
 % robot_input = @(x) robot_buffer.getCmd(x); % custom buffer
 
-robot_fsm_interface(port, baud, cam, vision_args, trajectory_planning_args, objects_dict, cam2robot_coords, robot_input)
+robot_fsm_interface(port, baud, cam, vision_args, trajectory_planning_args, cam2robot_coords, robot_input)
 

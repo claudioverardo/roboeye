@@ -99,7 +99,7 @@ function [Q_def,error_flag,singularity,Q_sing] = parabolic_traj(p1,p2,z_ap,roll_
             jp=plot_config_rob(Q(i,:),braccio_params);
         end
     end
-    disp(singflag)
+    % disp(singflag)
     
     %truncate first line
     Q_def=Q([2:1:end],:);

@@ -57,11 +57,11 @@ void releaseRobot(int soft_init_level) {
   }
 }
 
-bool executeCustomTrajectory(int deltaT) {
+bool executePointwiseTrajectory(int deltaT) {
   
   bool end_task;
   
-  for (int i = 0; i < MAXPOINTS; i++) {
+  for (int i = 0; i < trajectoryNumPoints; i++) {
     if (checkBoundaries(trajectory[i])) {
       for (int j = 0; j < QNUM; j++) {
         q[j].write(trajectory[i][j]);

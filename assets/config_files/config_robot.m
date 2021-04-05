@@ -2,21 +2,13 @@
 
 %% ROBOT VISION
 %--------------------------------------------------------------------------
-aruco_markers_file = '../aruco_markers/aruco_markers_7x7.mat';
-aruco_real_sides_file = '../aruco_markers/aruco_markers_7x7_real_sides.mat';
-K_file = '../calibration/intrinsics_cam1/K.mat';
-R_cam_file = '../calibration/extrinsics_cam1_tests_robot/R_cam.mat';
-t_cam_file = '../calibration/extrinsics_cam1_tests_robot/t_cam.mat';
-% R_cam_file = '../calibration/extrinsics_cam1_tests_robot2/R_cam.mat';
-% t_cam_file = '../calibration/extrinsics_cam1_tests_robot2/t_cam.mat';
-intrinsics_file = '../calibration/intrinsics_cam1/intrinsics.mat';
-
-vision_args.aruco_markers = load(aruco_markers_file).aruco_markers;
-vision_args.aruco_real_sides = load(aruco_real_sides_file).aruco_real_sides;
-vision_args.K = load(K_file, 'K').K';
-vision_args.R_cam = load(R_cam_file, 'R_cam').R_cam';
-vision_args.t_cam = load(t_cam_file, 't_cam').t_cam';
-vision_args.k = load(intrinsics_file, 'intrinsics').intrinsics.radial;
+vision_args.aruco_markers = load('../aruco_markers/aruco_markers_7x7.mat').aruco_markers;
+vision_args.aruco_real_sides = load('../aruco_markers/aruco_markers_7x7_real_sides.mat').aruco_real_sides;
+vision_args.K = load('../calibration/intrinsics_cam1/K.mat').K';
+vision_args.R_cam = load('../calibration/extrinsics_cam1_tests_robot/R_cam.mat').R_cam';
+vision_args.t_cam = load('../calibration/extrinsics_cam1_tests_robot/t_cam.mat').t_cam';
+vision_args.k = load('../calibration/intrinsics_cam1/intrinsics.mat').intrinsics.radial;
+vision_args.options = struct();
 
 % ROI extraction parameters
 vision_args.options.roi_extraction_method = 'adaptth-moore'; % adaptth-moore, canny-dfs, canny-dfs-c
@@ -52,56 +44,15 @@ vision_args.options.verbose = 0; % aruco_pose_estimation_verbose
 %% ROBOT TRAJECTORY PLANNING
 %--------------------------------------------------------------------------
 trajectory_planning_args.braccio_params = [71 125 125 195 0];
-trajectory_planning_args.box_coords_grasp = [20 117 0 122 90 73];
-% trajectory_planning_args.box_coords_grasp_parabola = [-1 -1 12.5]; % [17.6 107 0.863 133 90 73]
-% trajectory_planning_args.box_coords_grasp_parabola = [-1 -4 12.5]; % [11.4 110 0.637 137 90 73]
-trajectory_planning_args.box_coords_grasp_parabola = [-4 1 12.5];
+trajectory_planning_args.z_min = 0; % [mm] in robot frame
+trajectory_planning_args.box_coords_grasp = [-4 1 20]; % [cm] in vision frame
+trajectory_planning_args.box_coords_grasp_parabola = [-4 1 12.5]; % [cm] in vision frame
+trajectory_planning_args.touchdown_verbose = 0;
 trajectory_planning_args.gothere_verbose = 0;
 trajectory_planning_args.parabolic_traj_verbose = 0;
+trajectory_planning_args.objects_dict = load('../objects_dict/objects_dict_7x7.mat').objects_dict;
 
 
-%% ROBOT CONTROL
-%--------------------------------------------------------------------------
-% Dictionary of objects
-% offsets in [mm]
-
-objects_dict(1).name = 'cup';
-objects_dict(1).offset_h = -30;
-objects_dict(1).offset_r = 0;
-objects_dict(1).offset_ef = -30;
-
-objects_dict(2).name = 'sharpener';
-objects_dict(2).offset_h = -10;
-objects_dict(2).offset_r = 0;
-objects_dict(2).offset_ef = -30;
-
-objects_dict(3).name = 'glass';
-objects_dict(3).offset_h = -30;
-objects_dict(3).offset_r = 0;
-objects_dict(3).offset_ef = -30;
-
-objects_dict(4).name = '';
-objects_dict(4).offset_h = 0;
-objects_dict(4).offset_r = 0;
-objects_dict(4).offset_ef = 0;
-
-objects_dict(5).name = 'sharpener';
-objects_dict(5).offset_h = -30;
-objects_dict(5).offset_r = 0; %20
-objects_dict(5).offset_ef = -23;
-
-objects_dict(6).name = 'tissues';
-objects_dict(6).offset_h = -15;
-objects_dict(6).offset_r = 0; %20
-objects_dict(6).offset_ef = -10;
-
-objects_dict(7).name = '';
-objects_dict(7).offset_h = 0;
-objects_dict(7).offset_r = 0;
-objects_dict(7).offset_ef = 0;
-
-objects_dict(8).name = '';
-objects_dict(8).offset_h = 0;
-objects_dict(8).offset_r = 0;
-objects_dict(8).offset_ef = 0;
-
+% trajectory_planning_args.box_coords_grasp = [20 117 0 122 90 73];
+% trajectory_planning_args.box_coords_grasp_parabola = [-1 -1 12.5]; % [17.6 107 0.863 133 90 73]
+% trajectory_planning_args.box_coords_grasp_parabola = [-1 -4 12.5]; % [11.4 110 0.637 137 90 73]
