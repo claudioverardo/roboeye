@@ -25,8 +25,8 @@ function [trajectory, time_trajectory, confirm] = generate_trajectory(method, cu
 %   fn_cam2robot_coords: function to convert points from vision to robot frame 
 %   fn_robot_input: function to acquire input, cf. input(...) or cmdBuffer
 %
-%   trajectory_planning_args
-%   ------------------------
+%   trajectory_planning_args struct
+%   -------------------------------
 %   - braccio_params: parameters of the robot
 %   - z_min: minimum z-value of target points [mm], in robot frame
 %   - box_coords_grasp: destination of 'grasp' [cm], in vision frame

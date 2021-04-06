@@ -7,7 +7,7 @@ function [t, R, i_aruco] = get_target_from_vision(cam, vision_args, fn_robot_inp
 %   Input arguments:
 %   ------------------
 %   cam: webcam object of the camera, cf. webcam(...)
-%   vision_args: vision parameters, cf. below aruco_pose_estimation(...)
+%   vision_args: struct of vision parameters, cf. below
 %   fn_robot_input: function to acquire input, cf. input(...) or cmdBuffer
 %
 %   The struct vision_args contains the positional arguments and parameters

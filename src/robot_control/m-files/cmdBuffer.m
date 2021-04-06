@@ -1,5 +1,5 @@
 classdef cmdBuffer < handle
-% CMDBUFFER Create LIFO buffer to automatically provide input commands.
+% CMDBUFFER Create a LIFO buffer to automatically provide input commands.
 
     properties
         % Cell array of input commands.

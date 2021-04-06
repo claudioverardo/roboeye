@@ -2,7 +2,8 @@
 
 1. [Robot Calibration](#robot-calibration)
 2. [Robot Vision](#robot-vision)
-3. [Robot Control](#robot-control)
+3. [Robot Trajectory Planning](#robot-trajectory-planning)
+4. [Robot Control](#robot-control)
 
 <a name="robot-calibration"></a>
 ## Robot Calibration
@@ -12,6 +13,7 @@ Code to perform the calibration of the cameras and the robot with a checkerboard
 These functions assume the usual conventions to represent the pinhole model of a camera (in the following, **literature convention**). Namely, points on the image plane `m` and in space `M` are represented by column vectors. The projection equation (cf. the references of the project) takes the form `m = P*M = K*[R t]*M`, where `P` is the projection matrix, `K` the intrinsics matrix, and `[R t]` the extrinsics of the camera.
 
 ### Functions
+
 <!-- acquire_calibration_images matlab function -->
 <details>
     <summary>
@@ -699,11 +701,292 @@ Output arguments:
 
 Usage examples can be found in [run_detection](../src/scripts/run_detection.m) and [run_pose_estimation](../src/scripts/run_pose_estimation.m).
 
-<a name="robot-control"></a>
-## Robot Control
+<a name="robot-trajectory-planning"></a>
+## Robot Trajectory Planning
 
-Code to perform trajectory planning, direct kinematics, inverse kinematics, control with Arduino.
+Code to perform direct kinematics, inverse kinematics and trajectory planning.
 
 ### Functions
 
 TODO
+
+<a name="robot-control"></a>
+## Robot Control
+
+Code to perform the control of the robot with Arduino and the Matlab interface.
+
+### Arduino files
+
+<!-- arduino_robot_fsm Arduino code -->
+<details>
+    <summary>
+        arduino_robot_fsm
+    </summary>
+
+Implementation of the finite state machine (FSM) that control the robot. The Matlab interface is provided by the function robot_fsm_interface(...).
+</details>
+
+### Functions
+
+<!-- cmd_acquire matlab function -->
+<details>
+    <summary>
+        cmd_acquire
+    </summary>
+
+Acquire a command that satisfy a given validation function. Both manual input from user and automatic input from buffer are supported.
+
+    cmd = cmd_acquire(help, fn_val, fn_robot_input, cmd_ask_str, cmd_not_valid_str)
+
+Input arguments:
++ **help**: help message to be displayed before acquisition
++ **fn_val**: validation function of the command
++ **fn_robot_input**: function to acquire input, cf. input(...) or cmdBuffer
++ **cmd_ask_str**: message to require a command (optional)
++ **cmd_not_valid_str**: message if the acquired command is invalid (optional)
+
+Output arguments:
++ **cmd**: command acquired
+</details>
+
+<!-- cmd_execute matlab function -->
+<details>
+    <summary>
+        cmd_execute
+    </summary>
+
+Execute a command on Arduino and wait for an acknowledge.
+
+    cmd_err = cmd_execute(s, cmd, data_tx, cmd_ack_str, cmd_nack_str)
+
+Input arguments:
++ **s**: object of the Arduino serial port, cf. serialport(...) 
++ **cmd**: command to be executed  
++ **data_tx**: data associated to the command
++ **cmd_ack_str**: ACK message (optional)
++ **cmd_nack_str**: missing ACK message (optional)
+
+Output arguments:
++ **cmd_err**: 1 if ACK is missing, 0 otherwise
+</details>
+
+<!-- fix_target_q matlab function -->
+<details>
+    <summary>
+        fix_target_q
+    </summary>
+
+Add a small overshoot to the trajectory of the first joint during the movement to a target position.
+
+    target_q_fix = fix_target_q(target_q, current_q, last_q)
+
+Input arguments:
++ **target_q**: 1xQNUM array, target position in joints space
++ **current_q**: 1xQNUM array, current position in joints space
++ **last_q**: 1xQNUM array, last position in joints space
+
+Output arguments:
++ **target_q_fix**: 3xQNUM array, fixed target position
+</details>
+
+<!-- generate_trajectory matlab function -->
+<details>
+    <summary>
+        generate_trajectory
+    </summary>
+
+High level interface to generate robot trajectories. Trajectories defined pointwise (P) and via keypoints (K) can be generated. The latter ones require a low level controller that interpolate between keypoints to be executed on the robot.
+
+    [trajectory, time_trajectory, confirm] = generate_trajectory(method, current_q, delta_t, cam, vision_args, trajectory_planning_args, fn_cam2robot_coords, fn_robot_input)
+
+Input arguments:
++ **method**: method used to generate the trajectory
+    + 'move-q': move to a position in joints space (K)
+    + 'move-t-npoints': move to n positions in 3D space (K)
+    + 'move-t-pointwise': move to a position in 3D space from home (P)
+    + 'move-t': move to a position in 3D space (K)
+    + 'grasp': grasp a object in a position in 3D space (K)
+    + 'grasp-parabola': as 'grasp', with a parabolic trajectory (K)
++ **current_q**:1xQNUM array, current position of the robot (joints)
++ **delta_t**: timestep of the trajectory execution
++ **cam**: webcam object of the camera, cf. webcam(...)
++ **vision_args**: struct of vision parameters
++ **trajectory_planning_args**: struct of trajectory planning parameters
++ **fn_cam2robot_coords**: function to convert points from vision to robot frame 
++ **fn_robot_input**: function to acquire input, cf. input(...) or cmdBuffer
+
+trajectory_planning_args struct:
++ braccio_params: parameters of the robot
++ z_min: minimum z-value of target points [mm], in robot frame
++ box_coords_grasp: destination of 'grasp' [cm], in vision frame
++ box_coords_grasp_parabola: as above but for 'grasp-parabola' [cm]
++ touchdown_verbose: verbosity level of touchdown(...)
++ gothere_verbose: verbosity level of gothere(...)
++ parabolic_traj_verbose: verbosity level of parabolic_traj(...)
++ objects_dict: parameters of the objects to be grasped, cf. object_offset(...)
+
+Output arguments:
++ **trajectory**: NxQNUM array of the generated N-points trajectory
++ **time_trajectory**: estimated execution time of the trajectory
++ **confirm**: flag to confirm or cancel execution of the trajectory
+
+NOTE: this function requires the MATLAB Support Package for USB Webcams. For details regarding vision_args refers to get_target_from_vision(...).
+</details>
+
+<!-- get_target matlab function -->
+<details>
+    <summary>
+        get_target
+    </summary>
+
+Retrieve the position of a target in the scene (world frame).
+
+    [target, i_aruco] = get_target(method, QNUM, cam, vision_args, fn_robot_input)
+
+Input arguments:
++ **method**: type of target acquisition
+    + 'q': position in joint space from user
+    + '3d-npoints': n positions in 3d space from user (world frame)
+    + '3d-vision': position in 3d space from user or camera (world frame)
++ **QNUM**: number of joints of the robot
++ **cam**: webcam object of the camera, cf. webcam(...)
++ **vision_args**: struct of vision parameters
++ **fn_robot_input**: function to acquire input, cf. input(...) or cmdBuffer
+
+Output arguments:
++ **target**: position ot the chosen target (world frame)
++ **i_aruco**: id of the marker associated to the target (0 if none)
+
+NOTE: this function requires the MATLAB Support Package for USB Webcams. For details regarding vision_args refers to get_target_from_vision(...).
+</details>
+
+<!-- get_target_from_vision matlab function -->
+<details>
+    <summary>
+        get_target_from_vision
+    </summary>
+
+Retrieve the position of a chosen marker in the scene observed by a camera (world frame).
+
+    [t, R, i_aruco] = GET_TARGET_FROM_VISION(cam, vision_args, fn_robot_input)
+
+Input arguments:
++ **cam**: webcam object of the camera, cf. webcam(...)
++ **vision_args**: struct of vision parameters, cf. below
++ **fn_robot_input**: function to acquire input, cf. input(...) or cmdBuffer
+
+The struct vision_args contains the positional arguments and parameters of aruco_pose_estimation(...).
+
+Output arguments:
++ **t**: translation vector of the roto-translation that maps points from the target frame into the world frame (Matlab convention)
++ **R**: rotation matrix of the roto-translation that maps points from the target frame into the world frame (Matlab convention)
++ **i_aruco**: id of the marker correspondent to the target
+</details>
+
+<!-- get_time_trajectory matlab function -->
+<details>
+    <summary>
+        get_time_trajectory
+    </summary>
+
+Estimate the time to execute a trajectory on the robot.
+
+    time = get_time_trajectory(type_trajectory, trajectory, current_q, delta_t)
+
+Input arguments:
++ **type_trajectory**: type of trajectory, cf. generate_trajectory(...)
+    + 'pointwise': trajectory defined point by point
+    + 'keypoints': trajectory defined via keypoints to be interpolated
++ **trajectory**: NxQNUM array, points of the trajectory
++ **current_q**: 1xQNUM array, current position of the robot (joints)
++ **delta_t**: timestep of the trajectory execution
+
+Output arguments:
++ **time**: estimated execution time of the trajectory
+</details>
+
+<!-- object_offset matlab function -->
+<details>
+    <summary>
+        object_offset
+    </summary>
+
+Find the offset of the end-effector position to adjust the grasping position on the basis of object data (in robot coordinates).
+
+    function dt = object_offset(dh, dr, t, nz)
+
+Input arguments:
++ **dh**: height offset in object frame
++ **dr**: radial offset in robot frame
++ **t**: [x,y,z] is the initial position of the end-effector in robot frame
++ **nz**: normal versor along which dh is applied (default [0 0 1])
+
+Output arguments:
++ **dt**: [dx,dy,dz] is the position offset of the end-effector in robot frame
+</details>
+
+<!-- robot_fsm_interface matlab function -->
+<details>
+    <summary>
+        robot_fsm_interface
+    </summary>
+
+High level interface with the robot FSM on Arduino.
+
+    robot_fsm_interface(port, baud, cam, vision_args, trajectory_planning_args, fn_cam2robot_coords, fn_robot_input)
+
+Input arguments:
++ **port**: port of the Arduino serial connection, cf. serialport(...)
++ **baud**: baud rate of the Arduino serial connection, cf. serialport(...)
++ **cam**: webcam object of the camera, cf. webcam(...)
++ **vision_args**: struct of vision parameters, cf below
++ **trajectory_planning_args**: struct of trajectory planning parameters, cf below
++ **fn_cam2robot_coords**: function to convert points from vision to robot frame 
++ **fn_robot_input**: function to acquire input, cf. input(...) or cmdBuffer
+
+For details regarding vision_args and trajectory_planning_args refers to get_target_from_vision(...) and generate_trajectory(...) respectively.
+
+NOTE: this function requires the MATLAB Support Package for USB Webcams.
+</details>
+
+<!-- trajectory2serialdata matlab function -->
+<details>
+    <summary>
+        trajectory2serialdata
+    </summary>
+
+Prepare trajectory data to be sent to Arduino.
+
+    data_tx = trajectory2serialdata(trajectory_type, delta_t, trajectory)
+
+Input arguments:
++ **type_trajectory**: type of trajectory, cf. generate_trajectory(...)
+    + 'pointwise': trajectory defined point by point
+    + 'keypoints': trajectory defined via keypoints to be interpolated
++ **delta_t**: timestep of the trajectory execution
++ **trajectory**: NxQNUM array, points of the trajectory
+
+Output arguments:
++ **data_tx**: trajectory data in the format required by Arduino
+</details>
+
+### Classes
+
+<!-- cmdBuffer matlab class -->
+<details>
+    <summary>
+        cmdBuffer
+    </summary>
+
+Create a LIFO buffer to automatically provide input commands.
+
+Properties:
++ **buffer**: cell array of input commands.
+
+Methods:
++ **cmdBuffer**: constructor that set the initial buffer.
++ **getCmd**: get the last command and remove it from the buffer. The interface is the same of input(...)
++ **cmd2str**: convert a command to string to be plotted.
+</details>
+
+An example of usage can be found in [run_robot_fsm](../src/scripts/run_robot_fsm.m).
