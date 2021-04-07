@@ -148,7 +148,7 @@ function [trajectory, time_trajectory, confirm] = generate_trajectory(method, cu
                 t_robot_q = fix_target_q(t_robot_q, current_q);
                 fprintf('   Target (joints): %s\n', mat2str(t_robot_q(end,:), 3));
 
-                % fprintf('   Target (encoder positions):  %s\n', mat2str(t_robot_q_enc, 3));
+                fprintf('   Target (encoder positions):  %s\n', mat2str(t_robot_q_enc, 3));
                 
                 type_trajectory = 'keypoints';
             
