@@ -234,7 +234,7 @@ We refer to **world frame** as the coordinate system XYZ wrt the camera extrinsi
 
 Build the Aruco detection pipeline. It executes in order the functions roi_extraction(...), roi_refinement(...), roi_matching(...).
 
-    [rois_matched, i_arucos] = aruco_detection(img, aruco_markers, varargin)
+    [rois_matched, i_arucos, stats] = aruco_detection(img, aruco_markers, varargin)
 
 Input arguments:
 + **img**: input image
@@ -250,6 +250,9 @@ Parameters:
 Output arguments:
 + **rois_matched**: ROIs matched with the markers
 + **i_arucos**: indices of the markers matched with the rois_matched
++ **stats**: struct with some performance statistics
+    + number of ROIs extracted/refined
+    + times of ROIs extraction/refinement/matching
 </details>
 
 <!-- aruco_pose_estimation matlab function -->
@@ -282,7 +285,11 @@ Output arguments:
 + **rois**:               ROIs matched with the markers
 + **i_arucos**:           indices of the markers matched with the rois
 + **rois_R**:             rotation matrices of the roto-translations that map points from the ROIs frames into the world frame (Matlab convention)
-+ **rois_t**:             translation vectors of the roto-translations that map points from the ROIs frames into the world frame (Matlab convention)   
++ **rois_t**:             translation vectors of the roto-translations that map points from the ROIs frames into the world frame (Matlab convention)
++ **stats**:              struct with some performance statistics
+    + number of ROIs extracted/refined
+    + times of ROIs extraction/refinement/matching and pose estimation    
+    + reprojection errors of lin/nonlin PnP
 </details>
 
 <!-- check_boundaries matlab function -->
@@ -323,6 +330,8 @@ Parameters:
 + **'parallelism_tol'**: tolerance on the angle between opposite sides [degrees]
 + **'side_th_low'**: lower threshold on the length of each side [pixels]
 + **'side_th_high'**: higher threshold on the length of each side [pixels]
++ **'angle_th_low'**: lower threshold on the internal angles [degrees]
++ **'angle_th_high'**: higher threshold on the internal angles [degrees]
 
 Output arguments:
 + **is_valid_quad**: 1 if the shape is a valid quadrilateral 0 otherwise
@@ -330,8 +339,10 @@ Output arguments:
 NOTE: a shape is discarded when one of the following conditions is met:
 + sum of the internal angles > 360° + sum_angles_tol 
 + angle between opposide sides > parallelism_tol
-+ length of side lower than side_th_low
-+ length of side greater than side_th_high
++ length of a side < side_th_low
++ length of a side > side_th_high
++ value of an internal < angle_th_low
++ value of an internal > angle_th_high
 </details>
 
 <!-- get_image matlab function -->
@@ -577,12 +588,13 @@ TODO
 
 Match the Aruco markers with the candidate ROIs.
 
-    [rois_matched, i_rois_matched, i_arucos, time] = roi_matching(img, img_gray, rois, aruco_markers, varargin)
+    [rois_matched, i_rois_matched, i_arucos, time] = roi_matching(img, img_gray, rois_refined, i_rois_refined, aruco_markers, varargin)
 
 Input arguments:
 + **img**: input image
 + **img_gray**: input image (grayscale)
-+ **rois**: candidated ROIs for matching with markers
++ **rois_refined**: candidated ROIs for matching with markers
++ **i_rois_refined**: indices of the rois_refined in the rois_raw cell array
 + **aruco_markers**: markers to be matched
 + **varargin**: collection of optional parameters, cf. the official Matlab documentation
 
@@ -663,6 +675,8 @@ Parameters:
 + **'roi_parallelism_tol'**: tolerance on the angle between opposite sides, cf. check_quadrilateral(...)
 + **'roi_side_th_low'**: lower threshold on the length of each side normalized wrt the diagonal of the input image, cf. check_quadrilateral(...)
 + **'roi_side_th_high'**: higher threshold on the length of each side normalized wrt the diagonal of the input image, cf. check_quadrilateral(...)
++ **'roi_angle_th_low'**: lower threshold on the internal angles, cf. check_quadrilateral(...)
++ **'roi_angle_th_high'**: higher threshold on the internal angles, cf. check_quadrilateral(...)
 + **'verbose'**: verbose level of the function (0, 1, 2)
     + 0: show nothing
     + 1: show the refined ROIs

@@ -2,7 +2,7 @@ function [rois_matched, i_arucos, stats] = aruco_detection(img, aruco_markers, v
 % ARUCO_DETECTION Build the Aruco detection pipeline. It executes in order
 % the functions roi_extraction(...), roi_refinement(...), roi_matching(...).
 %
-%   [rois_matched, i_arucos] = ARUCO_DETECTION(img, aruco_markers)
+%   [rois_matched, i_arucos, stats] = ARUCO_DETECTION(img, aruco_markers)
 %
 %   Input arguments:
 %   ------------------

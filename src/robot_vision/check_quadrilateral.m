@@ -25,10 +25,10 @@ function is_valid_quad = check_quadrilateral(points, varargin)
 %   NOTE: a shape is discarded when one of the following conditions is met:
 %   - sum of the internal angles > 360° + sum_angles_tol 
 %   - angle between opposide sides > parallelism_tol
-%   - length of a side lower than side_th_low
-%   - length of a side greater than side_th_high
-%   - value of an internal angle lower than angle_th_low
-%   - value of an internal angle greater than angle_th_high
+%   - length of a side < side_th_low
+%   - length of a side > side_th_high
+%   - value of an internal < angle_th_low
+%   - value of an internal > angle_th_high
 %
 %   See also ROI_REFINEMENT
     
