@@ -387,6 +387,6 @@ aruco_markers{20,1} = [ % 64
 
 aruco_real_sides = [3 3 3 3 3 3 3 3 3 3 3.5 3.5 3.5 3.5 3.5 4 4 4 4 4]; % [cm]
 
-% save('../assets/aruco_markers/aruco_markers_vision_eval', 'aruco_markers');
-% save('../assets/aruco_markers/aruco_markers_vision_eval_real_sides', 'aruco_real_sides');
+% save('../assets/aruco_markers/aruco_markers_vision_testbench', 'aruco_markers');
+% save('../assets/aruco_markers/aruco_markers_vision_testbench_real_sides', 'aruco_real_sides');
 plot_aruco_markers(aruco_markers);

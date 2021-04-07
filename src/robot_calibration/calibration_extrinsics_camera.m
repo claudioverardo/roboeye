@@ -141,7 +141,7 @@ function [R_cam, t_cam] = calibration_extrinsics_camera(cam, K, k, step_size, gr
     % Plot the reprojection of the world frame axes onto the image
     P = K*[R_cam,t_cam];
     centroid_world = [0 0 0];
-    axes_world = 2 * step_size * [1 0 0; 0 1 0; 0 0 1];
+    axes_world = step_size * [1 0 0; 0 1 0; 0 0 1];
     centroid_image = hom_tf(centroid_world, P', K', k);
     axes_image = hom_tf(axes_world, P', K', k);
     

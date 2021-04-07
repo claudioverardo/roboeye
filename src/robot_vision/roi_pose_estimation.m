@@ -176,7 +176,7 @@ function [R, t, err_lin, err_nonlin, time] = roi_pose_estimation(img, rois, i_ar
         
         % Plot the world frame
         centroid_world = [0 0 0];
-        axes_world = 6*[
+        axes_world = 3*[
             1 0 0
             0 1 0
             0 0 1
