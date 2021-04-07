@@ -16,6 +16,8 @@ ROI_SUM_ANGLES_TOL  = 10; % [degrees]
 ROI_PARALLELISM_TOL = 10; % [degrees]
 ROI_SIDE_TH_LOW  = 1/100; % [% diag(img)]
 ROI_SIDE_TH_HIGH = 1/5;   % [% diag(img)]
+ROI_ANGLE_TH_LOW = 20;    % [degrees]
+ROI_ANGLE_TH_HIGH = 160;  % [degrees]
 
 % ROI matching parameters
 ROI_BB_PADDING  = 2;

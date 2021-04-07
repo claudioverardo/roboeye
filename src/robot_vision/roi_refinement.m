@@ -26,6 +26,10 @@ function [rois_refined, i_rois_refined, time] = roi_refinement(img, rois_raw, va
 %   'roi_side_th_high':     higher threshold on the length of each side
 %                           normalized wrt the diagonal of the input image,
 %                           cf. check_quadrilateral(...)
+%   'roi_angle_th_low':     lower threshold on the internal angles,
+%                           cf. check_quadrilateral(...)
+%   'roi_angle_th_high':    higher threshold on the internal angles,
+%                           cf. check_quadrilateral(...)
 %   'verbose':              verbose level of the function (0, 1, 2)
 %                           - 0: show nothing
 %                           - 1: show the refined ROIs
@@ -48,10 +52,12 @@ function [rois_refined, i_rois_refined, time] = roi_refinement(img, rois_raw, va
     default_method = 'rdp';
     default_roi_size_th = 20;
     default_rdp_th = 0.1;
-    default_roi_side_th_low = 1/100;
-    default_roi_side_th_high = 1/5;
     default_roi_sum_angles_tol = 10;
     default_roi_parallelism_tol = 15;
+    default_roi_side_th_low = 1/100;
+    default_roi_side_th_high = 1/5;
+    default_roi_angle_th_low = 20;
+    default_roi_angle_th_high = 160;
     default_verbose = 1;
     
     % Input parser
@@ -63,6 +69,8 @@ function [rois_refined, i_rois_refined, time] = roi_refinement(img, rois_raw, va
     addParameter(p, 'roi_parallelism_tol', default_roi_parallelism_tol);
     addParameter(p, 'roi_side_th_low', default_roi_side_th_low);
     addParameter(p, 'roi_side_th_high', default_roi_side_th_high);
+    addParameter(p, 'roi_angle_th_low', default_roi_angle_th_low);
+    addParameter(p, 'roi_angle_th_high', default_roi_angle_th_high);
     addParameter(p, 'verbose', default_verbose);
     parse(p, varargin{:});
     
@@ -74,6 +82,8 @@ function [rois_refined, i_rois_refined, time] = roi_refinement(img, rois_raw, va
     ROI_PARALLELISM_TOL = p.Results.roi_parallelism_tol;
     ROI_SIDE_TH_LOW = p.Results.roi_side_th_low; 
     ROI_SIDE_TH_HIGH = p.Results.roi_side_th_high; 
+    ROI_ANGLE_TH_LOW = p.Results.roi_angle_th_low;
+    ROI_ANGLE_TH_HIGH = p.Results.roi_angle_th_high;
     VERBOSE = p.Results.verbose;
     
     if strcmp(METHOD, 'rdp')
@@ -90,6 +100,11 @@ function [rois_refined, i_rois_refined, time] = roi_refinement(img, rois_raw, va
     % Dimension of the diagonal of the image
     diag_img = norm([size(img, 1), size(img, 2)]);
     
+    % Rotation of the ROIs used to improve refinement in corner cases
+    % (when the edges are parallel to the image plane axes)
+    R_fix = rpy2rot([0 0 pi/4]);
+    R_fix = R_fix(1:2,1:2);
+    
     % Select only the valid ROIs among the rois_raw
     rois_refined = cell(0);
     i_rois_refined = [];
@@ -105,12 +120,15 @@ function [rois_refined, i_rois_refined, time] = roi_refinement(img, rois_raw, va
             roi_refined = roi_refinement_core(roi);
 
             % Check if the ROI is a valid quadrilateral
-            if check_quadrilateral(roi_refined, ...
+            if check_quadrilateral( ...
+                roi_refined, ...
                 'sum_angles_tol', ROI_SUM_ANGLES_TOL, ...
                 'parallelism_tol', ROI_PARALLELISM_TOL, ...
                 'side_th_low', ROI_SIDE_TH_LOW*diag_img, ...
-                'side_th_high', ROI_SIDE_TH_HIGH*diag_img) == 1
-
+                'side_th_high', ROI_SIDE_TH_HIGH*diag_img, ...
+                'angle_th_low', ROI_ANGLE_TH_LOW, ...
+                'angle_th_high', ROI_ANGLE_TH_HIGH) == 1
+            
                 % ROI ok, add to rois
                 rois_refined{end+1,1} = roi_refined;
                 i_rois_refined(end+1) = i;
@@ -119,7 +137,34 @@ function [rois_refined, i_rois_refined, time] = roi_refinement(img, rois_raw, va
                 
                 % ROI not valid, discard
                 rois_discarded{end+1,1} = roi_refined;
+                
+            end
+                    
+            % Rotate the ROI in order to improve the refinement in corner cases
+            centroid = mean(roi);
+            roi_rot = round((roi-centroid)*R_fix);
+            roi_rot_refined = roi_refinement_core(roi_rot);
+            roi_rot_refined = round(roi_rot_refined*R_fix'+centroid);
 
+            % Check if the rotated ROI is a valid quadrilateral
+            if check_quadrilateral( ...
+                roi_rot_refined, ...
+                'sum_angles_tol', ROI_SUM_ANGLES_TOL, ...
+                'parallelism_tol', ROI_PARALLELISM_TOL, ...
+                'side_th_low', ROI_SIDE_TH_LOW*diag_img, ...
+                'side_th_high', ROI_SIDE_TH_HIGH*diag_img, ...
+                'angle_th_low', ROI_ANGLE_TH_LOW, ...
+                'angle_th_high', ROI_ANGLE_TH_HIGH) == 1
+            
+                % ROI rot ok, add to rois
+                rois_refined{end+1,1} = roi_rot_refined;
+                i_rois_refined(end+1) = i;
+            
+            else
+                
+                % ROI rot not valid, discard
+                rois_discarded{end+1,1} = roi_rot_refined;
+                
             end
         
         end

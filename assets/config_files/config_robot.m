@@ -12,7 +12,7 @@ vision_args.options = struct();
 
 % ROI extraction parameters
 vision_args.options.roi_extraction_method = 'adaptth-moore'; % adaptth-moore, canny-dfs, canny-dfs-c
-vision_args.options.adaptth_sensitivity = 1;        % [0,1]
+vision_args.options.adaptth_sensitivity = 0.7;        % [0,1]
 vision_args.options.adaptth_statistic = 'gaussian';   % mean, gaussian, median
 vision_args.options.adaptth_neighborhood = [135 241]; % default for 1080x1920 -> [135 241]
 vision_args.options.canny_th_low = 0.01;
@@ -21,11 +21,13 @@ vision_args.options.canny_th_high = 0.10;
 % ROI refinement parameters
 vision_args.options.roi_refinement_method = 'geometric'; % rdp, geometric
 vision_args.options.roi_size_th = 50;
-vision_args.options.rdp_th =0.2;  % Ramer–Douglas–Peucker threshold
+vision_args.options.rdp_th = 0.2;  % Ramer–Douglas–Peucker threshold
 vision_args.options.roi_sum_angles_tol  = 10; % [degrees]
 vision_args.options.roi_parallelism_tol = 10; % [degrees]
-vision_args.options.roi_side_th_low = 1/100; % [% diag(img)]
+vision_args.options.roi_side_th_low = 1/100;  % [% diag(img)]
 vision_args.options.roi_side_th_high = 1/5;   % [% diag(img)]
+vision_args.options.roi_angle_th_low = 20;    % [degrees]
+vision_args.options.roi_angle_th_high = 160;  % [degrees]
 
 % ROI matching parameters
 vision_args.options.roi_bb_padding = 2;

@@ -1,14 +1,15 @@
-function [rois_matched, i_rois_matched, i_arucos, time] = roi_matching(img, img_gray, rois, aruco_markers, varargin)
+function [rois_matched, i_rois_matched, i_arucos, time] = roi_matching(img, img_gray, rois_refined, i_rois_refined, aruco_markers, varargin)
 % ROI_MATCHING Match the Aruco markers with the candidate ROIs.
 %
 %   [rois_matched, i_rois_matched, i_arucos, time] = ROI_MATCHING(img, img_gray,
-%   rois, aruco_markers)
+%   rois_refined, i_rois_refined, aruco_markers)
 %
 %   Input arguments:
 %   ------------------
 %   img:                input image
 %   img_gray:           input image (grayscale)
-%   rois:               candidated ROIs for matching with markers
+%   rois_refined:       candidated ROIs for matching with markers
+%   i_rois_refined:     indices of the rois_refined in the rois_raw cell array
 %   aruco_markers:      markers to be matched
 %
 %   Parameters:
@@ -69,7 +70,8 @@ function [rois_matched, i_rois_matched, i_arucos, time] = roi_matching(img, img_
     i_arucos = [];
     k_rots   = [];
     
-    n_rois = size(rois, 1);
+    n_rois = size(rois_refined, 1);
+    detected_aruco = zeros(n_rois,1);
     
     %---------------------------------------------------------------------
     % Change path to avoid conflicts with Fusiello ComputerVisionToolkit
@@ -79,193 +81,197 @@ function [rois_matched, i_rois_matched, i_arucos, time] = roi_matching(img, img_
     cd(changedFolder); % path of Matlab imwarp
     %---------------------------------------------------------------------
     
-    times = zeros(1,n_rois);
+    times = [];
     time = toc;
     
     % Iterate over all the regions of interest
     for i_roi = 1:n_rois
         
-        tic;
+        % Check rois_refined that come from the same rois_raw to avoid multiple matching
+        if i_roi == 1 || ~(detected_aruco(i_roi-1) == 1 && i_rois_refined(i_roi-1) == i_rois_refined(i_roi))
         
-        % Current ROI
-        roi = rois{i_roi};
+            tic;
 
-        % Identify the boundary box of the ROI
-        bb_idx_top    = max( min(roi(:,2)) - ROI_BB_PADDING, 1 );
-        bb_idx_bottom = min( max(roi(:,2)) + ROI_BB_PADDING, size(img,1) );
-        bb_idx_left   = max( min(roi(:,1)) - ROI_BB_PADDING, 1 );
-        bb_idx_right  = min( max(roi(:,1)) + ROI_BB_PADDING, size(img,2) );
-        bb_height     = bb_idx_bottom - bb_idx_top;
-        bb_width      = bb_idx_right - bb_idx_left;
-        bb_size       = bb_width * bb_height;
+            % Current ROI
+            roi = rois_refined{i_roi};
 
-        % Binary content of the bounding box
-        bb_bw = imbinarize(img_gray(bb_idx_top:bb_idx_bottom,bb_idx_left:bb_idx_right,:));
-        R_bb_bw = imref2d(size(bb_bw),[0 bb_width],[0 bb_height]);
+            % Identify the boundary box of the ROI
+            bb_idx_top    = max( min(roi(:,2)) - ROI_BB_PADDING, 1 );
+            bb_idx_bottom = min( max(roi(:,2)) + ROI_BB_PADDING, size(img,1) );
+            bb_idx_left   = max( min(roi(:,1)) - ROI_BB_PADDING, 1 );
+            bb_idx_right  = min( max(roi(:,1)) + ROI_BB_PADDING, size(img,2) );
+            bb_height     = bb_idx_bottom - bb_idx_top;
+            bb_width      = bb_idx_right - bb_idx_left;
+            bb_size       = bb_width * bb_height;
 
-        % Set the origin of the ROI vertices to the top-left of the bounding box
-        % NOTE: coordinates in the x,y frame, not in the px frame!
-        bb_vertices = [ roi(:,1)-bb_idx_left roi(:,2)-bb_idx_top ];
+            % Binary content of the bounding box
+            bb_bw = imbinarize(img_gray(bb_idx_top:bb_idx_bottom,bb_idx_left:bb_idx_right,:));
+            R_bb_bw = imref2d(size(bb_bw),[0 bb_width],[0 bb_height]);
 
-        % Create the ROI control points (a side x side square)
-        % NOTE: coordinates in the x,y frame, not in the px frame!
-        bb_vertices_H = ROI_H_SIDE * [
-            0, 0
-            1, 0
-            1, 1
-            0, 1
-        ];
-    
-        % Compute the homography transformation [Fusiello]
-        % H_est = hom_lin(bb_vertices_H', bb_vertices');
-        % H_est = hom_nonlin(H_est, bb_vertices_H', bb_vertices');
-        % H_est = H_est';
-        % H_est_tform = projective2d(H_est);
-        
-        % Compute the homography transformation [Matlab]
-        H_est_tform = fitgeotrans(bb_vertices, bb_vertices_H, 'projective');
+            % Set the origin of the ROI vertices to the top-left of the bounding box
+            % NOTE: coordinates in the x,y frame, not in the px frame!
+            bb_vertices = [ roi(:,1)-bb_idx_left roi(:,2)-bb_idx_top ];
 
-        % Transform the content of the bounding box with the homography
-        [bb_bw_H, R_bb_bw_H] = imwarp(bb_bw, R_bb_bw, H_est_tform, 'interp', 'nearest');
+            % Create the ROI control points (a side x side square)
+            % NOTE: coordinates in the x,y frame, not in the px frame!
+            bb_vertices_H = ROI_H_SIDE * [
+                0, 0
+                1, 0
+                1, 1
+                0, 1
+            ];
 
-        % Retrieve the top-left vertex of the transformed ROI in the px frame
-        [bb_vertexTL_H_i, bb_vertexTL_H_j] = worldToSubscript(R_bb_bw_H, bb_vertices_H(1,1), bb_vertices_H(1,2));
-        
-        % Select the content of the ROI within the transformed bounding box
-        bb_vertexTL_H_i = max(bb_vertexTL_H_i, 1); % top-left i
-        bb_vertexBL_H_i = min(bb_vertexTL_H_i + ROI_H_SIDE - 1, size(bb_bw_H,1)); % bottom-left i
-        bb_vertexTL_H_j = max(bb_vertexTL_H_j, 1); % top-left j
-        bb_vertexTR_H_j = min(bb_vertexTL_H_j + ROI_H_SIDE - 1, size(bb_bw_H,2)); % top-right j
-        
-        bb_bw_H_crop = bb_bw_H( ...
-            bb_vertexTL_H_i : bb_vertexBL_H_i, ...
-            bb_vertexTL_H_j : bb_vertexTR_H_j  ...
-        );
+            % Compute the homography transformation [Fusiello]
+            % H_est = hom_lin(bb_vertices_H', bb_vertices');
+            % H_est = hom_nonlin(H_est, bb_vertices_H', bb_vertices');
+            % H_est = H_est';
+            % H_est_tform = projective2d(H_est);
 
-        % Downsample to marker_side x marker_side px for aruco matching
-        proposed_aruco = imresize(bb_bw_H_crop, [marker_side marker_side]);
+            % Compute the homography transformation [Matlab]
+            H_est_tform = fitgeotrans(bb_vertices, bb_vertices_H, 'projective');
 
-        % Search matching with aruco markers
-        detected_aruco = 0;
-        for i_aruco = 1:n_aruco_markers
-            for k_rot=1:4
-                aruco_marker = aruco_markers_rot{i_aruco,k_rot};
+            % Transform the content of the bounding box with the homography
+            [bb_bw_H, R_bb_bw_H] = imwarp(bb_bw, R_bb_bw, H_est_tform, 'interp', 'nearest');
 
-                % Hamming distance between rotated Aruco and ROI content
-                D = pdist( ...
-                    cast([proposed_aruco(:) aruco_marker(:)]','double'), ...
-                    'hamming' ...
-                );
+            % Retrieve the top-left vertex of the transformed ROI in the px frame
+            [bb_vertexTL_H_i, bb_vertexTL_H_j] = worldToSubscript(R_bb_bw_H, bb_vertices_H(1,1), bb_vertices_H(1,2));
 
-                % Matching
-                if D <= ROI_HAMMING_TH / (marker_side*marker_side)
-                    detected_aruco = 1;
+            % Select the content of the ROI within the transformed bounding box
+            bb_vertexTL_H_i = max(bb_vertexTL_H_i, 1); % top-left i
+            bb_vertexBL_H_i = min(bb_vertexTL_H_i + ROI_H_SIDE - 1, size(bb_bw_H,1)); % bottom-left i
+            bb_vertexTL_H_j = max(bb_vertexTL_H_j, 1); % top-left j
+            bb_vertexTR_H_j = min(bb_vertexTL_H_j + ROI_H_SIDE - 1, size(bb_bw_H,2)); % top-right j
 
-                    % sort ROI vertices to have the Aruco control point in 1st position
-                    % the other points follow the clockwise ordering of the ROI vertices in the image plane
-                    roi_sorted = zeros(size(roi));
-                    for i_vertex = 1:4
-                        roi_sorted(i_vertex,:) = roi(mod(i_vertex-k_rot,4)+1,:);
-                    end
-
-                    % save results
-                    rois_matched{end+1,1} = roi_sorted;
-                    i_rois_matched(end+1) = i_roi;
-                    i_arucos(end+1) = i_aruco;
-                    k_rots(end+1)   = k_rot;
-
-                    break
-                end
-
-            end
-            if detected_aruco == 1
-                break
-            end
-        end
-
-        times(i_roi) = toc;
-
-        % Plots
-        if VERBOSE > 2 || (VERBOSE == 2 && detected_aruco == 1)
-
-            figure;
-
-            % Plot original image with the ROI highlighted
-            subplot(2,4,[1,2]);
-            imshow(img);
-            hold on;
-            line([roi(:,1); roi(1,1)], ...
-                 [roi(:,2); roi(1,2)], ...
-                 'color','r','linestyle','-','linewidth',1.5, ...
-                 'marker','o','markersize',5);
-            plot(roi(1,1), roi(1,2), 'co', 'MarkerFaceColor', 'c');
-            if detected_aruco == 1
-                plot(rois_matched{end,1}(1,1), rois_matched{end,1}(1,2), 'go', 'MarkerFaceColor', 'g');
-            end
-            title('original image');
-
-            % Plot the bw image with the ROI highlighted
-            subplot(2,4,[3,4]);
-            imshow(img_gray);
-            hold on;
-            line([roi(:,1); roi(1,1)], ...
-                 [roi(:,2); roi(1,2)], ...
-                 'color','r','linestyle','-','linewidth',1.5, ...
-                 'marker','o','markersize',5);
-            title('gray image');
-
-            % Plot the bounding box of the ROI
-            subplot(2,4,5);
-            imshow(bb_bw, R_bb_bw);
-            line([bb_vertices(:,1); bb_vertices(1,1)], ...
-                 [bb_vertices(:,2); bb_vertices(1,2)], ...
-                 'color','r','linestyle','-','linewidth',1.5, ...
-                 'marker','o','markersize',5);
-            title('bounding box');
-
-            % Plot the bounding box of the ROI after the homography
-            subplot(2,4,6);
-            imshow(bb_bw_H, R_bb_bw_H);
-            hold on;
-            line([bb_vertices_H(:,1); bb_vertices_H(1,1)], ...
-                 [bb_vertices_H(:,2); bb_vertices_H(1,2)], ...
-                 'color','r','linestyle','-','linewidth',1.5, ...
-                 'marker','o','markersize',5);
-            title('homography');
-
-            % Plot the content of the vertices downsampled to marker_side x marker_side px
-            subplot(2,4,7);
-            imshow(proposed_aruco);
-            hold on;
-            plot(1, 1, 'co', 'MarkerFaceColor', 'c');
-            title('proposal');
-
-            % Plot the content of the vertices downsampled to marker_side x marker_side px
-            subplot(2,4,8);
-            if detected_aruco == 1
-                imshow(aruco_markers_rot{i_aruco,k_rot});
-                hold on;
-                coltrol_point_aruco = [
-                              1           1
-                              1 marker_side
-                    marker_side marker_side
-                    marker_side           1
-                ];
-                plot(coltrol_point_aruco(k_rot,1), coltrol_point_aruco(k_rot,2), 'go', 'MarkerFaceColor', 'g');
-                title(sprintf('detected i=%d %d°',i_aruco,(k_rot-1)*90));
-            else
-                imshow(zeros(marker_side, marker_side));
-                title(sprintf('detected NaN'));
-            end
-
-            suptitle(sprintf('ROI Matching %d / %d', i_roi, n_rois));
-            annotation( 'textbox', ...
-                'string', 'red: roi      cyan: detected control point      green: aruco control point', ...
-                'Position', [0, 0.5, 1, 0], ...
-                'HorizontalAlignment', 'center', ...
-                'LineStyle', 'none' ...
+            bb_bw_H_crop = bb_bw_H( ...
+                bb_vertexTL_H_i : bb_vertexBL_H_i, ...
+                bb_vertexTL_H_j : bb_vertexTR_H_j  ...
             );
 
+            % Downsample to marker_side x marker_side px for aruco matching
+            proposed_aruco = imresize(bb_bw_H_crop, [marker_side marker_side]);
+
+            % Search matching with aruco markers
+            for i_aruco = 1:n_aruco_markers
+                for k_rot=1:4
+                    aruco_marker = aruco_markers_rot{i_aruco,k_rot};
+
+                    % Hamming distance between rotated Aruco and ROI content
+                    D = pdist( ...
+                        cast([proposed_aruco(:) aruco_marker(:)]','double'), ...
+                        'hamming' ...
+                    );
+
+                    % Matching
+                    if D <= ROI_HAMMING_TH / (marker_side*marker_side)
+                        detected_aruco(i_roi) = 1;
+
+                        % sort ROI vertices to have the Aruco control point in 1st position
+                        % the other points follow the clockwise ordering of the ROI vertices in the image plane
+                        roi_sorted = zeros(size(roi));
+                        for i_vertex = 1:4
+                            roi_sorted(i_vertex,:) = roi(mod(i_vertex-k_rot,4)+1,:);
+                        end
+
+                        % save results
+                        rois_matched{end+1,1} = roi_sorted;
+                        i_rois_matched(end+1) = i_roi;
+                        i_arucos(end+1) = i_aruco;
+                        k_rots(end+1)   = k_rot;
+
+                        break
+                    end
+
+                end
+                if detected_aruco(i_roi) == 1
+                    break
+                end
+            end
+
+            times(end+1) = toc;
+
+            % Plots
+            if VERBOSE > 2 || (VERBOSE == 2 && detected_aruco(i_roi) == 1)
+
+                figure;
+
+                % Plot original image with the ROI highlighted
+                subplot(2,4,[1,2]);
+                imshow(img);
+                hold on;
+                line([roi(:,1); roi(1,1)], ...
+                     [roi(:,2); roi(1,2)], ...
+                     'color','r','linestyle','-','linewidth',1.5, ...
+                     'marker','o','markersize',5);
+                plot(roi(1,1), roi(1,2), 'co', 'MarkerFaceColor', 'c');
+                if detected_aruco(i_roi) == 1
+                    plot(rois_matched{end,1}(1,1), rois_matched{end,1}(1,2), 'go', 'MarkerFaceColor', 'g');
+                end
+                title('original image');
+
+                % Plot the bw image with the ROI highlighted
+                subplot(2,4,[3,4]);
+                imshow(img_gray);
+                hold on;
+                line([roi(:,1); roi(1,1)], ...
+                     [roi(:,2); roi(1,2)], ...
+                     'color','r','linestyle','-','linewidth',1.5, ...
+                     'marker','o','markersize',5);
+                title('gray image');
+
+                % Plot the bounding box of the ROI
+                subplot(2,4,5);
+                imshow(bb_bw, R_bb_bw);
+                line([bb_vertices(:,1); bb_vertices(1,1)], ...
+                     [bb_vertices(:,2); bb_vertices(1,2)], ...
+                     'color','r','linestyle','-','linewidth',1.5, ...
+                     'marker','o','markersize',5);
+                title('bounding box');
+
+                % Plot the bounding box of the ROI after the homography
+                subplot(2,4,6);
+                imshow(bb_bw_H, R_bb_bw_H);
+                hold on;
+                line([bb_vertices_H(:,1); bb_vertices_H(1,1)], ...
+                     [bb_vertices_H(:,2); bb_vertices_H(1,2)], ...
+                     'color','r','linestyle','-','linewidth',1.5, ...
+                     'marker','o','markersize',5);
+                title('homography');
+
+                % Plot the content of the vertices downsampled to marker_side x marker_side px
+                subplot(2,4,7);
+                imshow(proposed_aruco);
+                hold on;
+                plot(1, 1, 'co', 'MarkerFaceColor', 'c');
+                title('proposal');
+
+                % Plot the content of the vertices downsampled to marker_side x marker_side px
+                subplot(2,4,8);
+                if detected_aruco(i_roi) == 1
+                    imshow(aruco_markers_rot{i_aruco,k_rot});
+                    hold on;
+                    coltrol_point_aruco = [
+                                  1           1
+                                  1 marker_side
+                        marker_side marker_side
+                        marker_side           1
+                    ];
+                    plot(coltrol_point_aruco(k_rot,1), coltrol_point_aruco(k_rot,2), 'go', 'MarkerFaceColor', 'g');
+                    title(sprintf('detected i=%d %d°',i_aruco,(k_rot-1)*90));
+                else
+                    imshow(zeros(marker_side, marker_side));
+                    title(sprintf('detected NaN'));
+                end
+
+                suptitle(sprintf('ROI Matching %d / %d', i_roi, n_rois));
+                annotation( 'textbox', ...
+                    'string', 'red: roi      cyan: detected control point      green: aruco control point', ...
+                    'Position', [0, 0.5, 1, 0], ...
+                    'HorizontalAlignment', 'center', ...
+                    'LineStyle', 'none' ...
+                );
+
+            end
+        
         end
 
     end

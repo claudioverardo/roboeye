@@ -15,6 +15,8 @@ function is_valid_quad = check_quadrilateral(points, varargin)
 %   'parallelism_tol':  tolerance on the angle between opposite sides [degrees]
 %   'side_th_low':      lower threshold on the length of each side [pixels]
 %   'side_th_high':     higher threshold on the length of each side [pixels]
+%   'angle_th_low':     lower threshold on the internal angles [degrees]
+%   'angle_th_high':    higher threshold on the internal angles [degrees]
 %
 %   Output arguments:
 %   ------------------
@@ -23,8 +25,10 @@ function is_valid_quad = check_quadrilateral(points, varargin)
 %   NOTE: a shape is discarded when one of the following conditions is met:
 %   - sum of the internal angles > 360° + sum_angles_tol 
 %   - angle between opposide sides > parallelism_tol
-%   - length of side lower than side_th_low
-%   - length of side greater than side_th_high
+%   - length of a side lower than side_th_low
+%   - length of a side greater than side_th_high
+%   - value of an internal angle lower than angle_th_low
+%   - value of an internal angle greater than angle_th_high
 %
 %   See also ROI_REFINEMENT
     
@@ -33,6 +37,8 @@ function is_valid_quad = check_quadrilateral(points, varargin)
     default_parallelism_tol = 15;
     default_side_th_low = 10;
     default_side_th_high = 700;
+    default_angle_th_low = 20;
+    default_angle_th_high = 160;
     
     % Input parser
     p = inputParser;
@@ -40,6 +46,8 @@ function is_valid_quad = check_quadrilateral(points, varargin)
     addParameter(p, 'parallelism_tol', default_parallelism_tol);
     addParameter(p, 'side_th_low', default_side_th_low);
     addParameter(p, 'side_th_high', default_side_th_high);
+    addParameter(p, 'angle_th_low', default_angle_th_low);
+    addParameter(p, 'angle_th_high', default_angle_th_high);
     parse(p, varargin{:});
     
     % Parse function parameters
@@ -47,6 +55,8 @@ function is_valid_quad = check_quadrilateral(points, varargin)
     PARALLELISM_TOL = p.Results.parallelism_tol;
     SIDE_TH_LOW = p.Results.side_th_low;
     SIDE_TH_HIGH = p.Results.side_th_high;
+    ANGLE_TH_LOW = p.Results.angle_th_low;
+    ANGLE_TH_HIGH = p.Results.angle_th_high;
 
     is_valid_quad = 0;
     
@@ -61,10 +71,11 @@ function is_valid_quad = check_quadrilateral(points, varargin)
         
         % Calculate the internal angles of the quadrilateral
         angles = pi - acos( dot(circshift(V_normalized,-1,2), V_normalized) );
+        angles_degrees = angles / pi * 180;
         
         % Calculate the total internal angle of the quadrilateral
-        sum_angles = sum(angles);
-        sum_angles_degree = sum_angles / pi * 180;
+        % sum_angles = sum(angles);
+        sum_angles_degree = sum(angles_degrees);
         
         % Check if the points define a convex quadrilateral
         if sum_angles_degree > 360-SUM_ANGLES_TOL && ...
@@ -80,8 +91,13 @@ function is_valid_quad = check_quadrilateral(points, varargin)
             
                 % Check if the points define very small or very large sides
                 if all(V_norm > SIDE_TH_LOW) && all(V_norm < SIDE_TH_HIGH)
-           
-                    is_valid_quad = 1;
+            
+                    % Check if the points define very small or very large angles
+                    if all(angles_degrees > ANGLE_TH_LOW) && all(angles_degrees < ANGLE_TH_HIGH)
+
+                        is_valid_quad = 1;
+
+                    end
 
                 end
             
