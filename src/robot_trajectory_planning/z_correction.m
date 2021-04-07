@@ -21,17 +21,17 @@ function corr=z_correction(in,transl)
 
 %%% UPDATE 07/04/2021
     if z>=0 && z<50
-        corr2=3*z/50;
+        corr2=4*z/50-4;
     elseif z>=50 && z<100
-        corr2=2*(z-50)/50+3;
+        corr2=4*(z-50)/50-1;
     elseif z>=100 && z<150
-        corr2=2*(z-100)/50+5;
+        corr2=2*(z-100)/50+5-2;
     elseif z>=150 && z<200
-        corr2=1*(z-150)/50+7;
+        corr2=1*(z-150)/50+7-2;
     elseif z>=200 && z<250
-        corr2=0*(z-200)/50+8;
+        corr2=0*(z-200)/50+8-1;
     elseif z>=250 && z<300
-        corr2=-8*(z-250)+8;
+        corr2=-8*(z-250)+8-1;
     else
         corr2=0;
     end
