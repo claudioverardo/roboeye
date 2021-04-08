@@ -1,12 +1,13 @@
-function [Q_poss] = all_config(transl,braccio_params)
-   %calculate all joints configurations varing q4
+function Q_poss = all_config(transl,braccio_params,post_corr,home)
+%calculate all joints configurations varing q4
+   
    startingpos=[0 0 0 0 0];
    
    index=0;
 
-   q4_aux=braccio_angles_inv([0 0 0 180 0]);
+   q4_aux=braccio_angles_inv([0 0 0 180 0],post_corr,home(1:end-1));
    q4_min=q4_aux(4);
-   q4_aux=braccio_angles_inv([0 0 0 0 0]);
+   q4_aux=braccio_angles_inv([0 0 0 0 0],post_corr,home(1:end-1));
    q4_max=q4_aux(4);
    
    q4_poss=[q4_min:1:q4_max];
@@ -34,10 +35,10 @@ function [Q_poss] = all_config(transl,braccio_params)
         end
 
         %convert joint pos into robot's rf
-        qrob=[braccio_angles(qloc) 0];    
+        qrob=[braccio_angles(qloc,post_corr,home(1:end-1)) 0];    
         if ~check_limits_joints(qrob) %if the solution is not in the range check for dual
            qloc=dualsol(qloc);
-           qrob=[braccio_angles(qloc) 0];
+           qrob=[braccio_angles(qloc,post_corr,home(1:end-1)) 0];
            if ~check_limits_joints(qrob) %if even dual is out of range trigger error flag
                errorflag=true;
            end    

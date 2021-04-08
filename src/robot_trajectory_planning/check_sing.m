@@ -1,13 +1,12 @@
-function [sing_flag, sing_vec] = check_sing(Q, home)
-% CHECK_SING Check if there are singular configuration among an input set of
-% points in the space of joints.
+function [sing_flag, sing_vec] = check_sing(Q)
+% CHECK_SING Check if there are singular configuration among a given set of
+% points in the space of joints (in model convention).
 %
-%   [sing_flag, sing_vec] = check_sing(Q, home)
+%   [sing_flag, sing_vec] = check_sing(Q)
 %
 %   Input arguments:
 %   ------------------
-%   Q:          NxQNUM array, set of points under test (arranged by rows)
-%   home:       1xQNUM array, home position of the robot (avoid extra warnings)
+%   Q:          NxQNUM-1 array, set of points under test (arranged by rows)
 %   
 %   Output arguments:
 %   ------------------
@@ -16,22 +15,14 @@ function [sing_flag, sing_vec] = check_sing(Q, home)
 %
 % See also JACOB_DIFF_KIN
 
-    home = round(home);
     sing_vec=zeros(size(Q,1),1);
     
     for i=1:size(Q,1)
-        
-        % home_position is singular?
-        % yes, but actually no...
-        if ~all(round(Q(i,:)) == home)
             
-            % Check if the given joints position is singular
-            q=braccio_angles_inv(Q(i,1:end-1),[],home(1:end-1));
-            J=jacob_diff_kin(q);
-            if rank(J)<5
-                sing_vec(i)=1;
-            end
-            
+        % Check if the given joints position is singular
+        J=jacob_diff_kin(Q(i,:));
+        if rank(J)<5
+            sing_vec(i)=1;
         end
         
     end

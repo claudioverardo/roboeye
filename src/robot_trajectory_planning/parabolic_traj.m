@@ -1,4 +1,4 @@
-function [Q_def,error_flag] = parabolic_traj(p1,p2,z_ap,roll_in,npoints,braccio_params,grasp,offset,home,VERBOSE)
+function [Q_def,error_flag] = parabolic_traj(p1,p2,z_ap,roll_in,npoints,braccio_params,grasp,offset,post_corr,home,VERBOSE)
     % FUNCTION THAT COMPUTE PARABOLIC TRAJECTORY FROM P1 TO P2 WITH APEX AT
     % Z_AP
     
@@ -8,12 +8,16 @@ function [Q_def,error_flag] = parabolic_traj(p1,p2,z_ap,roll_in,npoints,braccio_
     % z_ap-auto margin 
     margin_z=60;
 
-    if nargin <= 9
+    if nargin <= 10
         VERBOSE=0;
     end
 
-    if nargin <= 8
+    if nargin <= 9
         home=[];
+    end
+
+    if nargin <= 8
+        post_corr=[];
     end
     
     if nargin <= 7
@@ -79,9 +83,9 @@ function [Q_def,error_flag] = parabolic_traj(p1,p2,z_ap,roll_in,npoints,braccio_
     roll_vec=linspace(roll_in,90,npoints+1);
     
     i=1;
-    [Q(i,:), ef(i)]=gothere(braccio_params,x_discr(i),y_discr(i),z_discr(i),roll_vec(i),grasp,offset,[],home);
+    [Q(i,:), ef(i)]=gothere(braccio_params,x_discr(i),y_discr(i),z_discr(i),roll_vec(i),grasp,offset,[],post_corr,home);
     for i=2:npoints+1
-        [Q(i,:), ef(1)]=gothere(braccio_params,x_discr(i),y_discr(i),z_discr(i),roll_vec(i),grasp,offset,Q(i-1,:),home);
+        [Q(i,:), ef(1)]=gothere(braccio_params,x_discr(i),y_discr(i),z_discr(i),roll_vec(i),grasp,offset,Q(i-1,:),post_corr,home);
     end
 
     if (any(ef == true(size(ef)))) || any(z_discr < zeros(size(z_discr)))
