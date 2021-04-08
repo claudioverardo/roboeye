@@ -815,12 +815,14 @@ High level interface to generate robot trajectories. Trajectories defined pointw
 
 Input arguments:
 + **method**: method used to generate the trajectory
+    + 'back-home': go back to the home position (K)
     + 'move-q': move to a position in joints space (K)
     + 'move-t-npoints': move to n positions in 3D space (K)
     + 'move-t-pointwise': move to a position in 3D space from home (P)
     + 'move-t': move to a position in 3D space (K)
     + 'grasp': grasp a object in a position in 3D space (K)
     + 'grasp-parabola': as 'grasp', with a parabolic trajectory (K)
++ **home_q**: 1xQNUM array, home position of the robot (joints)
 + **current_q**:1xQNUM array, current position of the robot (joints)
 + **delta_t**: timestep of the trajectory execution
 + **cam**: webcam object of the camera, cf. webcam(...)
@@ -897,15 +899,15 @@ Output arguments:
 + **i_aruco**: id of the marker correspondent to the target
 </details>
 
-<!-- get_time_trajectory matlab function -->
+<!-- estimate_time_trajectory matlab function -->
 <details>
     <summary>
-        get_time_trajectory
+        estimate_time_trajectory
     </summary>
 
 Estimate the time to execute a trajectory on the robot.
 
-    time = get_time_trajectory(type_trajectory, trajectory, current_q, delta_t)
+    time = estimate_time_trajectory(type_trajectory, trajectory, current_q, delta_t)
 
 Input arguments:
 + **type_trajectory**: type of trajectory, cf. generate_trajectory(...)

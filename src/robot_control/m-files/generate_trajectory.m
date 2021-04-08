@@ -1,4 +1,4 @@
-function [trajectory, time_trajectory, confirm] = generate_trajectory(method, current_q, delta_t, cam, vision_args, trajectory_planning_args, fn_cam2robot_coords, fn_robot_input)
+function [trajectory, time_trajectory, confirm] = generate_trajectory(method, home_q, current_q, delta_t, cam, vision_args, trajectory_planning_args, fn_cam2robot_coords, fn_robot_input)
 % GENERATE_TRAJECTORY High level interface to generate robot trajectories.
 % Trajectories defined pointwise (P) and via keypoints (K) can be generated. 
 % The latter ones require a low level controller that interpolate between
@@ -11,12 +11,14 @@ function [trajectory, time_trajectory, confirm] = generate_trajectory(method, cu
 %   Input arguments:
 %   ------------------
 %   method: method used to generate the trajectory
+%       - 'back-home': go back to the home position (K)
 %       - 'move-q': move to a position in joints space (K)
 %       - 'move-t-npoints': move to n positions in 3D space (K)
 %       - 'move-t-pointwise': move to a position in 3D space from home (P)
 %       - 'move-t': move to a position in 3D space (K)
 %       - 'grasp': grasp a object in a position in 3D space (K)
 %       - 'grasp-parabola': as 'grasp', with a parabolic trajectory (K)
+%   home_q: 1xQNUM array, home position of the robot (joints)
 %   current_q: 1xQNUM array, current position of the robot (joints)
 %   delta_t: timestep of the trajectory execution
 %   cam: webcam object of the camera, cf. webcam(...)
@@ -45,7 +47,7 @@ function [trajectory, time_trajectory, confirm] = generate_trajectory(method, cu
 %   NOTE: this function requires the MATLAB Support Package for USB Webcams.
 %   For details regarding vision_args refers to get_target_from_vision(...).
 %
-%   See also ROBOT_FSM_INTERFACE
+%   See also ROBOT_FSM_INTERFACE, EMULATE_KEYPOINTS_TRAJECTORY
 
     QNUM = numel(current_q);
     Z_MIN = trajectory_planning_args.z_min;
@@ -58,20 +60,28 @@ function [trajectory, time_trajectory, confirm] = generate_trajectory(method, cu
         
         switch method
             
+            % Go back to home position
+            % NOTE: keypoints trajectory (K)
+            case 'back-home'
+                
+                type_trajectory = 'keypoints';
+                t_robot_q = fix_target_q(home_q, current_q);
+                invalid_trajectory = 0;
+            
             % Acquire a position in joint space and reach it
             % NOTE: keypoints trajectory (K)
             case 'move-q'
                 
+                type_trajectory = 'keypoints';
                 t_robot_q = get_target('q', QNUM, [], [], fn_robot_input);
                 t_robot_q = fix_target_q(t_robot_q, current_q);
-                
-                type_trajectory = 'keypoints';
                 invalid_trajectory = 0;
             
             % Acquire n positions in 3d space (vision frame) and reach them
             % NOTE: keypoints trajectory (K)
             case 'move-t-npoints'
                 
+                type_trajectory = 'keypoints';
                 t_points = get_target('3d-npoints', [], [], [], fn_robot_input);
                 n_points = size(t_points,1);
                 
@@ -90,13 +100,13 @@ function [trajectory, time_trajectory, confirm] = generate_trajectory(method, cu
                 for i=1:n_points
                     [t_robot_q(i,:), invalid_trajectories(i), ~] = gothere( ...
                         trajectory_planning_args.braccio_params, ...
-                        t_robot_points(i,1),t_robot_points(i,2),t_robot_points(i,3),90,73,0,[], ...
+                        t_robot_points(i,1), t_robot_points(i,2), t_robot_points(i,3), ...
+                        90, 73, 0, [], home_q, ...
                         'verbose', trajectory_planning_args.gothere_verbose ...
                      );
                     fprintf('   Point %d [M1,M2,M3,M4,M5,M6]: %s\n', i, mat2str(t_robot_q(i,:), 3));
                 end
                 
-                type_trajectory = 'keypoints';
                 invalid_trajectory = any(invalid_trajectories);
             
             % Acquire a position in 3d space (vision frame) and reach it.
@@ -104,6 +114,7 @@ function [trajectory, time_trajectory, confirm] = generate_trajectory(method, cu
             % NOTE: pointwise trajectory (P)
             case 'move-t-pointwise'
                 
+                type_trajectory = 'pointwise';
                 t = get_target('3d-vision', [], cam, vision_args, fn_robot_input);
 
                 t_robot = fn_cam2robot_coords(t);
@@ -117,17 +128,16 @@ function [trajectory, time_trajectory, confirm] = generate_trajectory(method, cu
                 
                 fprintf('   Computing trajectory...\n');
                 [t_robot_q, invalid_trajectory] = touchdown( ... 
-                    t_robot(1),t_robot(2),t_robot(3), ...
+                    t_robot(1), t_robot(2), t_robot(3), home_q, ...
                     trajectory_planning_args.touchdown_verbose ...
                  );
                 fprintf('   Target (joints): %s\n', mat2str(t_robot_q(end,:), 3));
-                
-                type_trajectory = 'pointwise';
             
             % Acquire a position in 3d space (vision frame) and reach it.
             % NOTE: keypoints trajectory (K)
             case 'move-t'
                 
+                type_trajectory = 'keypoints';
                 t = get_target('3d-vision', [], cam, vision_args, fn_robot_input);
 
                 t_robot = fn_cam2robot_coords(t);
@@ -142,21 +152,21 @@ function [trajectory, time_trajectory, confirm] = generate_trajectory(method, cu
                 fprintf('   Computing trajectory...\n');
                 [t_robot_q, invalid_trajectory, t_robot_q_enc] = gothere( ...
                     trajectory_planning_args.braccio_params, ...
-                    t_robot(1),t_robot(2),t_robot(3),90,73,0,[], ...
+                    t_robot(1), t_robot(2), t_robot(3), ...
+                    90, 73, 0, [], home_q, ...
                     'verbose', trajectory_planning_args.gothere_verbose ...
                  );
                 t_robot_q = fix_target_q(t_robot_q, current_q);
                 fprintf('   Target (joints): %s\n', mat2str(t_robot_q(end,:), 3));
 
                 fprintf('   Target (encoder positions):  %s\n', mat2str(t_robot_q_enc, 3));
-                
-                type_trajectory = 'keypoints';
             
             % Acquire the position of an object in 3d space (vision frame), grasp it and bring it to a destination box.
             % The object->box trajectory is a parabola if 'grasp-parabola' is chosen.
             % NOTE: keypoints trajectory (K)
             case {'grasp','grasp-parabola'}
                 
+                type_trajectory = 'keypoints';
                 [t, i_aruco] = get_target('3d-vision', [], cam, vision_args, fn_robot_input);
 
                 t_robot = fn_cam2robot_coords(t);
@@ -167,7 +177,7 @@ function [trajectory, time_trajectory, confirm] = generate_trajectory(method, cu
                     offset_h = 0;
                     offset_r = 0;
                     offset_ef = 0;
-                    fprintf('   Object unknown');
+                    fprintf('   Object unknown\n');
                 else
                     offset_h = trajectory_planning_args.objects_dict(i_aruco).offset_h;
                     offset_r = trajectory_planning_args.objects_dict(i_aruco).offset_r;
@@ -198,7 +208,8 @@ function [trajectory, time_trajectory, confirm] = generate_trajectory(method, cu
                 fprintf('   Computing pick trajectory...\n');
                 [t_robot_q, invalid_trajectory, t_robot_q_enc] = gothere( ...
                     trajectory_planning_args.braccio_params, ...
-                    t_robot_off(1),t_robot_off(2),t_robot_off(3),90,0,offset_ef,[], ...
+                    t_robot_off(1), t_robot_off(2), t_robot_off(3), ...
+                    90, 0, offset_ef, [], home_q, ...
                     'verbose', trajectory_planning_args.gothere_verbose ...
                 );
                 t_robot_q = fix_target_q(t_robot_q, current_q);
@@ -215,7 +226,8 @@ function [trajectory, time_trajectory, confirm] = generate_trajectory(method, cu
                     fprintf('   Computing place trajectory...\n');
                     [t_dest_q, invalid_trajectory, t_dest_q_enc] = gothere( ...
                         trajectory_planning_args.braccio_params, ...
-                        t_dest_robot(1),t_dest_robot(2),t_dest_robot(3),90,73,0,[], ...
+                        t_dest_robot(1), t_dest_robot(2), t_dest_robot(3), ...
+                        90, 73, 0, [], home_q, ...
                         'verbose', trajectory_planning_args.gothere_verbose ...
                     );
                     % t_dest_q = trajectory_planning_args.box_coords_grasp;
@@ -233,22 +245,21 @@ function [trajectory, time_trajectory, confirm] = generate_trajectory(method, cu
 
                     fprintf('   Computing place trajectory (parabola)...\n');
                     [q_parab, invalid_trajectory] = parabolic_traj( ...
-                        t_robot_off, t_dest_robot, 'auto', t_robot_q(end,QNUM-1), 20, ...
+                        t_robot_off, t_dest_robot, 'auto', t_robot_q(end,QNUM-1), ...
+                        trajectory_planning_args.n_points_parabola, ...
                         trajectory_planning_args.braccio_params, ... 
-                        t_robot_q(end,QNUM), offset_ef,...
+                        t_robot_q(end,QNUM), offset_ef, home_q, ...
                         trajectory_planning_args.parabolic_traj_verbose ...
                      );
                  
                     t_robot_q = [t_robot_q; q_parab];
                     for i = 1:size(q_parab,1)
-                        fprintf('       parab_traj %d (joints): %s\n', i, mat2str(q_parab(i,:), 3));
+                        fprintf('       parabolic_traj %d (joints): %s\n', i, mat2str(q_parab(i,:), 3));
                     end
                     t_robot_q = [t_robot_q; t_robot_q(end,1:QNUM-1) 0];
                     fprintf('       post place (joints): %s\n', mat2str(t_robot_q(end,:), 3));
 
                 end
-                
-                type_trajectory = 'keypoints';
 
         end
 
@@ -260,16 +271,41 @@ function [trajectory, time_trajectory, confirm] = generate_trajectory(method, cu
     
     trajectory = t_robot_q;
     
-    % Estimate the execution time of the trajectory
-    time_trajectory = get_time_trajectory(type_trajectory, trajectory, current_q, delta_t);
+    % Emulate the trajectory performed by the robot
+    if strcmp(type_trajectory,'pointwise')
+        trajectory_robot = trajectory;
+    elseif strcmp(type_trajectory,'keypoints')
+        fprintf('   Emulating robot trajectory\n');
+        trajectory_robot = emulate_keypoints_trajectory(current_q, trajectory);
+        fprintf('   Num trajectory keypoints: %d\n', size(trajectory,1)); 
+    end
+    fprintf('   Num trajectory points: %d\n', size(trajectory_robot,1)); 
     
-    % Confirm or discard the execution of the trajectory
-    confirm = cmd_acquire( ...
-    	'', ...
-        @(x) isscalar(x) && ( x==0 || x==1 ), ...
-        fn_robot_input, ...
-        '   Confirm trajectory (0-1)? ', ...
-        '   Ans not valid\n' ...
-    ); 
+    % Check if there are singularities in the trajectory performed by the robot
+    fprintf('   Checking singularities\n');
+    [sing_flag, sing_vec] = check_sing(trajectory_robot, home_q);
+    if sing_flag
+        sing_idcs = find(sing_vec);
+        for i=1:length(sing_idcs)
+            fprintf('        WARNING: position %d will be singular: %s\n', sing_idcs(i), mat2str(trajectory_robot(sing_idcs(i),:)));
+        end
+    end
+    
+    % Estimate the execution time of the trajectory
+    % time_trajectory = estimate_time_trajectory(type_trajectory, trajectory, current_q, delta_t);
+    time_trajectory = estimate_time_trajectory('pointwise', trajectory_robot, current_q, delta_t);
+    
+    % Confirm or cancel the execution of the trajectory
+    if ~strcmp(method,'back-home') || sing_flag
+        confirm = cmd_acquire( ...
+            '', ...
+            @(x) isscalar(x) && ( x==0 || x==1 ), ...
+            fn_robot_input, ...
+            '   Confirm trajectory (0-1)? ', ...
+            '   Ans not valid\n' ...
+        );
+    else
+        confirm = 1;
+    end
 
 end

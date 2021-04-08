@@ -49,6 +49,7 @@ trajectory_planning_args.braccio_params = [71 125 125 195 0];
 trajectory_planning_args.z_min = 0; % [mm] in robot frame
 trajectory_planning_args.box_coords_grasp = [-4 1 20]; % [cm] in vision frame
 trajectory_planning_args.box_coords_grasp_parabola = [-4 1 12.5]; % [cm] in vision frame
+trajectory_planning_args.n_points_parabola = 10;
 trajectory_planning_args.touchdown_verbose = 0;
 trajectory_planning_args.gothere_verbose = 0;
 trajectory_planning_args.parabolic_traj_verbose = 0;

@@ -1,4 +1,4 @@
-function [Q_def,error_flag,singularity,Q_sing] = parabolic_traj(p1,p2,z_ap,roll_in,npoints,braccio_params,grasp,offset,VERBOSE)
+function [Q_def,error_flag] = parabolic_traj(p1,p2,z_ap,roll_in,npoints,braccio_params,grasp,offset,home,VERBOSE)
     % FUNCTION THAT COMPUTE PARABOLIC TRAJECTORY FROM P1 TO P2 WITH APEX AT
     % Z_AP
     
@@ -7,10 +7,13 @@ function [Q_def,error_flag,singularity,Q_sing] = parabolic_traj(p1,p2,z_ap,roll_
 
     % z_ap-auto margin 
     margin_z=60;
-    Q_sing=[];
+
+    if nargin <= 9
+        VERBOSE=0;
+    end
 
     if nargin <= 8
-        VERBOSE=0;
+        home=[];
     end
     
     if nargin <= 7
@@ -33,7 +36,6 @@ function [Q_def,error_flag,singularity,Q_sing] = parabolic_traj(p1,p2,z_ap,roll_
 
     Q=zeros(npoints+1,6);
     ef=zeros(npoints+1,1);
-    singflag=false(npoints,1);
 
     theta1 = atan2(p1(2),p1(1));
     theta2 = atan2(p2(2),p2(1));
@@ -77,20 +79,12 @@ function [Q_def,error_flag,singularity,Q_sing] = parabolic_traj(p1,p2,z_ap,roll_
     roll_vec=linspace(roll_in,90,npoints+1);
     
     i=1;
-    [Q(i,:), ef(i)]=gothere(braccio_params,x_discr(i),y_discr(i),z_discr(i),roll_vec(i),grasp,offset,[]);
+    [Q(i,:), ef(i)]=gothere(braccio_params,x_discr(i),y_discr(i),z_discr(i),roll_vec(i),grasp,offset,[],home);
     for i=2:npoints+1
-        [Q(i,:), ef(1)]=gothere(braccio_params,x_discr(i),y_discr(i),z_discr(i),roll_vec(i),grasp,offset,Q(i-1,:));
+        [Q(i,:), ef(1)]=gothere(braccio_params,x_discr(i),y_discr(i),z_discr(i),roll_vec(i),grasp,offset,Q(i-1,:),home);
     end
-    
-    %%% check singularities
-    for i=1:length(Q(:,1))-1
-        [singflag(i),sub_flag,sub_Q]=check_sing(Q(i,[1:1:5]),Q(i+1,[1:1:5]));
-        Q_sing=[Q_sing; sub_Q(find(sub_flag),:)];
-    end
-    
-    singularity=any(singflag == true(size(singflag)));
 
-    if (any(ef == true(size(ef)))) || any(z_discr < zeros(size(z_discr))) || singularity
+    if (any(ef == true(size(ef)))) || any(z_discr < zeros(size(z_discr)))
         error_flag=1;
     end
     
@@ -99,7 +93,6 @@ function [Q_def,error_flag,singularity,Q_sing] = parabolic_traj(p1,p2,z_ap,roll_
             jp=plot_config_rob(Q(i,:),braccio_params);
         end
     end
-    % disp(singflag)
     
     %truncate first line
     Q_def=Q([2:1:end],:);

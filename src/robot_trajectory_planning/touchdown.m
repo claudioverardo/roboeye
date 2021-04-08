@@ -1,4 +1,4 @@
-function [Qrob,errorflag,jointpos,controlvec,maxexcurtion,Q_tot] = touchdown(x,y,z,VERBOSE)
+function [Qrob,errorflag,jointpos,controlvec,maxexcurtion,Q_tot] = touchdown(x,y,z,home,VERBOSE)
 % Makes trakectory to the point in input (with the last part vertical)
 %   Do not use z to high (<= 40mm)
 %   stay in the range 140<=r<=360 r=sqrt(x^2+y^2)
@@ -73,7 +73,7 @@ function [Qrob,errorflag,jointpos,controlvec,maxexcurtion,Q_tot] = touchdown(x,y
         Q_tot=[Q_first; Q];
 
         for i=1:length(Q_tot(:,1))
-            Qrob(i,:)=[braccio_angles(Q_tot(i,[1 2 3 4 5])) Q_tot(i,6)];
+            Qrob(i,:)=[braccio_angles(Q_tot(i,1:end-1),[],home(1:end-1)) Q_tot(i,6)];
             if ~check_limits_joints(Qrob(i,:))
                 errorflag=1;
             end
