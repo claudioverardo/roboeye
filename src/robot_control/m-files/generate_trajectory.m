@@ -294,16 +294,28 @@ function [trajectory, time_trajectory, confirm] = generate_trajectory(method, ho
     % Check if there are singularities in the trajectory performed by the robot
     fprintf('   Checking singularities\n');
     [sing_flag, sing_vec] = check_sing(trajectory_robot_mod_coords);
+    sing_idcs = find(sing_vec);
+    
+    % home_position is singular? yes, but actually no...
+    % remove it from singular positions if detected
+    i = 0;
+    while i <= length(sing_idcs)
+        if all(trajectory_robot(sing_idcs(i),:) == home_q)
+            sing_vec(sing_idcs(i)) = 0;
+            sing_idcs(i) = [];
+        else
+            i = i+1;
+        end
+    end
+    sing_flag = any(sing_vec);
+    
+    % Show the singular positions
     if sing_flag
-        sing_idcs = find(sing_vec);
         trajectory_robot_sing = trajectory_robot(sing_idcs,:);
         for i=1:length(sing_idcs)
-            % home_position is singular? yes, but actually no...
-            % if ~all(trajectory_robot_sing(i,:) == home_q)
-                fprintf('        WARNING: position %d will be singular: %s\n', ...
-                        sing_idcs(i), mat2str(trajectory_robot_sing(i,:)) ...
-                );
-            % end
+            fprintf('        WARNING: position %d will be singular: %s\n', ...
+                    sing_idcs(i), mat2str(trajectory_robot_sing(i,:)) ...
+            );
         end
     end
         

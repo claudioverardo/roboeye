@@ -23,6 +23,17 @@ function [t, R, i_aruco] = get_target_from_vision(cam, vision_args, fn_robot_inp
 %
 %   See also ARUCO_POSE_ESTIMATION, GET_TARGET
 
+    % To use generate_trajectory(...) without camera
+    if isempty(cam)
+        
+        fprintf('   Camera object is empty!!\n');
+        t = [];
+        R = [];
+        i_aruco = [];
+        return
+        
+    end
+
     fprintf('   Acquiring image\n');
     img = snapshot(cam);
 
