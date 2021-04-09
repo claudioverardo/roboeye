@@ -1,6 +1,16 @@
-function [qlocdual] = dualsol(qloc)
-%dualsol calculate dual solution of joint configuration
-%   Detailed explanation goes here
+function qlocdual = dualsol(qloc)
+% DUALSOL For a given joints position, find the other one that preserves the 
+% end effector position and orientation ('dual position').
+%
+%   qlocdual = DUALSOL(qloc)
+%
+%   Input arguments:
+%   ------------------
+%   qloc:       input joints position
+%
+%   Output arguments:
+%   ------------------
+%   qlocdual:   dual position of qloc
 
    qlocdual=qloc;
 

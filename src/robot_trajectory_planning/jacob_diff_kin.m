@@ -1,5 +1,19 @@
-function [J] = jacob_diff_kin(q,braccio_params,delta)
-    %Function thet compute Jacobian matrix
+function J = jacob_diff_kin(q, braccio_params, delta)
+% JACOB_DIFF_KIN Function that computes the geometric Jacobian of the robot.
+%
+%   J = JACOB_DIFF_KIN(q, braccio_params, delta)
+%
+%   Input arguments:
+%   ------------------
+%   q:                  angular positions of the joints
+%   braccio_params:     1xQNUM-1 array, real distances between robot joints
+%   delta:              'a' (aka 'r') DH parameter of the 5th joint
+%
+%   Output arguments:
+%   ------------------
+%   J:                  geometric Jacobian matrix of the robot
+%
+% See also CHECK_SING
     
     if nargin <=2
         braccio_params=[71 125 125 195 0];

@@ -3,6 +3,8 @@ function trajectory_robot = emulate_keypoints_trajectory(start, trajectory)
 % return the actual trajectory followed by the robot. The actual trajectory
 % is interpolated by the microcontroller with braccioServoMovement(...).
 %
+%   trajectory_robot = EMULATE_KEYPOINTS_TRAJECTORY(start, trajectory)
+%
 %   Input arguments:
 %   ------------------
 %   start:              1xQNUM array, starting point of the trajectory

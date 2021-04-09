@@ -1,7 +1,35 @@
-function [Qrob,errorflag,jointpos,controlvec,maxexcurtion,Q_tot] = touchdown(x,y,z,post_corr,home,VERBOSE)
-% Makes trakectory to the point in input (with the last part vertical)
-%   Do not use z to high (<= 40mm)
-%   stay in the range 140<=r<=360 r=sqrt(x^2+y^2)
+function [Qrob, errorflag] = touchdown(braccio_params, x, y, z, post_corr, home, VERBOSE)
+% TOUCHDOWN Function that computes a trajectory from the home position to a 
+% target point. The trajectory is composed by two parts. The former arrives
+% to a certain position above the target moving all the joints with constant
+% velocities. The latter is a vertical path to the target point that keeps 
+% the end effector orientation fixed.   
+%
+%   [Qrob, errorflag] = TOUCHDOWN(x, y, z, post_corr, home, VERBOSE)
+%
+%   Input arguments:
+%   ------------------
+%   x:                  target x-position of end effector (robot frame)
+%   y:                  target y-position of end effector (robot frame)
+%   z:                  target z-position of end effector (robot frame)
+%   post_corr:          1xQNUM-1 array, offsets to be applied a posteriori
+%                       cf. braccio_angles(...)
+%   home:               1xQNUM, home position of the robot
+%   VERBOSE:            verbose level of the function
+%                       - 0: show nothing
+%                       - 1: show the trajectory
+%
+%   Output arguments:
+%   ------------------
+%   Qrob:               170xQNUM, points of the trajectory in joints space
+%   errorflag:          1 if for at least one of the keypoints either the
+%                       solution does not satisfy the robot constraint or
+%                       the fsolve routine fails, 0 otherwise
+%
+%   NOTE: do not use z too high (remain in <= 40mm), stay in the range
+%   140<=r<=360 mm where r=sqrt(x^2+y^2).
+%
+% See also GENERATE_TRAJECTORY
 
     errorflag=0;
 
@@ -38,7 +66,7 @@ function [Qrob,errorflag,jointpos,controlvec,maxexcurtion,Q_tot] = touchdown(x,y
            %euler angles
            eulr=[atan2(transl(2),transl(1)) X(i,[4 5])*pi/180];
            %solve inverse kinematics
-           [qloc, fval, info] = inverse_kin_simple(transl,eulr,startingpos);
+           [qloc, fval, info] = inverse_kin_simple(transl,eulr,startingpos,braccio_params);
            qloc=mod(qloc+180,360)-180;
 
            %check for dual solution:
@@ -87,13 +115,11 @@ function [Qrob,errorflag,jointpos,controlvec,maxexcurtion,Q_tot] = touchdown(x,y
 
         if VERBOSE > 0
             %jointpos=plot_config([ones(npoints+npoints_first,1) Q_tot]);
-            jointpos=plot_config_rob(Qrob);
-            
-            %print_for_arduino(Qrob,5);
+            jointpos=plot_config_rob(Qrob, braccio_params, post_corr, home);
         end
 
         %disp(eulr2)
-        maxexcurtion=max(Qrob);
+        %maxexcurtion=max(Qrob);
 
     end
     

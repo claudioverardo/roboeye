@@ -1,5 +1,21 @@
-function [jointpos,Aloc_out]=plot_config(Q,braccio_params,delta)
-  %GIVEN TRAJECTORY IN INPUT PLOT ROBOT CONFIGURATION
+function jointpos = plot_config(Q, braccio_params, delta)
+% PLOT_CONFIG Given a input trajectory in joints space (model convention), 
+% plot the position and orientation of the end effector for each point of 
+% the trajectory. Moreover, plot the final robot configuration.
+%
+%   [jointpos, Aloc_out] = PLOT_CONFIG(Q, braccio_params, delta)
+%
+%   Input arguments:
+%   ------------------
+%   Q:                  NxQNUM-1 array, trajectory in joints space
+%   braccio_params:     1xQNUM-1 array, real distances between robot joints
+%   delta:              'a' (aka 'r') DH parameter of the 5th joint
+%
+%   Output arguments:
+%   ------------------
+%   jointpos:           (QNUM-1)x3 array, final 3D position of joints
+%
+% See also PLOT_CONFIG_ROB
   
   if nargin <= 1
       braccio_params=[71 125 125 195 0];
@@ -59,8 +75,7 @@ function [jointpos,Aloc_out]=plot_config(Q,braccio_params,delta)
     hold off
     xlabel('x');
     ylabel('y');
-    
-    
 
-    Aloc_out=Aloc;
+    %Aloc_out=Aloc;
+    
 end

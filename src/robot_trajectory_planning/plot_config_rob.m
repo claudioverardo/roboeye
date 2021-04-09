@@ -1,5 +1,24 @@
-function [jointpos,Aloc_out]=plot_config_rob(Q_rob,braccio_params,delta)
-  %GIVEN TRAJECTORY IN INPUT PLOT ROBOT CONFIGURATION
+function jointpos = plot_config_rob(Q_rob, braccio_params, delta, post_corr, home)
+% PLOT_CONFIG_ROB Given a input trajectory in joints space (robot convention),
+% plot the position and orientation of the end effector for each point of 
+% the trajectory. Moreover, plot the final robot configuration.
+%
+%   jointpos = PLOT_CONFIG_ROB(Q, braccio_params, delta, post_corr, home)
+%
+%   Input arguments:
+%   ------------------
+%   Q:                  NxQNUM-1 array, trajectory in joints space
+%   braccio_params:     1xQNUM-1 array, real distances between robot joints
+%   delta:              'a' (aka 'r') DH parameter of the 5th joint
+%   post_corr:          1xQNUM-1 array, offsets to be applied a posteriori,
+%                       cf. braccio_angles(...)
+%   home:               1xQNUM, home position of the robot
+%
+%   Output arguments:
+%   ------------------
+%   jointpos:           (QNUM-1)x3 array, final 3D position of joints
+%
+% See also PLOT_CONFIG
   
   if nargin <= 1
       braccio_params=[71 125 125 195 0];
@@ -14,7 +33,7 @@ function [jointpos,Aloc_out]=plot_config_rob(Q_rob,braccio_params,delta)
   
   %convert into algorithm angle convention
   for i=1:length(Q_rob(:,1))
-      Q(i,[1 2 3 4 5])=braccio_angles_inv(Q_rob(i,[1 2 3 4 5]));
+      Q(i,[1 2 3 4 5])=braccio_angles_inv(Q_rob(i,[1 2 3 4 5]),post_corr,home(1:end-1));
   end
 
   npoints=length(Q(:,1));

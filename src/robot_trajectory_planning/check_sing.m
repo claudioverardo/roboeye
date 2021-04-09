@@ -2,7 +2,7 @@ function [sing_flag, sing_vec] = check_sing(Q)
 % CHECK_SING Check if there are singular configuration among a given set of
 % points in the space of joints (in model convention).
 %
-%   [sing_flag, sing_vec] = check_sing(Q)
+%   [sing_flag, sing_vec] = CHECK_SING(Q)
 %
 %   Input arguments:
 %   ------------------

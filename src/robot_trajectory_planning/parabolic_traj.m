@@ -1,7 +1,38 @@
-function [Q_def,error_flag] = parabolic_traj(p1,p2,z_ap,roll_in,npoints,braccio_params,grasp,offset,post_corr,home,VERBOSE)
-    % FUNCTION THAT COMPUTE PARABOLIC TRAJECTORY FROM P1 TO P2 WITH APEX AT
-    % Z_AP
-    
+function [Q_def, error_flag] = parabolic_traj(p1, p2, z_ap, roll_in, npoints, braccio_params, grasp, offset, post_corr, home, VERBOSE)
+% PARABOLIC_TRAJ Function that computes a parabolic trajectory in cylindrical
+% coordinates between the points p1 and p2 with apex at z_ap. It then solves
+% the inverse kinematics problem for a set of keypoints of the trajectory 
+% and return the solutions found in joints space. If z_ap is set to 'auto', 
+% the maximum apex (up to a safe margin) is found.
+%
+%   [Q_def, error_flag] = PARABOLIC_TRAJ(p1, p2, z_ap, roll_in, npoints, 
+%   braccio_params, grasp, offset, post_corr, home, VERBOSE)
+%
+%   Input arguments:
+%   ------------------
+%   p1:                 1x3 array, starting point of the end effector
+%   p2:                 1x3 array, ending point of the end effector
+%   z_ap:               z of the apex of the parabolic trajectory
+%   roll_in:            initial position of the 5th joint
+%   npoints:            number of keypoints of the generated trajectory
+%   braccio_params:     1xQNUM-1 array, real distances between robot joints
+%   grasp:              angular position of the 6th joint (gripper)
+%   offset:             offset along z-axis of the 5th joint frame origin
+%   post_corr:          1xQNUM-1 array, offsets to be applied a posteriori
+%                       cf. braccio_angles(...)
+%   home:               1xQNUM, home position of the robot
+%   VERBOSE:            verboose level of the function
+%                       - 0: show nothing
+%                       - 1: show the parabolic trajectory
+%
+%   Output arguments:
+%   ------------------
+%   Q_def:              npoints x QNUM, keypoints of the trajectory
+%   error_flag:         1 if for at least one of the keypoints either the
+%                       solution does not satisfy the robot constraint or
+%                       the fsolve routine fails, 0 otherwise
+%
+% See also GENERATE_TRAJECTORY, GOTHERE
    
     %box coordinates: [90 250 120];
 
@@ -94,7 +125,7 @@ function [Q_def,error_flag] = parabolic_traj(p1,p2,z_ap,roll_in,npoints,braccio_
     
     if VERBOSE >0
         for i=1:length(Q(:,1))
-            jp=plot_config_rob(Q(i,:),braccio_params);
+            jp=plot_config_rob(Q(i,:),braccio_params,post_corr,home);
         end
     end
     

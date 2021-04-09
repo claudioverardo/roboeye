@@ -1,30 +1,30 @@
 function out = braccio_angles(in, post_corr, AHposition, THposition)
 % BRACCIO_ANGLES Convert angles from model convention to robot convention.
 %
-%   out = braccio_angles(in, post_corr, AHposition, THposition)
+%   out = BRACCIO_ANGLES(in, post_corr, AHposition, THposition)
 %
 %   Input arguments:
 %   ------------------
-%   in:
-%   post_corr:
-%   AHposition:
-%   THposition:
+%   out:            NxQNUM-1 array, joints positions in model convention
+%   post_corr:      1xQNUM-1 array, offsets to be applied a posteriori
+%   AHposition:     1xQNUM-1 array, actual home position of Braccio
+%   THposition:     1xQNUM-1 array, theoretical home position of Braccio
 %
 %   Output arguments:
 %   ------------------
-%   out:
+%   in:             NxQNUM-1 array, joints positions in robot convention
 %
-% See also TODO
+% See also BRACCIO_ANGLES_INV
   
     % if nargin <=2 || isempty(AHposition)
-    %     % AHposition=[90 84 99 95 90];%Actual home position
-    %     % AHposition=[90 84 99 91 90];%Actual home position update 24/03/21
-    %     % AHposition=[90 83 98 97 90];%Actual home position update 24/03/21
-    %     AHposition=[90 84 99 95 90];%%Actual home position downgrade 25/03/21
+    %     % AHposition=[90 84 99 95 90];
+    %     % AHposition=[90 84 99 91 90]; % update 24/03/21
+    %     % AHposition=[90 83 98 97 90]; % update 24/03/21
+    %     AHposition=[90 84 99 95 90];   % downgrade 25/03/21
     % end
 
     if nargin <=3 || isempty(THposition)
-        THposition=[90 90 90 90 90];%Theoretical home position
+        THposition=[90 90 90 90 90];
     end
 
     incr=AHposition-THposition;

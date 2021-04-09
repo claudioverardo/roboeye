@@ -1,5 +1,28 @@
-function [qloc, fval, info]=inverse_kin_super_simple(transl,joint4,startingpos_in,braccio_params)
-%COMPUTE INVERSE KINEMATICS
+function [qloc, fval, info] = inverse_kin_super_simple(transl, joint4, startingpos_in, braccio_params)
+% INVERSE_KIN_SUPER_SIMPLE Solve the problem of inverse kinematics for a given 
+% position of the end effector. Differently to the function inverse_kin(...)
+% it calculates the 1st and the 5th joints positions via geometric considerations.
+% Differently to the function inverse_kin_simple(...), it receives as input the 
+% target position of the 4th joint. Then, it solves a super-semplified version
+% of the inverse kinematics problem on the remaining 2 joints (2-3).
+%
+%   [qloc, fval, info] = INVERSE_KIN_SUPER_SIMPLE(transl, joint4, startingpos_in,
+%   braccio_params)
+%
+%   Input arguments:
+%   ------------------
+%   transl:             translation vector of the end effector
+%   joint4:             angular position of the 4th joint 
+%   startingpos_in:     initial guess of the solution for the solver
+%   braccio_params:     1xQNUM-1 array, real distances between robot joints
+%
+%   Output arguments:
+%   ------------------
+%   qloc:               1xQNUM-1 array, solution found
+%   fval:               final residual of the solver
+%   info:               final flag of the solver
+%
+% See also GOTHERE
 
   startingpos=startingpos_in([2 4]);
 

@@ -1,7 +1,7 @@
 function time = estimate_time_trajectory(type_trajectory, trajectory, current_q, delta_t)
 % ESTIMATE_TIME_TRAJECTORY Estimate the time to execute a trajectory on the robot.
 %
-%   time = estimate_time_trajectory(type_trajectory, trajectory, current_q, delta_t)
+%   time = ESTIMATE_TIME_TRAJECTORY(type_trajectory, trajectory, current_q, delta_t)
 %
 %   Input arguments:
 %   ------------------

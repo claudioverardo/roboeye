@@ -720,14 +720,432 @@ Usage examples can be found in [run_detection](../src/scripts/run_detection.m) a
 
 Code to perform direct kinematics, inverse kinematics and trajectory planning.
 
-### Functions
+### Functions         
 
-TODO
+<!-- braccio_angles matlab function -->
+<details>
+    <summary>
+        braccio_angles
+    </summary>
+
+Convert angles from model convention to robot convention.
+
+    out = braccio_angles(in, post_corr, AHposition, THposition)
+
+Input arguments:
++ **out**: NxQNUM-1 array, joints positions in model convention
++ **post_corr**: 1xQNUM-1 array, offsets to be applied a posteriori
++ **AHposition**: 1xQNUM-1 array, actual home position of Braccio
++ **THposition**: 1xQNUM-1 array, theoretical home position of Braccio
+
+Output arguments:
++ **in**: NxQNUM-1 array, joints positions in robot convention
+</details>      
+
+<!-- braccio_angles_inv matlab function -->
+<details>
+    <summary>
+        braccio_angles_inv
+    </summary>
+
+Convert angles from robot convention to model convention.
+
+    in = braccio_angles_inv(out, post_corr, AHposition, THposition)
+
+Input arguments:
++ **out**: NxQNUM-1 array, joints positions in robot convention
++ **post_corr**: 1xQNUM-1 array, offsets to be applied a posteriori
++ **AHposition**: 1xQNUM-1 array, actual home position of Braccio
++ **THposition**: 1xQNUM-1 array, theoretical home position of Braccio
+
+Output arguments:
++ **in**: NxQNUM-1 array, joints positions in model convention
+</details>
+
+<!-- check_limits_joints matlab function -->
+<details>
+    <summary>
+        check_limits_joints
+    </summary>
+
+Check if a given position in the joints space satisfy the constraints of the Braccio robot.
+
+    check_ans = check_limits_joints(qrob)
+
+Input arguments:
++ **qrob**: joints position under test
+
+Output arguments:
++ **check_ans**: 1 if qrob satisfy the constraints, 0 otherwise
+</details>
+
+<!-- check_sing matlab function -->
+<details>
+    <summary>
+        check_sing
+    </summary>
+
+Check if there are singular configuration among a given set of points in the space of joints (in model convention).
+
+    [sing_flag, sing_vec] = check_sing(Q)
+
+Input arguments:
++ **Q**: NxQNUM-1 array, set of points under test (arranged by rows)
+
+Output arguments:
++ **sing_flag**: 1 if at least one singularity is found, 0 otherwise
++ **sing_vec**: sing_vec(i) = 1 if Q(i,:) is singular, 0 otherwise
+</details>
+
+<!-- denavit_harternberg matlab function -->
+<details>
+    <summary>
+        denavit_harternberg
+    </summary>
+
+Find the rototranslation between two reference frames using the Denavit-Hartenberg (DH) parameters.
+
+    A = denavit_harternberg(theta, d, alpha, a)
+
+Input arguments:
++ **theta**: DH parameter 'theta'
++ **d**: DH parameter 'd'
++ **alpha**: DH parameter 'alpha'
++ **a**: DH parameter 'a' (also known as 'r')
+
+Output arguments:
++ **A**: 4x4 roto-translation defined by the DH parameters
+</details>
+
+<!-- direct_kin matlab function -->
+<details>
+    <summary>
+        direct_kin
+    </summary>
+
+Compute direct kinematics of the Braccio robot. With njoints<5 compute direct kinematics of the first njoints joints only.
+
+    Atot = direct_kin(q, njoints, braccio_params, delta)
+
+Input arguments:
++ **q**: 1xQNUM-1 angular position of joints
++ **njoints**: number of joints to be considered for direct kinematics
++ **braccio_params**: 1xQNUM-1 array, real distances between robot joints
++ **delta**: 'a' (aka 'r') DH parameter of the 5th joint
+
+Output arguments:
++ **Atot**: rototranslation matrix of direct kinematics
+</details>
+
+<!-- dualsol matlab function -->
+<details>
+    <summary>
+        dualsol
+    </summary>
+
+For a given joints position, find the other one that preserves the end effector position and orientation ('dual position').
+
+    qlocdual = dualsol(qloc)
+
+Input arguments:
++ **qloc**: input joints position
+
+Output arguments:
++ **qlocdual**: dual position of qloc
+</details>
+
+<!-- gothere matlab function -->
+<details>
+    <summary>
+        gothere
+    </summary>
+
+Returns the angular positions of the joints for a given spatial position of the end effector. The function explores all the configurations of the 4th joint and it finds the first one that satisfy inverse kinematics. The rationale behind this choice is to decide autonomously the end effector orientation in order to reach positions in the largest workspace possible. Moreover, if a previous position of the robot is provided, the algorithm choose the solution that is closest to it in joints space.
+
+    [qrob, errorflag, q] = gothere(braccio_params, x, y, z, roll, grasp, offset, q_pre, post_corr, home, varargin)
+
+Input arguments:
++ **braccio_params**: 1xQNUM-1 array, real distances between robot joints
++ **x**: target x-position of end effector (robot frame)
++ **y**: target y-position of end effector (robot frame)
++ **z**: target z-position of end effector (robot frame)
++ **roll**: angular position of the 5th joint (roll)
++ **grasp**: angular position of the 6th joint (gripper)
++ **offset**: offset along z-axis of the 5th joint frame origin
++ **q_pre**: 1xQNUM array, previous position of the robot (optional)
++ **post_corr**: 1xQNUM-1 array, offsets to be applied a posteriori cf. braccio_angles(...)
++ **home**: 1xQNUM, home position of the robot
++ **varargin**: collection of optional parameters, cf. the official Matlab documentation
+
+Parameters:
++ **'verbose'**: verbose level of the function (0, 1)
+    + 0: show nothing
+    + 1: show the solution found
+
+Output arguments:
++ **qrob**: angular positions of joints (robot convention)
++ **errorflag**: 1 if either the solution does not satisfy the robot constraint or the fsolve routine fails, 0 otherwise
++ **q**: angular positions of "encoders" (debugging)
+</details>
+
+<!-- inverse_kin matlab function -->
+<details>
+    <summary>
+        inverse_kin
+    </summary>
+
+Solve the general problem of inverse kinematics for a given position and orientation of the end effector.
+
+    [qloc, fval, info] = inverse_kin(transl, eulr, startingpos_in)
+
+Input arguments:
++ **transl**: translation vector of the end effector
++ **eulr**: euler angles of the rotation of the end effector
++ **startingpos_in**: initial guess of the solution for the solver
+
+Output arguments:
++ **qloc**: 1xQNUM-1 array, solution found
++ **fval**: final residual of the solver
++ **info**: final flag of the solver
+
+NOTE: this method is very unstable, cf. inverse_kin_super_simple(...) for a more stable solution.
+</details>
+
+<!-- inverse_kin_simple matlab function -->
+<details>
+    <summary>
+        inverse_kin_simple
+    </summary>
+
+Solve the problem of inverse kinematics for a given position and orientation of the end effector. Differently to the function inverse_kin(...) it calculates the 1st and the 5th joints positions via geometric considerations. Then, it solves a semplified version of the inverse kinematics problem on the remaining 3 joints (2-3-4).
+
+    [qloc, fval, info] = inverse_kin_simple(transl, eulr, startingpos_in, braccio_params)
+
+Input arguments:
++ **transl**: translation vector of the end effector
++ **eulr**: euler angles of the rotation of the end effector
++ **startingpos_in**: initial guess of the solution for the solver
++ **braccio_params**: 1xQNUM-1 array, real distances between robot joints
+  
+Output arguments:
++ **qloc**: 1xQNUM-1 array, solution found
++ **fval**: final residual of the solver
++ **info**: final flag of the solver
+</details>
+
+<!-- inverse_kin_super_simple matlab function -->
+<details>
+    <summary>
+        inverse_kin_super_simple
+    </summary>
+
+Solve the problem of inverse kinematics for a given position of the end effector. Differently to the function inverse_kin(...) it calculates the 1st and the 5th joints positions via geometric considerations. Differently to the function inverse_kin_simple(...), it receives as input the target position of the 4th joint. Then, it solves a super-semplified version of the inverse kinematics problem on the remaining 2 joints (2-3).
+
+    [qloc, fval, info] = inverse_kin_super_simple(transl, joint4, startingpos_in, braccio_params)
+
+Input arguments:
++ **transl**: translation vector of the end effector
++ **joint4**: angular position of the 4th joint 
++ **startingpos_in**: initial guess of the solution for the solver
++ **braccio_params**: 1xQNUM-1 array, real distances between robot joints
+
+Output arguments:
++ **qloc**: 1xQNUM-1 array, solution found
++ **fval**: final residual of the solver
++ **info**: final flag of the solver
+</details>           
+
+<!-- jacob_diff_kin matlab function -->
+<details>
+    <summary>
+        jacob_diff_kin
+    </summary>
+
+Function that computes the geometric Jacobian of the robot.
+
+    J = jacob_diff_kin(q, braccio_params, delta)
+
+Input arguments:
++ **q**: angular positions of the joints
++ **braccio_params**: 1xQNUM-1 array, real distances between robot joints
++ **delta**: 'a' (aka 'r') DH parameter of the 5th joint
+
+Output arguments:
++ **J**: geometric Jacobian matrix of the robot
+</details>
+
+<!-- parabolic_traj matlab function -->
+<details>
+    <summary>
+        parabolic_traj
+    </summary>
+
+Function that computes a parabolic trajectory in cylindrical coordinates between the points p1 and p2 with apex at z_ap. It then solves the inverse kinematics problem for a set of keypoints of the trajectory and return the solutions found in joints space. If z_ap is set to 'auto', the maximum apex (up to a safe margin) is found.
+
+    [Q_def, error_flag] = parabolic_traj(p1, p2, z_ap, roll_in, npoints, braccio_params, grasp, offset, post_corr, home, VERBOSE)      
+
+Input arguments:
++ **p1**: 1x3 array, starting point of the end effector
++ **p2**: 1x3 array, ending point of the end effector
++ **z_ap**: z of the apex of the parabolic trajectory
++ **roll_in**: initial position of the 5th joint
++ **npoints**: number of keypoints of the generated trajectory
++ **braccio_params**: 1xQNUM-1 array, real distances between robot joints
++ **grasp**: angular position of the 6th joint (gripper)
++ **offset**: offset along z-axis of the 5th joint frame origin
++ **post_corr**: 1xQNUM-1 array, offsets to be applied a posteriori cf. braccio_angles(...)
++ **home**: 1xQNUM, home position of the robot
++ **VERBOSE**: verboose level of the function
+    + 0: show nothing
+    + 1: show the parabolic trajectory
+
+Output arguments:
++ **Q_def**: npoints x QNUM, keypoints of the trajectory
++ **error_flag**: 1 if for at least one of the keypoints either the solution does not satisfy the robot constraint or the fsolve routine fails, 0 otherwise
+</details>      
+
+<!-- plot_config matlab function -->
+<details>
+    <summary>
+        plot_config
+    </summary>
+
+Given a input trajectory in joints space (model convention), plot the position and orientation of the end effector for each point of the trajectory. Moreover, plot the final robot configuration.
+
+    jointpos = plot_config(Q, braccio_params, delta)
+
+Input arguments:
++ **Q**: NxQNUM-1 array, trajectory in joints space
++ **braccio_params**: 1xQNUM-1 array, real distances between robot joints
++ **delta**: 'a' (aka 'r') DH parameter of the 5th joint
+
+Output arguments:
++ **jointpos**: (QNUM-1)x3 array, final 3D position of joints
+</details>
+
+<!-- plot_config_rob matlab function -->
+<details>
+    <summary>
+        plot_config_rob
+    </summary>
+
+Given a input trajectory in joints space (robot convention), plot the position and orientation of the end effector for each point of the trajectory. Moreover, plot the final robot configuration.
+
+    jointpos = plot_config_rob(Q_rob, braccio_params, delta, post_corr, home)
+
+Input arguments:
++ **Q**: NxQNUM-1 array, trajectory in joints space
++ **braccio_params**: 1xQNUM-1 array, real distances between robot joints
++ **delta**: 'a' (aka 'r') DH parameter of the 5th joint
++ **post_corr**: 1xQNUM-1 array, offsets to be applied a posteriori, cf. braccio_angles(...)
++ **home**: 1xQNUM, home position of the robot
+
+Output arguments:
++ **jointpos**: (QNUM-1)x3 array, final 3D position of joints
+</details>
+
+<!-- rot3d_mat matlab function -->
+<details>
+    <summary>
+        rot3d_mat
+    </summary>
+
+Compute a rotation matrix in 3D space around x, y or z.
+
+    R = rot3d_mat(alpha, dir)
+
+Input arguments:
++ **alpha**: rotation angle
++ **dir**: rotation direction (1 = x axis, 2 = y axis, 3 = z axis)
+
+Output arguments:
++ **R**: 3x3 rotation matrix
+</details>
+
+<!-- rot_mat matlab function -->
+<details>
+    <summary>
+        rot_mat
+    </summary>
+
+Compute a rotation matrix in 2D space.
+
+    R = rot_mat(alpha)
+
+Input arguments:
++ **alpha**: rotation angle
+
+Output arguments:
++ **R**: 2x2 rotation matrix
+</details>
+
+<!-- roto_transl_mat matlab function -->
+<details>
+    <summary>
+        roto_transl_mat
+    </summary>
+
+Compute a rototranslation matrix in 3D space.
+
+    Rt = roto_transl_mat(transl, eulr)
+
+Input arguments:
++ **transl**: 3x1 vector, translation vector
++ **eulr**: 3x1 vector, [phi,theta,psi] parametrization of rotation
+
+Output arguments:
++ **Rt**: 4x4 rototranslation matrix
+</details>
+
+<!-- touchdown matlab function -->
+<details>
+    <summary>
+        touchdown
+    </summary>
+
+Function that computes a trajectory from the home position to a target point. The trajectory is composed by two parts. The former arrives to a certain position above the target moving all the joints with constant velocities. The latter is a vertical path to the target point that keeps the end effector orientation fixed.
+
+    [Qrob, errorflag] = touchdown(braccio_params, x, y, z, post_corr, home, VERBOSE)
+
+Input arguments:
++ **x**: target x-position of end effector (robot frame)
++ **y**: target y-position of end effector (robot frame)
++ **z**: target z-position of end effector (robot frame)
++ **post_corr**: 1xQNUM-1 array, offsets to be applied a posteriori, cf. braccio_angles(...)
++ **home**: 1xQNUM, home position of the robot
++ **VERBOSE**: verbose level of the function
+    + 0: show nothing
+    + 1: show the trajectory
+
+Output arguments:
++ **Qrob**: 170xQNUM, points of the trajectory in joints space
++ **errorflag**: 1 if for at least one of the keypoints either the solution does not satisfy the robot constraint or the fsolve routine fails, 0 otherwise
+
+NOTE: do not use `z` too high (remain in `z<=40` mm), stay in the range `140<=r<=360` mm where `r=sqrt(x^2+y^2)`.
+</details>
+
+<!-- z_correction matlab function -->
+<details>
+    <summary>
+        z_correction
+    </summary>
+
+Manual tuning of the joints positions in order to fix the z positions reached by the end effector.
+
+    corr = z_correction(in, transl)
+
+Input arguments:
++ **qloc**: 1xQNUM array, angular positions of the joints
++ **transl**: 1x3 array, translation vector of the end effector
+
+Output arguments:
++ **corr**: 1xQNUM array, corrected joints position
+</details>
 
 <a name="robot-control"></a>
 ## Robot Control
 
-Code to perform the control of the robot with Arduino and the Matlab interface.
+Code to perform the control of the robot with Arduino and run the Matlab interface.
 
 ### Arduino files
 
@@ -782,6 +1200,46 @@ Input arguments:
 
 Output arguments:
 + **cmd_err**: 1 if ACK is missing, 0 otherwise
+</details>
+
+<!-- emulate_keypoints_trajectory matlab function -->
+<details>
+    <summary>
+        emulate_keypoints_trajectory
+    </summary>
+
+Given a trajectory defined via keypoints return the actual trajectory followed by the robot. The actual trajectory is interpolated by the microcontroller with braccioServoMovement(...).
+
+    trajectory_robot = emulate_keypoints_trajectory(start, trajectory)
+
+Input arguments:
++ **start**: 1xQNUM array, starting point of the trajectory
++ **trajectory**: NxQNUM array, trajectory defined by keypoints
+
+Output arguments:
++ **trajectory_robot**: MxQNUM array, interpolated trajectory (M>=N)
+</details>
+
+<!-- estimate_time_trajectory matlab function -->
+<details>
+    <summary>
+        estimate_time_trajectory
+    </summary>
+
+Estimate the time to execute a trajectory on the robot.
+
+    time = estimate_time_trajectory(type_trajectory, trajectory, current_q, delta_t)
+
+Input arguments:
++ **type_trajectory**: type of trajectory, cf. generate_trajectory(...)
+    + 'pointwise': trajectory defined point by point
+    + 'keypoints': trajectory defined via keypoints to be interpolated
++ **trajectory**: NxQNUM array, points of the trajectory
++ **current_q**: 1xQNUM array, current position of the robot (joints)
++ **delta_t**: timestep of the trajectory execution
+
+Output arguments:
++ **time**: estimated execution time of the trajectory
 </details>
 
 <!-- fix_target_q matlab function -->
@@ -897,28 +1355,6 @@ Output arguments:
 + **t**: translation vector of the roto-translation that maps points from the target frame into the world frame (Matlab convention)
 + **R**: rotation matrix of the roto-translation that maps points from the target frame into the world frame (Matlab convention)
 + **i_aruco**: id of the marker correspondent to the target
-</details>
-
-<!-- estimate_time_trajectory matlab function -->
-<details>
-    <summary>
-        estimate_time_trajectory
-    </summary>
-
-Estimate the time to execute a trajectory on the robot.
-
-    time = estimate_time_trajectory(type_trajectory, trajectory, current_q, delta_t)
-
-Input arguments:
-+ **type_trajectory**: type of trajectory, cf. generate_trajectory(...)
-    + 'pointwise': trajectory defined point by point
-    + 'keypoints': trajectory defined via keypoints to be interpolated
-+ **trajectory**: NxQNUM array, points of the trajectory
-+ **current_q**: 1xQNUM array, current position of the robot (joints)
-+ **delta_t**: timestep of the trajectory execution
-
-Output arguments:
-+ **time**: estimated execution time of the trajectory
 </details>
 
 <!-- object_offset matlab function -->

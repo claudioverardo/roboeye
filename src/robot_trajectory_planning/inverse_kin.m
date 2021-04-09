@@ -1,5 +1,25 @@
-function [qloc, fval, info]=inverse_kin(transl,eulr,startingpos_in)
-%COMPUTE INVERSE KINEMATICS
+function [qloc, fval, info] = inverse_kin(transl, eulr, startingpos_in)
+% INVERSE_KIN Solve the general problem of inverse kinematics for a given 
+% position and orientation of the end effector.
+%
+%   [qloc, fval, info] = INVERSE_KIN(transl, eulr, startingpos_in)
+%
+%   Input arguments:
+%   ------------------
+%   transl:             translation vector of the end effector
+%   eulr:               euler angles of the rotation of the end effector
+%   startingpos_in:     initial guess of the solution for the solver
+%
+%   Output arguments:
+%   ------------------
+%   qloc:               1xQNUM-1 array, solution found
+%   fval:               final residual of the solver
+%   info:               final flag of the solver
+%
+%   NOTE: this method is very unstable, cf. inverse_kin_super_simple(...)
+%         for a more stable solution.
+%
+% See also INVERSE_KIN_SUPER_SIMPLE
 
   startingpos=startingpos_in([2 3 4]);
   %startingpos=startingpos_in;

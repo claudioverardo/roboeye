@@ -1,5 +1,26 @@
-function [qloc, fval, info]=inverse_kin_simple(transl,eulr,startingpos_in)
-%COMPUTE INVERSE KINEMATICS
+function [qloc, fval, info] = inverse_kin_simple(transl, eulr, startingpos_in, braccio_params)
+% INVERSE_KIN_SIMPLE Solve the problem of inverse kinematics for a given 
+% position and orientation of the end effector. Differently to the function
+% inverse_kin(...) it calculates the 1st and the 5th joints positions via 
+% geometric considerations. Then, it solves a semplified version of the 
+% inverse kinematics problem on the remaining 3 joints (2-3-4).
+%
+%   [qloc, fval, info] = INVERSE_KIN_SIMPLE(transl, eulr, startingpos_in)
+%
+%   Input arguments:
+%   ------------------
+%   transl:             translation vector of the end effector
+%   eulr:               euler angles of the rotation of the end effector
+%   startingpos_in:     initial guess of the solution for the solver
+%   braccio_params:     1xQNUM-1 array, real distances between robot joints
+%
+%   Output arguments:
+%   ------------------
+%   qloc:               1xQNUM-1 array, solution found
+%   fval:               final residual of the solver
+%   info:               final flag of the solver
+%
+% See also TOUCHDOWN, INVERSE_KIN_SUPER_SIMPLE
 
   startingpos=startingpos_in([2 4]);
 
@@ -8,7 +29,7 @@ function [qloc, fval, info]=inverse_kin_simple(transl,eulr,startingpos_in)
   %define Roto-translation matrix in the end effector's rf
   
   %solve numerically inverse kinematics problem finding the nearest zero of inv_kin_prob from startingpos
-  iks_obj = @(x)inv_kin_prob_simple(x,transl,eulr(2));
+  iks_obj = @(x)inv_kin_prob_simple(x,transl,eulr(2),braccio_params);
   [var, fval, info] = fsolve (iks_obj, startingpos,options);
   
   qloc_2(1)=var(1);
@@ -39,10 +60,10 @@ function [qloc, fval, info]=inverse_kin_simple(transl,eulr,startingpos_in)
       
 end
 
-function sol=inv_kin_prob_simple(var, transl, eulr2)
+function sol=inv_kin_prob_simple(var, transl, eulr2, braccio_params)
 %define the equation which has to be numerically solved in order to comput inverse kinematics
     
-  braccio=[71 125 125 195 0];
+  % braccio_params=[71 125 125 195 0];
   
   x=transl(1);
   y=transl(2);
@@ -57,7 +78,7 @@ function sol=inv_kin_prob_simple(var, transl, eulr2)
   %sol(1)=braccio(2)*var(1)+braccio(3)*(sin(-eulr2)*cos2+cos(-eulr2)*(-var(2)))+braccio(4)*sin(-eulr2)-r;
   %sol(2)=braccio(2)*cos1+braccio(3)*(cos(-eulr2)*cos2-sin(-eulr2)*(-var(2)))+braccio(4)*cos(-eulr2)+braccio(1)-z;
   
-  sol(1)=braccio(2)*sin(var(1))+braccio(3)*sin(var(2))+braccio(4)*sin(eulr2)-r;
-  sol(2)=braccio(2)*cos(var(1))+braccio(3)*cos(var(2))+braccio(4)*cos(eulr2)-z+braccio(1);
+  sol(1)=braccio_params(2)*sin(var(1))+braccio_params(3)*sin(var(2))+braccio_params(4)*sin(eulr2)-r;
+  sol(2)=braccio_params(2)*cos(var(1))+braccio_params(3)*cos(var(2))+braccio_params(4)*cos(eulr2)-z+braccio_params(1);
   
 end
