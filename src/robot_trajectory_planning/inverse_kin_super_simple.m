@@ -58,7 +58,7 @@ function [qloc, fval, info] = inverse_kin_super_simple(transl, joint4, startingp
       
 end
 
-function sol=inv_kin_prob_super_simple(var,transl,q4rad,braccio)
+function sol=inv_kin_prob_super_simple(var,transl,q4rad,braccio_params)
 %define the equation which has to be numerically solved in order to comput inverse kinematics
   
   %variable definition
@@ -86,6 +86,10 @@ function sol=inv_kin_prob_super_simple(var,transl,q4rad,braccio)
 %  sol(1)=braccio(2)*sin(var(1))+(braccio(3)+braccio(4)*cos(q4rad))*sin(var(2))+braccio(4)*sin(q4rad)*cos(var(2))-r;
 %  sol(2)=braccio(2)*cos(var(1))+(braccio(3)+braccio(4)*cos(q4rad))*cos(var(2))-braccio(4)*sin(q4rad)*sin(var(2))-z+braccio(1);
   
-  sol(1)=braccio(2)*sin(var(1))+braccio(3)*sin(var(2))+braccio(4)*sin(var(2)+q4rad)-r;
-  sol(2)=braccio(2)*cos(var(1))+braccio(3)*cos(var(2))+braccio(4)*cos(var(2)+q4rad)-z+braccio(1);
+%  sol(1)=braccio_params(2)*sin(var(1))+braccio_params(3)*sin(var(2))+braccio_params(4)*sin(var(2)+q4rad)-r;
+%  sol(2)=braccio_params(2)*cos(var(1))+braccio_params(3)*cos(var(2))+braccio_params(4)*cos(var(2)+q4rad)-z+braccio_params(1);
+  
+  sol(1)=braccio_params(2)*sin(var(1))+braccio_params(3)*sin(var(2))+braccio_params(4)*sin(var(2)+q4rad)-r+braccio_params(5)*cos(var(2)+q4rad+pi/2);
+  sol(2)=braccio_params(2)*cos(var(1))+braccio_params(3)*cos(var(2))+braccio_params(4)*cos(var(2)+q4rad)-z+braccio_params(1)+braccio_params(5)*sin(var(2)+q4rad+pi/2);
+  
 end

@@ -1,7 +1,7 @@
 close all % clear
 
-cam = webcam(1);
-% cam = [];
+cam = webcam(2);
+%cam = [];
 
 config_file = '../assets/config_files/config_robot';
 run(config_file);

@@ -114,7 +114,7 @@ function [Qrob, errorflag] = touchdown(braccio_params, x, y, z, post_corr, home,
         end
 
         if VERBOSE > 0
-            %jointpos=plot_config([ones(npoints+npoints_first,1) Q_tot]);
+            %jointpos=plot_config([ones(npoints+npoints_first,1) Q_tot], braccio_params);
             jointpos=plot_config_rob(Qrob, braccio_params, post_corr, home);
         end
 

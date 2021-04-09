@@ -41,7 +41,7 @@ const int qPin[QNUM] = {11, 10, 9, 6, 5, 3};
 
 // const byte homePosition[QNUM] = {90, 90, 90, 90, 90, 73}; // nominal
 // const byte homePosition[QNUM] = {90, 83, 98, 97, 90, 0}; // corrected old
-const byte homePosition[QNUM] = {87, 83, 99, 95, 90, 0}; // corrected
+const byte homePosition[QNUM] = {87, 81, 99, 95, 90, 0}; // corrected
 byte currentPosition[QNUM];
 bool currentPositionChanged = false;
 

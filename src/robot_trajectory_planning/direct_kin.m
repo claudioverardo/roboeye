@@ -1,15 +1,14 @@
-function Atot = direct_kin(q, njoints, braccio_params, delta)
+function Atot = direct_kin(q, njoints, braccio_params)
 % DIRECT_KIN Compute direct kinematics of the Braccio robot. With njoints<5
 % compute direct kinematics of the first njoints joints only.
 % 
-%   Atot = DIRECT_KIN(q, njoints, braccio, delta)
+%   Atot = DIRECT_KIN(q, njoints, braccio)
 %
 %   Input arguments:
 %   ------------------
 %   q:              1xQNUM-1 angular position of joints
 %   njoints:        number of joints to be considered for direct kinematics
 %   braccio_params: 1xQNUM-1 array, real distances between robot joints
-%   delta:          'a' (aka 'r') DH parameter of the 5th joint
 %
 %   Output arguments:
 %   ------------------
@@ -19,21 +18,17 @@ function Atot = direct_kin(q, njoints, braccio_params, delta)
     
   q=q*pi/180; %convert to rad
 
-  %braccio_params=[67 125 125 188 0]; %lengths of Braccio's segments %Since 19_03_21
+  % if nargin <= 2
+  %     % braccio_params=[67 125 125 188 0]; %lengths of Braccio's segments %Since 19_03_21
+  %     braccio_params=[71 125 125 195 0];
+  % end
+  
   %delta=-4.5;
-  
-  if nargin <= 2
-      braccio_params=[71 125 125 195 0];
-  end
-  
-  if nargin <=3
-      %delta=-10;
-      delta=0;
-  end
+  delta=braccio_params(5);
 
   %DH parameters
   a=[0 braccio_params(2:3) 0 delta]; 
-  d=[braccio_params(1) 0 0 0 braccio_params(4)+braccio_params(5)];
+  d=[braccio_params(1) 0 0 0 braccio_params(4)];
   alpha=[90 0 0 -90 0]*pi/180; % MOD 1 in rad
 
   %alpha=[90 0 0 90 0]*pi/180; % MOD 2 in rad

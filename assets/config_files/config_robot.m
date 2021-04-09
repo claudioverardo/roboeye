@@ -45,9 +45,16 @@ vision_args.options.verbose = 0; % aruco_pose_estimation_verbose
 
 %% ROBOT TRAJECTORY PLANNING
 %--------------------------------------------------------------------------
-trajectory_planning_args.braccio_params = [71 125 125 195 0];
+trajectory_planning_args.braccio_params = [71 125 125 195 -8];
+% braccio params(1) = distance between ground and joint 1
+% braccio params(2) = distance between joint 1 and joint 2
+% braccio params(3) = distance between joint 2 and joint 3
+% braccio params(4) = distance between joint 3 and EF tip
+% braccio params(5) = "a" DH parameter for joint 5
+
+
 trajectory_planning_args.post_corr = [0 0 0 0 0]; % [-3 -1 -1 4 0]
-trajectory_planning_args.z_min = 0; % [mm] in robot frame
+trajectory_planning_args.z_min = -5; % [mm] in robot frame
 trajectory_planning_args.box_coords_grasp = [-4 1 20]; % [cm] in vision frame
 trajectory_planning_args.box_coords_grasp_parabola = [-4 1 12.5]; % [cm] in vision frame
 trajectory_planning_args.n_points_parabola = 10;

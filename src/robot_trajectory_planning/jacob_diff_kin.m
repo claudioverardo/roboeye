@@ -1,13 +1,12 @@
-function J = jacob_diff_kin(q, braccio_params, delta)
+function J = jacob_diff_kin(q, braccio_params)
 % JACOB_DIFF_KIN Function that computes the geometric Jacobian of the robot.
 %
-%   J = JACOB_DIFF_KIN(q, braccio_params, delta)
+%   J = JACOB_DIFF_KIN(q, braccio_params)
 %
 %   Input arguments:
 %   ------------------
 %   q:                  angular positions of the joints
 %   braccio_params:     1xQNUM-1 array, real distances between robot joints
-%   delta:              'a' (aka 'r') DH parameter of the 5th joint
 %
 %   Output arguments:
 %   ------------------
@@ -15,13 +14,9 @@ function J = jacob_diff_kin(q, braccio_params, delta)
 %
 % See also CHECK_SING
     
-    if nargin <=2
-        braccio_params=[71 125 125 195 0];
-    end
-    
-    if nargin <=3
-        delta=0;
-    end
+    % if nargin <=2
+    %     braccio_params=[71 125 125 195 0];
+    % end
 
     njoints=5;
     prism=zeros(njoints,1);
@@ -35,13 +30,13 @@ function J = jacob_diff_kin(q, braccio_params, delta)
 
 
     for i=1:njoints
-        A=direct_kin(q,i-1,braccio_params,delta);
+        A=direct_kin(q,i-1,braccio_params);
         R=A([1 2 3],[1 2 3]);
         p(i,:)=A([1 2 3],4);
         z(i,:)=(R*[0 0 1]')';
     end
 
-    A=direct_kin(q,njoints,braccio_params,delta);
+    A=direct_kin(q,njoints,braccio_params);
     pe=A([1 2 3],4);
 
     for i=1:njoints

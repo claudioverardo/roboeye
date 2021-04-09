@@ -1,4 +1,4 @@
-function jointpos = plot_config(Q, braccio_params, delta)
+function jointpos = plot_config(Q, braccio_params)
 % PLOT_CONFIG Given a input trajectory in joints space (model convention), 
 % plot the position and orientation of the end effector for each point of 
 % the trajectory. Moreover, plot the final robot configuration.
@@ -9,7 +9,6 @@ function jointpos = plot_config(Q, braccio_params, delta)
 %   ------------------
 %   Q:                  NxQNUM-1 array, trajectory in joints space
 %   braccio_params:     1xQNUM-1 array, real distances between robot joints
-%   delta:              'a' (aka 'r') DH parameter of the 5th joint
 %
 %   Output arguments:
 %   ------------------
@@ -17,14 +16,9 @@ function jointpos = plot_config(Q, braccio_params, delta)
 %
 % See also PLOT_CONFIG_ROB
   
-  if nargin <= 1
-      braccio_params=[71 125 125 195 0];
-  end
-  
-  if nargin <=2
-      %delta=-10;
-      delta=0;
-  end
+  % if nargin <= 1
+  %     braccio_params=[71 125 125 195 0];
+  % end
 
   npoints=length(Q(:,1));
   lungax=1;
@@ -41,7 +35,7 @@ function jointpos = plot_config(Q, braccio_params, delta)
     
     Qcorr=Q(i,[2 3 4 5 6])+[0 90 0 -90 0]; %convert angles to DH convenction
     
-    Aloc=direct_kin(Qcorr,5,braccio_params,delta);
+    Aloc=direct_kin(Qcorr,5,braccio_params);
     Rloc=Aloc([1 2 3],[1 2 3]);
     XX(i,[2 3 4])=Aloc([1 2 3],4);
     
@@ -58,7 +52,7 @@ function jointpos = plot_config(Q, braccio_params, delta)
   %compute joints' positions
   for i=1:5
     %Afin=direct_kin(Q(1,[2 3 4 5 6]),i);
-    Afin=direct_kin(Qcorr,i,braccio_params,delta);
+    Afin=direct_kin(Qcorr,i,braccio_params);
     jointpos(i+1,:)=Afin([1 2 3],4)';
   end
 
