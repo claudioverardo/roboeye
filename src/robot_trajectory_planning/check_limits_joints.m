@@ -6,13 +6,13 @@ function check_ans = check_limits_joints(qrob)
 %
 %   Input arguments:
 %   ------------------
-%   qrob:       joints position under test 
+%   qrob:       1xQNUM array, joints position under test 
 %
 %   Output arguments:
 %   ------------------
 %   check_ans:  1 if qrob satisfy the constraints, 0 otherwise
 %
-% See also GOTHERE
+% See also GOTHERE, TOUCHDOWN
 
     % define robot agles limits
     ang_pos_rob_max=[180 165 180 180 180 73];

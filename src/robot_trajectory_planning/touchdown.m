@@ -5,23 +5,27 @@ function [Qrob, errorflag] = touchdown(braccio_params, x, y, z, post_corr, home,
 % velocities. The latter is a vertical path to the target point that keeps 
 % the end effector orientation fixed.   
 %
-%   [Qrob, errorflag] = TOUCHDOWN(x, y, z, post_corr, home, VERBOSE)
+%   [Qrob, errorflag] = TOUCHDOWN(braccio_params, x, y, z, post_corr, home,
+%   VERBOSE)
 %
 %   Input arguments:
 %   ------------------
+%   braccio_params:     1xQNUM-1 array, real parameters of the Braccio robot,
+%                       cf. direct_kin(...)
 %   x:                  target x-position of end effector (robot frame)
 %   y:                  target y-position of end effector (robot frame)
 %   z:                  target z-position of end effector (robot frame)
 %   post_corr:          1xQNUM-1 array, offsets to be applied a posteriori
 %                       cf. braccio_angles(...)
-%   home:               1xQNUM, home position of the robot
+%   home:               1xQNUM array, home position of the robot
 %   VERBOSE:            verbose level of the function
 %                       - 0: show nothing
 %                       - 1: show the trajectory
 %
 %   Output arguments:
 %   ------------------
-%   Qrob:               170xQNUM, points of the trajectory in joints space
+%   Qrob:               170xQNUM array, pointwise trajectory in the space 
+%                       of joints (robot convention)
 %   errorflag:          1 if for at least one of the keypoints either the
 %                       solution does not satisfy the robot constraint or
 %                       the fsolve routine fails, 0 otherwise
@@ -114,7 +118,7 @@ function [Qrob, errorflag] = touchdown(braccio_params, x, y, z, post_corr, home,
         end
 
         if VERBOSE > 0
-            %jointpos=plot_config([ones(npoints+npoints_first,1) Q_tot], braccio_params);
+            jointpos=plot_config([ones(npoints+npoints_first,1) Q_tot], braccio_params);
             jointpos=plot_config_rob(Qrob, braccio_params, post_corr, home);
         end
 

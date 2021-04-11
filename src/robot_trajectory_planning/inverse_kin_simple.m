@@ -2,21 +2,23 @@ function [qloc, fval, info] = inverse_kin_simple(transl, eulr, startingpos_in, b
 % INVERSE_KIN_SIMPLE Solve the problem of inverse kinematics for a given 
 % position and orientation of the end effector. Differently to the function
 % inverse_kin(...) it calculates the 1st and the 5th joints positions via 
-% geometric considerations. Then, it solves a semplified version of the 
+% geometric considerations. Then, it solves a simplified version of the 
 % inverse kinematics problem on the remaining 3 joints (2-3-4).
 %
-%   [qloc, fval, info] = INVERSE_KIN_SIMPLE(transl, eulr, startingpos_in)
+%   [qloc, fval, info] = INVERSE_KIN_SIMPLE(transl, eulr, startingpos_in, 
+%   braccio_params)
 %
 %   Input arguments:
 %   ------------------
 %   transl:             translation vector of the end effector
 %   eulr:               euler angles of the rotation of the end effector
-%   startingpos_in:     initial guess of the solution for the solver
-%   braccio_params:     1xQNUM-1 array, real distances between robot joints
+%   startingpos_in:     1xQNUM-1 array, initial guess for the solver
+%   braccio_params:     1xQNUM-1 array, real parameters of the Braccio robot,
+%                       cf. direct_kin(...)
 %
 %   Output arguments:
 %   ------------------
-%   qloc:               1xQNUM-1 array, solution found
+%   qloc:               1xQNUM-1 array, solution found (model convention)
 %   fval:               final residual of the solver
 %   info:               final flag of the solver
 %

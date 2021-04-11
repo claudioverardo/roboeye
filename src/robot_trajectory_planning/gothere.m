@@ -12,32 +12,33 @@ function [qrob, errorflag, q] = gothere(braccio_params, x, y, z, roll, grasp, of
 %
 %   Input arguments:
 %   ------------------
-%   braccio_params:     1xQNUM-1 array, real distances between robot joints
-%   x:                  target x-position of end effector (robot frame)
-%   y:                  target y-position of end effector (robot frame)
-%   z:                  target z-position of end effector (robot frame)
-%   roll:               angular position of the 5th joint (roll)
-%   grasp:              angular position of the 6th joint (gripper)
-%   offset:             offset along z-axis of the 5th joint frame origin
-%   q_pre:              1xQNUM array, previous position of the robot (optional)
-%   post_corr:          1xQNUM-1 array, offsets to be applied a posteriori
-%                       cf. braccio_angles(...)
-%   home:               1xQNUM, home position of the robot
+%   braccio_params: 1xQNUM-1 array, real parameters of the Braccio robot,
+%                   cf. direct_kin(...)
+%   x:              target x-position of end effector (robot frame)
+%   y:              target y-position of end effector (robot frame)
+%   z:              target z-position of end effector (robot frame)
+%   roll:           target position of the 5th joint (roll)
+%   grasp:          target position of the 6th joint (gripper)
+%   offset:         offset along z-axis of the 5th joint frame origin
+%   q_pre:          1xQNUM array, previous position of the robot (optional)
+%   post_corr:      1xQNUM-1 array, offsets to be applied a posteriori
+%                   cf. braccio_angles(...)
+%   home:           1xQNUM array, home position of the robot
 %
 %   Parameters:
 %   --------
-%   'verbose':          verbose level of the function (0, 1)
-%                       - 0: show nothing
-%                       - 1: show the solution found
+%   'verbose':      verbose level of the function (0, 1)
+%                   - 0: show nothing
+%                   - 1: show the solution found
 %
 %   Output arguments:
 %   ------------------
-%   qrob:               angular positions of joints (robot convention)
-%   errorflag:          1 if either the solution does not satisfy the robot
-%                       constraint or the fsolve routine fails, 0 otherwise
-%   q:                  angular positions of "encoders" (debugging)
+%   qrob:           1xQNUM array, target position of joints (robot convention)
+%   errorflag:      1 if either the solution does not satisfy the robot
+%                   constraints or the fsolve routine fails, 0 otherwise
+%   q:              1xQNUM array, target positions of "encoders" (debugging)
 %
-% See also GENERATE_TRAJECTORY
+% See also GENERATE_TRAJECTORY, INVERSE_KIN_SUPER_SIMPLE
 
     % Default values of parameters    
     default_verbose = 0;

@@ -7,7 +7,7 @@ function corr = z_correction(qloc, transl)
 %   Input arguments:
 %   ------------------
 %   qloc:       1xQNUM array, angular positions of the joints
-%   transl:     1x3 array, translation vector of the end effector
+%   transl:     translation vector of the end effector
 %
 %   Output arguments:
 %   ------------------

@@ -1,16 +1,18 @@
 function J = jacob_diff_kin(q, braccio_params)
-% JACOB_DIFF_KIN Function that computes the geometric Jacobian of the robot.
-%
+% JACOB_DIFF_KIN Compute the geometric Jacobian of the Braccio robot for a
+% given position of the joints.
+%.
 %   J = JACOB_DIFF_KIN(q, braccio_params)
 %
 %   Input arguments:
 %   ------------------
-%   q:                  angular positions of the joints
-%   braccio_params:     1xQNUM-1 array, real distances between robot joints
+%   q:                  1xQNUM-1 array, joints positions in model convention
+%   braccio_params:     1xQNUM-1 array, real parameters of the Braccio robot,
+%                       cf. direct_kin(...)
 %
 %   Output arguments:
 %   ------------------
-%   J:                  geometric Jacobian matrix of the robot
+%   J:                  6xQNUM-1 geometric Jacobian matrix of the robot
 %
 % See also CHECK_SING
     

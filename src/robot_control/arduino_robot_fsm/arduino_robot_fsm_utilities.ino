@@ -1,27 +1,43 @@
-void initializeRobot(int soft_init_level) {
-  // initializeRobot(SOFT_INIT_DISABLED) the softInit is disabled and you can use the pin 12
-  if (soft_init_level != SOFT_INIT_DISABLED) {
-    pinMode(SOFT_INIT_CONTROL_PIN, OUTPUT);
-    digitalWrite(SOFT_INIT_CONTROL_PIN, LOW);
-  }
-
-  // Initialization pin Servo motors
-  for (int i = 0; i < QNUM; i++) {
-    q[i].attach(qPin[i]);
-  }
-
-  // For each step motor this set up the initial degree
-  for (int i = 0; i < QNUM; i++) {
-    q[i].write(homePosition[i]);
-  }
- 
-  // Turn ON the Braccio softly and save it from brokes.
-  if (soft_init_level != SOFT_INIT_DISABLED) {
-    _softInit(soft_init_level);
-  }
+/*
+ * Write on the serial the last command received as ACK for Matlab.
+ * @param command: command to be written on the serial
+ */
+void commandACK(byte command) {
+  Serial.write(command);
 }
 
-void _softwarePWM(int high_time, int low_time) {
+/*
+ * Write on the serial the last state transition as ACK for Matlab.
+ * @param prevState: state before the transition
+ * @param nextState: state after the transition
+ */
+void transitionACK(byte prevState, byte nextState) {
+  Serial.write(prevState);
+  Serial.write(nextState);
+}
+
+/*
+ * This function turn ON the Braccio robot softly and save it from brokes.
+ * The SOFT_INIT_CONTROL_PIN is used as a software PWM.
+ * @param soft_init_level: the minimum value is -70, default value is 0 (SOFT_INIT_DEFAULT)
+ */
+void softInit(int soft_init_level) {
+  long int tmp = millis();
+  while (millis() - tmp < DELTA_T_INIT_LOW_LIMIT)
+    softwarePWM(80 + soft_init_level, 450 - soft_init_level); //the sum should be 530usec
+
+  while (millis() - tmp < DELTA_T_INIT_HIGH_LIMIT)
+    softwarePWM(75 + soft_init_level, 430 - soft_init_level); //the sum should be 505usec
+
+  digitalWrite(SOFT_INIT_CONTROL_PIN, HIGH);
+}
+
+/*
+ * Software implementation of the PWM for the SOFT_START_CONTROL_PIN.
+ * @param high_time: the time in the logic level high
+ * @param low_time: the time in the logic level low
+ */
+void softwarePWM(int high_time, int low_time) {
   digitalWrite(SOFT_INIT_CONTROL_PIN, HIGH);
   delayMicroseconds(high_time);
   digitalWrite(SOFT_INIT_CONTROL_PIN, LOW);
@@ -29,39 +45,17 @@ void _softwarePWM(int high_time, int low_time) {
 }
 
 /*
-  This function, used only with the Braccio Shield V4 and greater,
-  turn ON the Braccio softly and save it from brokes.
-  The SOFT_INIT_CONTROL_PIN is used as a software PWM
-  @param soft_init_level: the minimum value is -70, default value is 0 (SOFT_INIT_DEFAULT)
-*/
-void _softInit(int soft_init_level) {
-  long int tmp = millis();
-  while (millis() - tmp < DELTA_T_INIT_LOW_LIMIT)
-    _softwarePWM(80 + soft_init_level, 450 - soft_init_level); //the sum should be 530usec
-
-  while (millis() - tmp < DELTA_T_INIT_HIGH_LIMIT)
-    _softwarePWM(75 + soft_init_level, 430 - soft_init_level); //the sum should be 505usec
-
-  digitalWrite(SOFT_INIT_CONTROL_PIN, HIGH);
-}
-
-void releaseRobot(int soft_init_level) {
-  // Turn off Servo motors
-  for (int i = 0; i < QNUM; i++) {
-    q[i].detach();
-  }
-  
-  if (soft_init_level != SOFT_INIT_DISABLED) {
-    digitalWrite(SOFT_INIT_CONTROL_PIN, LOW);
-    pinMode(SOFT_INIT_CONTROL_PIN, INPUT);
-  }
-}
-
+ * Execute a pointwise trajectory.
+ * @param deltaT: timestep of each point of the trajectory
+ * @return end_task: true if the trajectory is completed without errors, false otherwise
+ */
 bool executePointwiseTrajectory(int deltaT) {
   
   bool end_task;
   
+  // For all the points of the trajectory
   for (int i = 0; i < trajectoryNumPoints; i++) {
+    // Check if the target position is permitted
     if (checkBoundaries(trajectory[i])) {
       for (int j = 0; j < QNUM; j++) {
         q[j].write(trajectory[i][j]);
@@ -78,6 +72,12 @@ bool executePointwiseTrajectory(int deltaT) {
   return end_task;
 }
 
+/*
+ * Interpolate and execute the trajectory between the current position and a target keypoint.
+ * @param targetPosition: target keypoint of the trajectory
+ * @param deltaT: timestep of each point of the trajectory
+ * @return end_task: true if the trajectory is completed without errors, false otherwise
+ */
 bool braccioServoMovement(byte targetPosition[], int deltaT) {
 
   bool done = false;
@@ -120,7 +120,12 @@ bool braccioServoMovement(byte targetPosition[], int deltaT) {
   return done;
 }
 
-bool checkBoundaries(byte jointPositions[]) {
+/*
+ * Check if a joints position satisfy the robot constraints.
+ * @param jointsPosition: joints position under test
+ * @return ans: true if the robot constraints are satisfied, false otherwise
+ */
+bool checkBoundaries(byte jointsPosition[]) {
 
   bool ans = true;
 
@@ -134,28 +139,21 @@ bool checkBoundaries(byte jointPositions[]) {
   */
 
   /*
-  ans =  ( jointPositions[BASE]      >=  0 && jointPositions[BASE]      <= 180 )
-      && ( jointPositions[SHOULDER]  >= 15 && jointPositions[SHOULDER]  <= 165 )
-      && ( jointPositions[ELBOW]     >=  0 && jointPositions[ELBOW]     <= 180 )
-      && ( jointPositions[WRIST_ROT] >=  0 && jointPositions[WRIST_ROT] <= 180 )
-      && ( jointPositions[WRIST_VER] >=  0 && jointPositions[WRIST_VER] <= 180 )
-      && ( jointPositions[GRIPPER]   >= 10 && jointPositions[GRIPPER]   <= 73  );
+  ans =  ( jointsPosition[BASE]      >=  0 && jointsPosition[BASE]      <= 180 )
+      && ( jointsPosition[SHOULDER]  >= 15 && jointsPosition[SHOULDER]  <= 165 )
+      && ( jointsPosition[ELBOW]     >=  0 && jointsPosition[ELBOW]     <= 180 )
+      && ( jointsPosition[WRIST_ROT] >=  0 && jointsPosition[WRIST_ROT] <= 180 )
+      && ( jointsPosition[WRIST_VER] >=  0 && jointsPosition[WRIST_VER] <= 180 )
+      && ( jointsPosition[GRIPPER]   >= 10 && jointsPosition[GRIPPER]   <= 73  );
   */
 
   return ans;
 }
 
-void commandACK(byte command) {
-  Serial.write( command);
-}
-
-void transitionACK(byte prevState, byte nextState) {
-  Serial.write(prevState);
-  Serial.write(nextState);
-}
-
+/*
+ * Print the loaded trajectory on the serial line in order to check it on Matlab.
+ */
 void printTrajectory() {
-  // Print the trajectory on the serial line in order to check it on Matlab
   Serial.write(trajectoryType);
   Serial.write(trajectoryNumPoints);
   Serial.write(trajectoryDeltaT);
@@ -166,6 +164,10 @@ void printTrajectory() {
   }
 }
 
+/*
+ * After the execution of a trajectory, update the current position and reset the trajectory data.
+ * @param finalPosition: last position of the executed trajectory
+ */
 void finalizeTrajectory(byte finalPosition[]) {
   // Update the current position
   currentPositionChanged = true;

@@ -9,8 +9,8 @@ function robot_fsm_interface(port, baud, cam, vision_args, trajectory_planning_a
 %   port: port of the Arduino serial connection, cf. serialport(...)
 %   baud: baud rate of the Arduino serial connection, cf. serialport(...)
 %   cam: webcam object of the camera, cf. webcam(...)
-%   vision_args: struct of vision parameters, cf below
-%   trajectory_planning_args: struct of trajectory planning parameters, cf below
+%   vision_args: struct of vision parameters, cf. below
+%   trajectory_planning_args: struct of trajectory planning parameters, cf. below
 %   fn_cam2robot_coords: function to convert points from vision to robot frame 
 %   fn_robot_input: function to acquire input, cf. input(...) or cmdBuffer
 %   

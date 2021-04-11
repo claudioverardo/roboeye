@@ -12,29 +12,30 @@ function [Q_def, error_flag] = parabolic_traj(p1, p2, z_ap, roll_in, npoints, br
 %   ------------------
 %   p1:                 1x3 array, starting point of the end effector
 %   p2:                 1x3 array, ending point of the end effector
-%   z_ap:               z of the apex of the parabolic trajectory
+%   z_ap:               z of the apex of the parabolic trajectory, set to
+%                       'auto' to automatically find the highest one
 %   roll_in:            initial position of the 5th joint
 %   npoints:            number of keypoints of the generated trajectory
-%   braccio_params:     1xQNUM-1 array, real distances between robot joints
+%   braccio_params:     1xQNUM-1 array, real parameters of the Braccio robot,
+%                       cf. direct_kin(...)
 %   grasp:              angular position of the 6th joint (gripper)
 %   offset:             offset along z-axis of the 5th joint frame origin
 %   post_corr:          1xQNUM-1 array, offsets to be applied a posteriori
 %                       cf. braccio_angles(...)
-%   home:               1xQNUM, home position of the robot
+%   home:               1xQNUM array, home position of the robot
 %   VERBOSE:            verboose level of the function
 %                       - 0: show nothing
 %                       - 1: show the parabolic trajectory
 %
 %   Output arguments:
 %   ------------------
-%   Q_def:              npoints x QNUM, keypoints of the trajectory
+%   Q_def:              npoints x QNUM array, keypoints of the trajectory 
+%                       in the space of joints (robot convention)
 %   error_flag:         1 if for at least one of the keypoints either the
-%                       solution does not satisfy the robot constraint or
+%                       solution does not satisfy the robot constraints or
 %                       the fsolve routine fails, 0 otherwise
 %
 % See also GENERATE_TRAJECTORY, GOTHERE
-   
-    %box coordinates: [90 250 120];
 
     % z_ap-auto margin 
     margin_z=60;
@@ -43,29 +44,29 @@ function [Q_def, error_flag] = parabolic_traj(p1, p2, z_ap, roll_in, npoints, br
         VERBOSE=0;
     end
 
-    if nargin <= 9
-        home=[];
-    end
+    % if nargin <= 9
+    %     home=[];
+    % end
 
-    if nargin <= 8
-        post_corr=[];
-    end
+    % if nargin <= 8
+    %     post_corr=[];
+    % end
     
-    if nargin <= 7
-        offset=0;
-    end
+    % if nargin <= 7
+    %     offset=0;
+    % end
     
-    if nargin <= 6
-        grasp=73;
-    end
+    % if nargin <= 6
+    %     grasp=73;
+    % end
     
-    if nargin <= 5 || strcmp(braccio_params,'def')
-        braccio_params=[71 125 125 195 0];
-    end
+    % if nargin <= 5 || strcmp(braccio_params,'def')
+    %     braccio_params=[71 125 125 195 0];
+    % end
     
-    if nargin <= 4
-        npoints=8;
-    end
+    % if nargin <= 4
+    %     npoints=8;
+    % end
 
     error_flag=0;
 

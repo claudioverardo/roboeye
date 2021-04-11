@@ -5,7 +5,7 @@ function [R, J_roll, J_pitch, J_yaw] = rpy2rot(a)
 %
 %   Input arguments:
 %   ------------------
-%   a:          [roll pitch yaw] parameterization of the rotation
+%   a:          [roll pitch yaw] aka XYZ parameterization of the rotation
 %               - a(1) = roll,  rotation angle around x-axis
 %               - a(2) = pitch, rotation angle around y-axis
 %               - a(3) = yaw,   rotation angle around z-axis

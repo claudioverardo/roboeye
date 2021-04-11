@@ -1,230 +1,22 @@
 # Documentation
 
-1. [Robot Calibration](#robot-calibration)
-2. [Robot Vision](#robot-vision)
-3. [Robot Trajectory Planning](#robot-trajectory-planning)
-4. [Robot Control](#robot-control)
-
-<a name="robot-calibration"></a>
-## Robot Calibration
-
-Code to perform the calibration of the cameras and the robot with a checkerboard.
-
-These functions assume the usual conventions to represent the pinhole model of a camera (in the following, **literature convention**). Namely, points on the image plane `m` and in space `M` are represented by column vectors. The projection equation (cf. the references of the project) takes the form `m = P*M = K*[R t]*M`, where `P` is the projection matrix, `K` the intrinsics matrix, and `[R t]` the extrinsics of the camera.
-
-### Functions
-
-<!-- acquire_calibration_images matlab function -->
-<details>
-    <summary>
-        acquire_calibration_images
-    </summary>
-
-Acquire some images of a checkerboard from a set of fixed cameras at the same time. These images can be used to calibrate the cameras with the SMZ algorithm.
-
-    images = acquire_calibration_images(n_images, cameras, dirs_images)
-
-Input arguments:
-+ **n_images**: number of the images to be acquired from each camera
-+ **cameras**: cell array of camera objects (cf. webcam(...))
-+ **dirs_images**: cell array with the directory paths where to save the images
-
-Output arguments:
-+ **images**: cell array of acquired images. images{i,j} is the i-th image acquired from the j-th camera
-
-NOTE: this function requires the MATLAB Support Package for USB Webcams.
-</details>
-
-<!-- calibration_extrinsics_camera matlab function -->
-<details>
-    <summary>
-        calibration_extrinsics_camera
-    </summary>
-
-Retrive the rotation matrix and the translation vector (extrinsics) of a camera wrt a world frame attached to a checkerboard.
-
-    [R_cam, t_cam] = calibration_extrinsics_camera(cam, K, k, step_size, grid_arrangement, cm2px_scale, dir)
-
-Input arguments:
-+ **cam**:                webcam object (cf. webcam(...))
-+ **K**:                  intrinsics matrix of the camera (literature convention)
-+ **k**:                  radial distortion coefficients of the camera
-+ **step_size**:          side of the squares of the checkerboard [cm]
-+ **grid_arrangement**:   [x-steps y-steps] steps of the checkerboard along x,y axes
-+ **cm2px_scale**:        dimension in cm of 1 pixel of the rectified image
-+ **dir**:                directory where to write/read the calibration files
-
-Output arguments:
-+ **R_cam**: rotation matrix of the camera extrinsics in the world frame (literature convention)
-+ **t_cam**: translation vector of the camera extrinsics in the world frame (literature convention)
-
-NOTE: this function requires the following packages:
-+ MATLAB Support Package for USB Webcams
-+ Computer Vision Toolkit (http://www.diegm.uniud.it/fusiello/demo/toolkit/)
-</details>
-
-<!-- calibration_extrinsics_stereo matlab function -->
-<details>
-    <summary>
-        calibration_extrinsics_stereo
-    </summary>
-
-Retrieve the extrinsics and epipolar matrices of a stereo pair. The two cameras are assumed with known intrinsics and extrinsics wrt the same world frame.
-
-    [delta_R, delta_t, E, F] = calibration_extrinsics_stereo(K1, R1, t1, K2, R2, t2, dir)
-
-Input arguments:
-+ **K1**:         intrinsics matrix of the first camera (literature convention)
-+ **R1**:         rotation matrix of the extrinsics of the first camera in the world frame (literature convention)
-+ **t1**:         translation vector of the extrinsics of the first camera in the world frame (literature convention)
-+ **K2**:         intrinsics matrix of the second camera (literature convention)
-+ **R2**:         rotation matrix of the extrinsics of the second camera in the world frame (literature convention)
-+ **t2**:         translation vector of the extrinsics of the second camera in the world frame (literature convention)
-+ **dir**:        name of the directory where to save the results
-
-Output arguments:
-+ **delta_R**:    rotation matrix of the extrinsics of the stereo pair with the first camera as reference (literature convention)
-+ **delta_t**:    translation vector of the extrinsics of the stereo pair with the first camera as reference (literature convention)
-+ **E**:          essential matrix of the stereo pair (literature convention)
-+ **F**:          fundamental matrix of the stereo pair (literature convention)
-</details>
-
-<!-- calibration_extrinsics_stereo_smz matlab function -->
-<details>
-    <summary>
-        calibration_extrinsics_stereo_smz
-    </summary>
-
-Retrieve the extrinsics and epipolar matrices of a stereo pair. The two cameras are assumed to be previously jointly calibrated with the SMZ algorithm and with fixed relative position afterwards.
-
-    [delta_R, delta_t, E, F] = calibration_extrinsics_stereo_smz(P1, K1, P2, K2, dir)
-
-Input arguments:
-+ **P1**:         cell array of projection matrices returned by SMZ calibration of the first camera (literature convention)
-+ **K1**:         intrinsics matrix of the first camera (literature convention)
-+ **P2**:         cell array of projection matrices returned by SMZ calibration of the second camera (literature convention)
-+ **K2**:         intrinsics matrix of the second camera (literature convention)
-+ **dir**:        name of the directory where to save the results
-
-Output arguments:
-+ **delta_R**:    rotation matrix of the extrinsics of the stereo pair with the first camera as reference (literature convention)
-+ **delta_t**:    translation vector of the extrinsics of the stereo pair with the first camera as reference (literature convention)
-+ **E**:          essential matrix of the stereo pair (literature convention)
-+ **F**:          fundamental matrix of the stereo pair (literature convention)
-</details>
-
-<!-- calibration_intrinsics_camera matlab function -->
-<details>
-    <summary>
-        calibration_intrinsics_camera
-    </summary>
-
-Retrive the intrisics and radial distortion parameters of a camera using a set of checkerboard images (SMZ algorithm).
-
-    [P, K, intrinsics] = calibration_intrinsics_camera(n_intrinsics, n_radial_dist, step_size, grid_arrangement, cm2px_scale, dir_images)
-
-Input arguments:
-+ **n_intrinsics**:       number of intrisics to be calibrated (4, 5)
-    + 4: fx, fy, u0, v0
-    + 5: fx, fy, u0, v0, skew
-+ **n_radial_dist**:      number of the distortion coefficient to be calibrated (1, 2)
-+ **step_size**:          side of the squares of the checkerboard [cm]
-+ **grid_arrangement**:   [x-steps y-steps] steps of the checkerboard along x,y axes
-+ **cm2px_scale**:        dimension in cm of 1 pixel of the rectified images   
-+ **dir_images**:         path of the directory containing the checkerboard images  
-
-Output arguments:
-+ **P**:                cell array of projection matrices associated to the checkerboard images (literature convention)
-+ **K**:                calibrated intrisics matrix (literature convention)
-+ **intrinsics**:       table with intrinsics and radial distortion parameters 
-
-NOTE: this function requires the Computer Vision Toolkit (http://www.diegm.uniud.it/fusiello/demo/toolkit/)
-</details>
-
-<!-- check_epipolar matlab function -->
-<details>
-    <summary>
-        check_epipolar_geometry
-    </summary>
-
-Acquire two points from the two images of a stereo pair and compute the Longuet-Higgins equation between them.
-
-    test = check_epipolar_geometry(cam1, cam2, F)
-
-Input arguments:
-+ **cam1**: camera object of the first camera (cf. webcam(...))
-+ **cam2**: camera object of the second camera (cf. webcam(...))
-+ **F**: fundamental matrix of the stereo pair (cam1 assumed as reference)
-
-Output arguments:
-+ **test**: value of the Longuet-Higgins equation `p2'*F*p1`, where `p1`, `p2` are the points acquired from the first and second camera respectively (in homogeneous coordinates)
-</details>
-
-<!-- check_svd matlab function -->
-<details>
-    <summary>
-        check_svd
-    </summary>
-
-SVD test to check if arrays are (numerically) linearly dependent.
-
-    sigma_svd = check_svd(X)
-
-Input arguments:
-+ **X**: cell array of candidated linearly dependent arrays
-
-Output arguments:
-+ **sigma_svd**: singolar values of the concatenated arrays
-</details>
-
-<!-- get_extrinsics_camera matlab function -->
-<details>
-    <summary>
-        get_extrinsics_camera
-    </summary>
-
-Retrieve the extrinsics of a set of cameras from their projection matrices and intrinsics matrices.
-
-    [R, t, G] = get_extrinsics_camera(P, K) 
-
-Input arguments:
-+ **P**: cell array of projection matrices (literature convention)
-+ **K**: cell array of intrinsics matrices (literature convention)
-
-Output arguments:
-+ **R**: cell array of rotation matrices (literature convention)
-+ **t**: cell array of translation vectors (literature convention)
-+ **G**: cell array of `[R t; 0 1]` matrices (literature convention)
-</details>
-
-<!-- print_countdown matlab function -->
-<details>
-    <summary>
-        print_countdown
-    </summary>
-
-Plot on the screen the countdown of length seconds.
-
-    print_countdown(length)
-
-Input arguments:
-+ **length**: duration of the countdown [s]
-</details>
-
-Usage examples can be found in [run_calibration_camera](../src/scripts/run_calibration_camera.m) and [run_calibration_stereo](../src/scripts/run_calibration_stereo.m).
+1. [Robot Vision](#robot-vision)
+2. [Robot Trajectory Planning](#robot-trajectory-planning)
+3. [Robot Control](#robot-control)
+4. [Robot Calibration](#robot-calibration)
 
 <a name="robot-vision"></a>
 ## Robot Vision
 
-Code to perform the detection and the pose estimation of Aruco markers in the scene.
+Code to perform the detection and the pose estimation of Aruco markers in the scene. Usage examples can be found in [run_detection](../src/scripts/run_detection.m) and [run_pose_estimation](../src/scripts/run_pose_estimation.m).
 
-These functions assume the Matlab conventions to represent the pinhole model of a camera (in the following, **Matlab convention**). Namely, points on the image plane `m` and in space `M` are represented by row vectors. The projection equation takes the form `m = M*P = M*[R; t]*P`, where `P, K, R, t` are the transposes of their counterparts in the literature convention.
+These functions assume the Matlab conventions to represent the pinhole model of a camera (in the following, **Matlab convention**). Namely, points on the image plane `m` and in space `M` are represented by row vectors. The projection equation takes the form `m = M*P = M*[R; t]*P`, where `P, K, R, t` are the transposes of their counterparts in the literature convention (cf. [Robot Calibration](#robot-calibration)).
 
-We refer to **world frame** as the coordinate system XYZ wrt the camera extrinsics are calibrated (magenta-cyan-yellow axes in the image below). We refer to **ROI frame** (also, ROI pose) as the coordinate system xyz placed at the center of a marker such that its contol points is at `(-0.5,0.5,0)*side`, where `side` is the real length of the marker side (red-blue-green axes in the image below).
+We refer to **world frame** (or **vision frame**) as the coordinate system XYZ wrt the camera extrinsics are calibrated (magenta-cyan-yellow axes in the image below). We refer to **ROI frame** (also, ROI pose) as the coordinate system xyz placed at the center of a marker such that its contol points is at `(-0.5,0.5,0)*side`, where `side` is the real length of the marker side (red-blue-green axes in the image below).
 
-![Frames](./frames.png)
+![FrameVision](./frame_vision.png)
 
-### Functions
+### Matlab functions
 
 <!-- aruco_detection matlab function -->
 <details>
@@ -701,7 +493,7 @@ Create a rotation matrix from its roll-pitch-yaw parameterization.
     [R, J_roll, J_pitch, J_yaw] = rpy2rot(a)
 
 Input arguments:
-+ **a**: [roll pitch yaw] parameterization of the rotation
++ **a**: [roll pitch yaw] aka XYZ parameterization of the rotation
     + a(1) = roll, rotation angle around x-axis
     + a(2) = pitch, rotation angle around y-axis
     + a(3) = yaw, rotation angle around z-axis
@@ -713,14 +505,18 @@ Output arguments:
 + **J_yaw**: Jacobian of R wrt yaw
 </details>
 
-Usage examples can be found in [run_detection](../src/scripts/run_detection.m) and [run_pose_estimation](../src/scripts/run_pose_estimation.m).
-
 <a name="robot-trajectory-planning"></a>
 ## Robot Trajectory Planning
 
-Code to perform direct kinematics, inverse kinematics and trajectory planning.
+Code to perform direct kinematics, inverse kinematics, trajectory planning and check of singularities.
 
-### Functions         
+These functions internally assumes a convention (in the following, **model convention**) for the positions of the joints, such that when the robot is in home position all the joints are at their zero position (cf. image below, left). This convention differs from the actual one used by the low level controller (in the following, **robot convention**). The routines invokes for the trajectory planning already perform the conversion from the model to the robot convention before returning the positions of the robot in the space of joints.
+
+The position and orientation of the end effector must be defined in the **robot frame** (cf. image below, right). Therefore, poses defined in the vision frame must be converted beforehand (cf. [Robot Control](#robot-control) to see how this issue is handled).
+
+![FrameRobot](./frame_robot.png)
+
+### Matlab functions         
 
 <!-- braccio_angles matlab function -->
 <details>
@@ -773,7 +569,7 @@ Check if a given position in the joints space satisfy the constraints of the Bra
     check_ans = check_limits_joints(qrob)
 
 Input arguments:
-+ **qrob**: joints position under test
++ **qrob**: 1xQNUM array, joints position under test
 
 Output arguments:
 + **check_ans**: 1 if qrob satisfy the constraints, 0 otherwise
@@ -787,10 +583,10 @@ Output arguments:
 
 Check if there are singular configuration among a given set of points in the space of joints (in model convention).
 
-    [sing_flag, sing_vec] = check_sing(Q)
+    [sing_flag, sing_vec] = CHECK_SING(Q, braccio_params)
 
-Input arguments:
-+ **Q**: NxQNUM-1 array, set of points under test (arranged by rows)
++ **Q**: NxQNUM-1 array, set of joints positions under test
++ **braccio_params**: 1xQNUM-1 array, real parameters of the Braccio robot, cf. direct_kin(...)
 
 Output arguments:
 + **sing_flag**: 1 if at least one singularity is found, 0 otherwise
@@ -823,15 +619,19 @@ Output arguments:
         direct_kin
     </summary>
 
-Compute direct kinematics of the Braccio robot. With njoints<5 compute direct kinematics of the first njoints joints only.
+Compute the direct kinematics of the Braccio robot for a given joints position and a set of real parameters of the robot. With `njoints=QNUM-1` the direct kinematics for all the joints is computed. With `njoints<QNUM-1` the direct kinematics of only the first njoints is computed.
 
-    Atot = direct_kin(q, njoints, braccio_params, delta)
+    Atot = direct_kin(q, njoints, braccio_params)
 
 Input arguments:
-+ **q**: 1xQNUM-1 angular position of joints
++ **q**: 1xQNUM-1 array, joints position in model convention
 + **njoints**: number of joints to be considered for direct kinematics
-+ **braccio_params**: 1xQNUM-1 array, real distances between robot joints
-+ **delta**: 'a' (aka 'r') DH parameter of the 5th joint
++ **braccio_params**: 1xQNUM-1 array, real parameters of the Braccio robot
+    + (1) = distance between ground and joint 1
+    + (2) = distance between joint 1 and joint 2
+    + (3) = distance between joint 2 and joint 3
+    + (4) = distance between joint 3 and EF tip
+    + (5) = 'a' (aka 'r') DH parameter for joint 5
 
 Output arguments:
 + **Atot**: rototranslation matrix of direct kinematics
@@ -843,15 +643,15 @@ Output arguments:
         dualsol
     </summary>
 
-For a given joints position, find the other one that preserves the end effector position and orientation ('dual position').
+For a given joints position in model convention, find the other one that preserves the end effector position and orientation ('dual position').
 
     qlocdual = dualsol(qloc)
 
 Input arguments:
-+ **qloc**: input joints position
++ **qloc**: 1xQNUM-1 array, input joints position
 
 Output arguments:
-+ **qlocdual**: dual position of qloc
++ **qlocdual**: 1xQNUM-1 array, dual position of qloc
 </details>
 
 <!-- gothere matlab function -->
@@ -865,16 +665,16 @@ Returns the angular positions of the joints for a given spatial position of the 
     [qrob, errorflag, q] = gothere(braccio_params, x, y, z, roll, grasp, offset, q_pre, post_corr, home, varargin)
 
 Input arguments:
-+ **braccio_params**: 1xQNUM-1 array, real distances between robot joints
++ **braccio_params**: 1xQNUM-1 array, real parameters of the Braccio robot, cf. direct_kin(...)
 + **x**: target x-position of end effector (robot frame)
 + **y**: target y-position of end effector (robot frame)
 + **z**: target z-position of end effector (robot frame)
-+ **roll**: angular position of the 5th joint (roll)
-+ **grasp**: angular position of the 6th joint (gripper)
++ **roll**: target position of the 5th joint (roll)
++ **grasp**: target position of the 6th joint (gripper)
 + **offset**: offset along z-axis of the 5th joint frame origin
 + **q_pre**: 1xQNUM array, previous position of the robot (optional)
 + **post_corr**: 1xQNUM-1 array, offsets to be applied a posteriori cf. braccio_angles(...)
-+ **home**: 1xQNUM, home position of the robot
++ **home**: 1xQNUM array, home position of the robot
 + **varargin**: collection of optional parameters, cf. the official Matlab documentation
 
 Parameters:
@@ -883,9 +683,9 @@ Parameters:
     + 1: show the solution found
 
 Output arguments:
-+ **qrob**: angular positions of joints (robot convention)
-+ **errorflag**: 1 if either the solution does not satisfy the robot constraint or the fsolve routine fails, 0 otherwise
-+ **q**: angular positions of "encoders" (debugging)
++ **qrob**: 1xQNUM array, target position of joints (robot convention)
++ **errorflag**: 1 if either the solution does not satisfy the robot constraints or the fsolve routine fails, 0 otherwise
++ **q**: 1xQNUM array, target positions of "encoders" (debugging)
 </details>
 
 <!-- inverse_kin matlab function -->
@@ -896,19 +696,20 @@ Output arguments:
 
 Solve the general problem of inverse kinematics for a given position and orientation of the end effector.
 
-    [qloc, fval, info] = inverse_kin(transl, eulr, startingpos_in)
+    [qloc, fval, info] = inverse_kin(transl, eulr, startingpos_in, braccio_params)
 
 Input arguments:
 + **transl**: translation vector of the end effector
 + **eulr**: euler angles of the rotation of the end effector
-+ **startingpos_in**: initial guess of the solution for the solver
++ **startingpos_in**: 1xQNUM-1 array, initial guess for the solver
++ **braccio_params**: 1xQNUM-1 array, real parameters of the Braccio robot, cf. direct_kin(...)
 
 Output arguments:
-+ **qloc**: 1xQNUM-1 array, solution found
++ **qloc**: 1xQNUM-1 array, solution found (model convention)
 + **fval**: final residual of the solver
 + **info**: final flag of the solver
 
-NOTE: this method is very unstable, cf. inverse_kin_super_simple(...) for a more stable solution.
+NOTE: this method is rather unstable, cf. inverse_kin_super_simple(...) for a more stable solution.
 </details>
 
 <!-- inverse_kin_simple matlab function -->
@@ -917,18 +718,18 @@ NOTE: this method is very unstable, cf. inverse_kin_super_simple(...) for a more
         inverse_kin_simple
     </summary>
 
-Solve the problem of inverse kinematics for a given position and orientation of the end effector. Differently to the function inverse_kin(...) it calculates the 1st and the 5th joints positions via geometric considerations. Then, it solves a semplified version of the inverse kinematics problem on the remaining 3 joints (2-3-4).
+Solve the problem of inverse kinematics for a given position and orientation of the end effector. Differently to the function inverse_kin(...) it calculates the 1st and the 5th joints positions via geometric considerations. Then, it solves a simplified version of the inverse kinematics problem on the remaining 3 joints (2-3-4).
 
     [qloc, fval, info] = inverse_kin_simple(transl, eulr, startingpos_in, braccio_params)
 
 Input arguments:
 + **transl**: translation vector of the end effector
 + **eulr**: euler angles of the rotation of the end effector
-+ **startingpos_in**: initial guess of the solution for the solver
-+ **braccio_params**: 1xQNUM-1 array, real distances between robot joints
++ **startingpos_in**: 1xQNUM-1 array, initial guess for the solver
++ **braccio_params**: 1xQNUM-1 array, real parameters of the Braccio robot, cf. direct_kin(...)
   
 Output arguments:
-+ **qloc**: 1xQNUM-1 array, solution found
++ **qloc**: 1xQNUM-1 array, solution found (model convention)
 + **fval**: final residual of the solver
 + **info**: final flag of the solver
 </details>
@@ -939,18 +740,18 @@ Output arguments:
         inverse_kin_super_simple
     </summary>
 
-Solve the problem of inverse kinematics for a given position of the end effector. Differently to the function inverse_kin(...) it calculates the 1st and the 5th joints positions via geometric considerations. Differently to the function inverse_kin_simple(...), it receives as input the target position of the 4th joint. Then, it solves a super-semplified version of the inverse kinematics problem on the remaining 2 joints (2-3).
+Solve the problem of inverse kinematics for a given position of the end effector. Differently to the function inverse_kin(...) it calculates the 1st and the 5th joints positions via geometric considerations. Differently to the function inverse_kin_simple(...), it receives as input the target position of the 4th joint. Then, it solves a super-simplified version of the inverse kinematics problem on the remaining 2 joints (2-3).
 
     [qloc, fval, info] = inverse_kin_super_simple(transl, joint4, startingpos_in, braccio_params)
 
 Input arguments:
 + **transl**: translation vector of the end effector
 + **joint4**: angular position of the 4th joint 
-+ **startingpos_in**: initial guess of the solution for the solver
-+ **braccio_params**: 1xQNUM-1 array, real distances between robot joints
++ **startingpos_in**: 1xQNUM-1 array, initial guess for the solver
++ **braccio_params**: 1xQNUM-1 array, real parameters of the Braccio robot, cf. direct_kin(...)
 
 Output arguments:
-+ **qloc**: 1xQNUM-1 array, solution found
++ **qloc**: 1xQNUM-1 array, solution found (model convention)
 + **fval**: final residual of the solver
 + **info**: final flag of the solver
 </details>           
@@ -961,17 +762,16 @@ Output arguments:
         jacob_diff_kin
     </summary>
 
-Function that computes the geometric Jacobian of the robot.
+Compute the geometric Jacobian of the Braccio robot for a given position of the joints.
 
-    J = jacob_diff_kin(q, braccio_params, delta)
+    J = jacob_diff_kin(q, braccio_params)
 
 Input arguments:
-+ **q**: angular positions of the joints
-+ **braccio_params**: 1xQNUM-1 array, real distances between robot joints
-+ **delta**: 'a' (aka 'r') DH parameter of the 5th joint
++ **q**: 1xQNUM-1 array, joints positions in model convention
++ **braccio_params**: 1xQNUM-1 array, real parameters of the Braccio robot, cf. direct_kin(...)
 
 Output arguments:
-+ **J**: geometric Jacobian matrix of the robot
++ **J**: 6xQNUM-1 geometric Jacobian matrix of the robot
 </details>
 
 <!-- parabolic_traj matlab function -->
@@ -987,21 +787,21 @@ Function that computes a parabolic trajectory in cylindrical coordinates between
 Input arguments:
 + **p1**: 1x3 array, starting point of the end effector
 + **p2**: 1x3 array, ending point of the end effector
-+ **z_ap**: z of the apex of the parabolic trajectory
++ **z_ap**: z of the apex of the parabolic trajectory, set to 'auto' to automatically find the highest one
 + **roll_in**: initial position of the 5th joint
 + **npoints**: number of keypoints of the generated trajectory
-+ **braccio_params**: 1xQNUM-1 array, real distances between robot joints
++ **braccio_params**: 1xQNUM-1 array, real parameters of the Braccio robot, cf. direct_kin(...)
 + **grasp**: angular position of the 6th joint (gripper)
 + **offset**: offset along z-axis of the 5th joint frame origin
 + **post_corr**: 1xQNUM-1 array, offsets to be applied a posteriori cf. braccio_angles(...)
-+ **home**: 1xQNUM, home position of the robot
++ **home**: 1xQNUM array, home position of the robot
 + **VERBOSE**: verboose level of the function
     + 0: show nothing
     + 1: show the parabolic trajectory
 
 Output arguments:
-+ **Q_def**: npoints x QNUM, keypoints of the trajectory
-+ **error_flag**: 1 if for at least one of the keypoints either the solution does not satisfy the robot constraint or the fsolve routine fails, 0 otherwise
++ **Q_def**: npoints x QNUM array, keypoints of the trajectory in the space of joints (robot convention)
++ **error_flag**: 1 if for at least one of the keypoints either the solution does not satisfy the robot constraints or the fsolve routine fails, 0 otherwise
 </details>      
 
 <!-- plot_config matlab function -->
@@ -1012,12 +812,11 @@ Output arguments:
 
 Given a input trajectory in joints space (model convention), plot the position and orientation of the end effector for each point of the trajectory. Moreover, plot the final robot configuration.
 
-    jointpos = plot_config(Q, braccio_params, delta)
+    jointpos = plot_config(Q, braccio_params)
 
 Input arguments:
 + **Q**: NxQNUM-1 array, trajectory in joints space
-+ **braccio_params**: 1xQNUM-1 array, real distances between robot joints
-+ **delta**: 'a' (aka 'r') DH parameter of the 5th joint
++ **braccio_params**: 1xQNUM-1 array, real parameters of the Braccio robot, cf. direct_kin(...)
 
 Output arguments:
 + **jointpos**: (QNUM-1)x3 array, final 3D position of joints
@@ -1031,14 +830,13 @@ Output arguments:
 
 Given a input trajectory in joints space (robot convention), plot the position and orientation of the end effector for each point of the trajectory. Moreover, plot the final robot configuration.
 
-    jointpos = plot_config_rob(Q_rob, braccio_params, delta, post_corr, home)
+    jointpos = plot_config_rob(Q_rob, braccio_params, post_corr, home)
 
 Input arguments:
 + **Q**: NxQNUM-1 array, trajectory in joints space
-+ **braccio_params**: 1xQNUM-1 array, real distances between robot joints
-+ **delta**: 'a' (aka 'r') DH parameter of the 5th joint
++ **braccio_params**: 1xQNUM-1 array, real parameters of the Braccio robot, cf. direct_kin(...)
 + **post_corr**: 1xQNUM-1 array, offsets to be applied a posteriori, cf. braccio_angles(...)
-+ **home**: 1xQNUM, home position of the robot
++ **home**: 1xQNUM array, home position of the robot
 
 Output arguments:
 + **jointpos**: (QNUM-1)x3 array, final 3D position of joints
@@ -1050,16 +848,16 @@ Output arguments:
         rot3d_mat
     </summary>
 
-Compute a rotation matrix in 3D space around x, y or z.
+Compute a rotation matrix in 3D space.
 
-    R = rot3d_mat(alpha, dir)
+    R = rot3d_mat(eulr)
+    
++ **eulr**: [phi theta psi] aka ZYZ parametrization of the rotation
+    + eulr(1) rotation angle around z-axis
+    + eulr(2) rotation angle around y-axis
+    + eulr(3) rotation angle around z-axisaxis)
 
-Input arguments:
-+ **alpha**: rotation angle
-+ **dir**: rotation direction (1 = x axis, 2 = y axis, 3 = z axis)
-
-Output arguments:
-+ **R**: 3x3 rotation matrix
++ **R**: 3x3 rotation matrix, `R = Rz(psi)*Ry(theta)*Rz(phi)`
 </details>
 
 <!-- rot_mat matlab function -->
@@ -1089,12 +887,11 @@ Compute a rototranslation matrix in 3D space.
 
     Rt = roto_transl_mat(transl, eulr)
 
-Input arguments:
-+ **transl**: 3x1 vector, translation vector
-+ **eulr**: 3x1 vector, [phi,theta,psi] parametrization of rotation
++ **transl**: translation vector
++ **eulr**: [phi theta psi] aka ZYZ parametrization of rotation, cf. rot3d_mat(...)
 
 Output arguments:
-+ **Rt**: 4x4 rototranslation matrix
++ **Rt**: 4x4 rototranslation matrix, `Rt = [R(eulr) transl; 0 1]`
 </details>
 
 <!-- touchdown matlab function -->
@@ -1108,17 +905,18 @@ Function that computes a trajectory from the home position to a target point. Th
     [Qrob, errorflag] = touchdown(braccio_params, x, y, z, post_corr, home, VERBOSE)
 
 Input arguments:
++ **braccio_params**: 1xQNUM-1 array, real parameters of the Braccio robot, cf. direct_kin(...)
 + **x**: target x-position of end effector (robot frame)
 + **y**: target y-position of end effector (robot frame)
 + **z**: target z-position of end effector (robot frame)
 + **post_corr**: 1xQNUM-1 array, offsets to be applied a posteriori, cf. braccio_angles(...)
-+ **home**: 1xQNUM, home position of the robot
++ **home**: 1xQNUM array, home position of the robot
 + **VERBOSE**: verbose level of the function
     + 0: show nothing
     + 1: show the trajectory
 
 Output arguments:
-+ **Qrob**: 170xQNUM, points of the trajectory in joints space
++ **Qrob**: 170xQNUM array, pointwise trajectory in the space of joints (robot convention)
 + **errorflag**: 1 if for at least one of the keypoints either the solution does not satisfy the robot constraint or the fsolve routine fails, 0 otherwise
 
 NOTE: do not use `z` too high (remain in `z<=40` mm), stay in the range `140<=r<=360` mm where `r=sqrt(x^2+y^2)`.
@@ -1136,7 +934,7 @@ Manual tuning of the joints positions in order to fix the z positions reached by
 
 Input arguments:
 + **qloc**: 1xQNUM array, angular positions of the joints
-+ **transl**: 1x3 array, translation vector of the end effector
++ **transl**: translation vector of the end effector
 
 Output arguments:
 + **corr**: 1xQNUM array, corrected joints position
@@ -1145,20 +943,11 @@ Output arguments:
 <a name="robot-control"></a>
 ## Robot Control
 
-Code to perform the control of the robot with Arduino and run the Matlab interface.
+Code to implement the low-level controller of the robot with Arduino and its high-level interface with Matlab. An example of usage can be found in [run_robot_fsm](../src/scripts/run_robot_fsm.m).
 
-### Arduino files
+These functions assume a known coordinates transfomation from the vision to the robot frame.
 
-<!-- arduino_robot_fsm Arduino code -->
-<details>
-    <summary>
-        arduino_robot_fsm
-    </summary>
-
-Implementation of the finite state machine (FSM) that control the robot. The Matlab interface is provided by the function robot_fsm_interface(...).
-</details>
-
-### Functions
+### Matlab functions
 
 <!-- cmd_acquire matlab function -->
 <details>
@@ -1284,13 +1073,13 @@ Input arguments:
 + **current_q**:1xQNUM array, current position of the robot (joints)
 + **delta_t**: timestep of the trajectory execution
 + **cam**: webcam object of the camera, cf. webcam(...)
-+ **vision_args**: struct of vision parameters
++ **vision_args**: struct of vision parameters, cf. get_target_from_vision(...)
 + **trajectory_planning_args**: struct of trajectory planning parameters
 + **fn_cam2robot_coords**: function to convert points from vision to robot frame 
 + **fn_robot_input**: function to acquire input, cf. input(...) or cmdBuffer
 
 trajectory_planning_args struct:
-+ braccio_params: parameters of the robot
++ braccio_params: parameters of the robot, cf. direct_kin(...)
 + z_min: minimum z-value of target points [mm], in robot frame
 + box_coords_grasp: destination of 'grasp' [cm], in vision frame
 + box_coords_grasp_parabola: as above but for 'grasp-parabola' [cm]
@@ -1391,8 +1180,8 @@ Input arguments:
 + **port**: port of the Arduino serial connection, cf. serialport(...)
 + **baud**: baud rate of the Arduino serial connection, cf. serialport(...)
 + **cam**: webcam object of the camera, cf. webcam(...)
-+ **vision_args**: struct of vision parameters, cf below
-+ **trajectory_planning_args**: struct of trajectory planning parameters, cf below
++ **vision_args**: struct of vision parameters, cf. below
++ **trajectory_planning_args**: struct of trajectory planning parameters, cf. below
 + **fn_cam2robot_coords**: function to convert points from vision to robot frame 
 + **fn_robot_input**: function to acquire input, cf. input(...) or cmdBuffer
 
@@ -1422,7 +1211,7 @@ Output arguments:
 + **data_tx**: trajectory data in the format required by Arduino
 </details>
 
-### Classes
+### Matlab classes
 
 <!-- cmdBuffer matlab class -->
 <details>
@@ -1441,4 +1230,466 @@ Methods:
 + **cmd2str**: convert a command to string to be plotted.
 </details>
 
-An example of usage can be found in [run_robot_fsm](../src/scripts/run_robot_fsm.m).
+### Arduino functions
+
+<!-- loop Arduino function -->
+<details>
+    <summary>
+        loop
+    </summary>
+
+Run the finite-state-machine (FSM) of the robot.
+
+    void loop()
+</details>
+
+<!-- processStart Arduino function -->
+<details>
+    <summary>
+        processStart
+    </summary>
+
+START state of the FSM. Start serial connection with Matlab, send robot informations and go to the NOP state. 
+
+    void processStart()
+</details>
+
+<!-- processNOP Arduino function -->
+<details>
+    <summary>
+        processNOP
+    </summary>
+
+NOP state of the FSM. Robot turned off. Wait for user commands, do nothing in the meanwhile.
+
+    void processNOP()
+</details>
+
+<!-- processInitialize Arduino function -->
+<details>
+    <summary>
+        processInitialize
+    </summary>
+
+INITIALIZE state of the FSM. Initialize the robot and go to the READY state.
+
+    void processInitialize()
+</details>
+
+<!-- processReady Arduino function -->
+<details>
+    <summary>
+        processReady
+    </summary>
+
+READY state of the FSM. Robot initialized and ready to load/perform a trajectory.
+
+    void processReady()
+</details>
+
+<!-- processLoadTrajectory Arduino function -->
+<details>
+    <summary>
+        processLoadTrajectory
+    </summary>
+
+LOAD_TRAJECTORY state of the FSM. Load a trajectory from Matlab into the robot.
+
+    void processLoadTrajectory()
+</details>
+
+<!-- processPointwiseTrajectory Arduino function -->
+<details>
+    <summary>
+        processPointwiseTrajectory
+    </summary>
+
+POINTWISE_TRAJECTORY state of the FSM. Check the loaded trajectory and execute it as pointwise trajectory.
+
+    void processPointwiseTrajectory()
+</details>
+
+<!-- processKeypointsTrajectory Arduino function -->
+<details>
+    <summary>
+        processKeypointsTrajectory
+    </summary>
+
+KEYPOINTS_TRAJECTORY state of the FSM. Check the loaded trajectory and execute it as keypoints trajectory.
+
+    void processKeypointsTrajectory()
+</details>
+
+<!-- processRelease Arduino function -->
+<details>
+    <summary>
+        processRelease
+    </summary>
+
+RELEASE state of the FSM. Turn off the robot and go to the NOP state.
+
+    void processRelease()
+</details>
+
+<!-- processErrorState Arduino function -->
+<details>
+    <summary>
+        processErrorState
+    </summary>
+
+ERROR_STATE state of the FSM. Some error occured. The robot does not receive commands and can be turned off only. 
+
+    void processErrorState()
+</details>
+
+<!-- processEnd Arduino function -->
+<details>
+    <summary>
+        processEnd
+    </summary>
+
+END state of the FSM. Robot turned off and serial connection closed. Do nothing until the next reboot.
+
+    void processEnd()
+</details>
+
+<!-- commandACK Arduino function -->
+<details>
+    <summary>
+        commandACK
+    </summary>
+
+Write on the serial the last command received as ACK for Matlab.
+
+    void commandACK(byte command)
+
+Input arguments:
++ **command**: command to be written on the serial
+</details>
+
+<!-- transitionACK Arduino function -->
+<details>
+    <summary>
+        transitionACK
+    </summary>
+
+ Write on the serial the last state transition as ACK for Matlab.
+
+    void transitionACK(byte prevState, byte nextState)
+
+Input arguments:
++ **prevState**: state before the transition
++ **nextState**: state after the transition
+</details>
+
+<!-- softInit Arduino function -->
+<details>
+    <summary>
+        softInit
+    </summary>
+
+This function turn ON the Braccio robot softly and save it from brokes. The SOFT_INIT_CONTROL_PIN is used as a software PWM.
+
+    void softInit(int soft_init_level)
+
+Input arguments:
++ **soft_init_level**: the minimum value is -70, default value is 0 (SOFT_INIT_DEFAULT)
+</details>
+
+<!-- softwarePWM Arduino function -->
+<details>
+    <summary>
+        softwarePWM
+    </summary>
+
+Software implementation of the PWM for the SOFT_START_CONTROL_PIN.
+
+    void softwarePWM(int high_time, int low_time) {
+
+Input arguments:
++ **high_time**: the time in the logic level high
++ **low_time**: the time in the logic level low
+</details>
+
+<!-- executePointwiseTrajectory Arduino function -->
+<details>
+    <summary>
+        executePointwiseTrajectory
+    </summary>
+
+Execute a pointwise trajectory.
+
+    bool executePointwiseTrajectory(int deltaT)
+
+Input arguments:
++ **deltaT**: timestep of each point of the trajectory
+
+Output arguments:
++ **end_task**: true if the trajectory is completed without errors, false otherwise
+</details>
+
+<!-- braccioServoMovement Arduino function -->
+<details>
+    <summary>
+        braccioServoMovement
+    </summary>
+
+Interpolate and execute the trajectory between the current position and a target keypoint.
+
+    bool braccioServoMovement(byte targetPosition[], int deltaT)
+
+Input arguments:
++ **targetPosition**: target keypoint of the trajectory
++ **deltaT**: timestep of each point of the trajectory
+
+Output arguments:
++ **end_task**: true if the trajectory is completed without errors, false otherwise
+</details>
+
+<!-- checkBoundaries Arduino function -->
+<details>
+    <summary>
+        checkBoundaries
+    </summary>
+
+Check if a joints position satisfy the robot constraints.
+
+    bool checkBoundaries(byte jointPositions[])
+
+Input arguments:
++ **jointsPosition**: joints position under test
+
+Output arguments:
++ **ans**: true if the robot constraints are satisfied, false otherwise
+</details>
+
+<!-- printTrajectory Arduino function -->
+<details>
+    <summary>
+        printTrajectory
+    </summary>
+
+Print the loaded trajectory on the serial line in order to check it on Matlab.
+
+    void printTrajectory()
+</details>
+
+<!-- finalizeTrajectory Arduino function -->
+<details>
+    <summary>
+        finalizeTrajectory
+    </summary>
+
+After the execution of a trajectory, update the current position and reset the trajectory data.
+
+    void finalizeTrajectory(byte finalPosition[])
+
+Input arguments:
++ **finalPosition**: last position of the executed trajectory
+</details>
+
+<a name="robot-calibration"></a>
+## Robot Calibration
+
+Code to perform the calibration of the cameras and the robot with a checkerboard. Usage examples can be found in [run_calibration_camera](../src/scripts/run_calibration_camera.m) and [run_calibration_stereo](../src/scripts/run_calibration_stereo.m).
+
+These functions assume the usual conventions to represent the pinhole model of a camera (in the following, **literature convention**). Namely, points on the image plane `m` and in space `M` are represented by column vectors. The projection equation (cf. the references of the project) takes the form `m = P*M = K*[R t]*M`, where `P` is the projection matrix, `K` the intrinsics matrix, and `[R t]` the extrinsics of the camera.
+
+### Matlab functions
+
+<!-- acquire_calibration_images matlab function -->
+<details>
+    <summary>
+        acquire_calibration_images
+    </summary>
+
+Acquire some images of a checkerboard from a set of fixed cameras at the same time. These images can be used to calibrate the cameras with the SMZ algorithm.
+
+    images = acquire_calibration_images(n_images, cameras, dirs_images)
+
+Input arguments:
++ **n_images**: number of the images to be acquired from each camera
++ **cameras**: cell array of camera objects (cf. webcam(...))
++ **dirs_images**: cell array with the directory paths where to save the images
+
+Output arguments:
++ **images**: cell array of acquired images. images{i,j} is the i-th image acquired from the j-th camera
+
+NOTE: this function requires the MATLAB Support Package for USB Webcams.
+</details>
+
+<!-- calibration_extrinsics_camera matlab function -->
+<details>
+    <summary>
+        calibration_extrinsics_camera
+    </summary>
+
+Retrive the rotation matrix and the translation vector (extrinsics) of a camera wrt a world frame attached to a checkerboard.
+
+    [R_cam, t_cam] = calibration_extrinsics_camera(cam, K, k, step_size, grid_arrangement, cm2px_scale, dir)
+
+Input arguments:
++ **cam**:                webcam object (cf. webcam(...))
++ **K**:                  intrinsics matrix of the camera (literature convention)
++ **k**:                  radial distortion coefficients of the camera
++ **step_size**:          side of the squares of the checkerboard [cm]
++ **grid_arrangement**:   [x-steps y-steps] steps of the checkerboard along x,y axes
++ **cm2px_scale**:        dimension in cm of 1 pixel of the rectified image
++ **dir**:                directory where to write/read the calibration files
+
+Output arguments:
++ **R_cam**: rotation matrix of the camera extrinsics in the world frame (literature convention)
++ **t_cam**: translation vector of the camera extrinsics in the world frame (literature convention)
+
+NOTE: this function requires the following packages:
++ MATLAB Support Package for USB Webcams
++ Computer Vision Toolkit (http://www.diegm.uniud.it/fusiello/demo/toolkit/)
+</details>
+
+<!-- calibration_extrinsics_stereo matlab function -->
+<details>
+    <summary>
+        calibration_extrinsics_stereo
+    </summary>
+
+Retrieve the extrinsics and epipolar matrices of a stereo pair. The two cameras are assumed with known intrinsics and extrinsics wrt the same world frame.
+
+    [delta_R, delta_t, E, F] = calibration_extrinsics_stereo(K1, R1, t1, K2, R2, t2, dir)
+
+Input arguments:
++ **K1**:         intrinsics matrix of the first camera (literature convention)
++ **R1**:         rotation matrix of the extrinsics of the first camera in the world frame (literature convention)
++ **t1**:         translation vector of the extrinsics of the first camera in the world frame (literature convention)
++ **K2**:         intrinsics matrix of the second camera (literature convention)
++ **R2**:         rotation matrix of the extrinsics of the second camera in the world frame (literature convention)
++ **t2**:         translation vector of the extrinsics of the second camera in the world frame (literature convention)
++ **dir**:        name of the directory where to save the results
+
+Output arguments:
++ **delta_R**:    rotation matrix of the extrinsics of the stereo pair with the first camera as reference (literature convention)
++ **delta_t**:    translation vector of the extrinsics of the stereo pair with the first camera as reference (literature convention)
++ **E**:          essential matrix of the stereo pair (literature convention)
++ **F**:          fundamental matrix of the stereo pair (literature convention)
+</details>
+
+<!-- calibration_extrinsics_stereo_smz matlab function -->
+<details>
+    <summary>
+        calibration_extrinsics_stereo_smz
+    </summary>
+
+Retrieve the extrinsics and epipolar matrices of a stereo pair. The two cameras are assumed to be previously jointly calibrated with the SMZ algorithm and with fixed relative position afterwards.
+
+    [delta_R, delta_t, E, F] = calibration_extrinsics_stereo_smz(P1, K1, P2, K2, dir)
+
+Input arguments:
++ **P1**:         cell array of projection matrices returned by SMZ calibration of the first camera (literature convention)
++ **K1**:         intrinsics matrix of the first camera (literature convention)
++ **P2**:         cell array of projection matrices returned by SMZ calibration of the second camera (literature convention)
++ **K2**:         intrinsics matrix of the second camera (literature convention)
++ **dir**:        name of the directory where to save the results
+
+Output arguments:
++ **delta_R**:    rotation matrix of the extrinsics of the stereo pair with the first camera as reference (literature convention)
++ **delta_t**:    translation vector of the extrinsics of the stereo pair with the first camera as reference (literature convention)
++ **E**:          essential matrix of the stereo pair (literature convention)
++ **F**:          fundamental matrix of the stereo pair (literature convention)
+</details>
+
+<!-- calibration_intrinsics_camera matlab function -->
+<details>
+    <summary>
+        calibration_intrinsics_camera
+    </summary>
+
+Retrive the intrisics and radial distortion parameters of a camera using a set of checkerboard images (SMZ algorithm).
+
+    [P, K, intrinsics] = calibration_intrinsics_camera(n_intrinsics, n_radial_dist, step_size, grid_arrangement, cm2px_scale, dir_images)
+
+Input arguments:
++ **n_intrinsics**:       number of intrisics to be calibrated (4, 5)
+    + 4: fx, fy, u0, v0
+    + 5: fx, fy, u0, v0, skew
++ **n_radial_dist**:      number of the distortion coefficient to be calibrated (1, 2)
++ **step_size**:          side of the squares of the checkerboard [cm]
++ **grid_arrangement**:   [x-steps y-steps] steps of the checkerboard along x,y axes
++ **cm2px_scale**:        dimension in cm of 1 pixel of the rectified images   
++ **dir_images**:         path of the directory containing the checkerboard images  
+
+Output arguments:
++ **P**:                cell array of projection matrices associated to the checkerboard images (literature convention)
++ **K**:                calibrated intrisics matrix (literature convention)
++ **intrinsics**:       table with intrinsics and radial distortion parameters 
+
+NOTE: this function requires the Computer Vision Toolkit (http://www.diegm.uniud.it/fusiello/demo/toolkit/)
+</details>
+
+<!-- check_epipolar matlab function -->
+<details>
+    <summary>
+        check_epipolar_geometry
+    </summary>
+
+Acquire two points from the two images of a stereo pair and compute the Longuet-Higgins equation between them.
+
+    test = check_epipolar_geometry(cam1, cam2, F)
+
+Input arguments:
++ **cam1**: camera object of the first camera (cf. webcam(...))
++ **cam2**: camera object of the second camera (cf. webcam(...))
++ **F**: fundamental matrix of the stereo pair (cam1 assumed as reference)
+
+Output arguments:
++ **test**: value of the Longuet-Higgins equation `p2'*F*p1`, where `p1`, `p2` are the points acquired from the first and second camera respectively (in homogeneous coordinates)
+</details>
+
+<!-- check_svd matlab function -->
+<details>
+    <summary>
+        check_svd
+    </summary>
+
+SVD test to check if arrays are (numerically) linearly dependent.
+
+    sigma_svd = check_svd(X)
+
+Input arguments:
++ **X**: cell array of candidated linearly dependent arrays
+
+Output arguments:
++ **sigma_svd**: singolar values of the concatenated arrays
+</details>
+
+<!-- get_extrinsics_camera matlab function -->
+<details>
+    <summary>
+        get_extrinsics_camera
+    </summary>
+
+Retrieve the extrinsics of a set of cameras from their projection matrices and intrinsics matrices.
+
+    [R, t, G] = get_extrinsics_camera(P, K) 
+
+Input arguments:
++ **P**: cell array of projection matrices (literature convention)
++ **K**: cell array of intrinsics matrices (literature convention)
+
+Output arguments:
++ **R**: cell array of rotation matrices (literature convention)
++ **t**: cell array of translation vectors (literature convention)
++ **G**: cell array of `[R t; 0 1]` matrices (literature convention)
+</details>
+
+<!-- print_countdown matlab function -->
+<details>
+    <summary>
+        print_countdown
+    </summary>
+
+Plot on the screen the countdown of length seconds.
+
+    print_countdown(length)
+
+Input arguments:
++ **length**: duration of the countdown [s]
+</details>

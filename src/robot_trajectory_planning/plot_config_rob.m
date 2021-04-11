@@ -8,10 +8,11 @@ function jointpos = plot_config_rob(Q_rob, braccio_params, post_corr, home)
 %   Input arguments:
 %   ------------------
 %   Q:                  NxQNUM-1 array, trajectory in joints space
-%   braccio_params:     1xQNUM-1 array, real distances between robot joints
+%   braccio_params:     1xQNUM-1 array, real parameters of the Braccio robot,
+%                       cf. direct_kin(...)
 %   post_corr:          1xQNUM-1 array, offsets to be applied a posteriori,
 %                       cf. braccio_angles(...)
-%   home:               1xQNUM, home position of the robot
+%   home:               1xQNUM array, home position of the robot
 %
 %   Output arguments:
 %   ------------------
@@ -79,7 +80,7 @@ function jointpos = plot_config_rob(Q_rob, braccio_params, post_corr, home)
     hold off
     xlabel('x');
     ylabel('y');
-    
+    title('Trajectory in robot convention');
     
 
     Aloc_out=Aloc;

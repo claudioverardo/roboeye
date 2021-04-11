@@ -1,18 +1,25 @@
 function Atot = direct_kin(q, njoints, braccio_params)
-% DIRECT_KIN Compute direct kinematics of the Braccio robot. With njoints<5
-% compute direct kinematics of the first njoints joints only.
+% DIRECT_KIN Compute the direct kinematics of the Braccio robot for a given
+% joints position and a set of real parameters of the robot. With njoints=QNUM-1
+% the direct kinematics for all the joints is computed. With njoints<QNUM-1
+% the direct kinematics of only the first njoints is computed.
 % 
-%   Atot = DIRECT_KIN(q, njoints, braccio)
+%   Atot = DIRECT_KIN(q, njoints, braccio_params)
 %
 %   Input arguments:
 %   ------------------
-%   q:              1xQNUM-1 angular position of joints
+%   q:              1xQNUM-1 array, joints position in model convention
 %   njoints:        number of joints to be considered for direct kinematics
-%   braccio_params: 1xQNUM-1 array, real distances between robot joints
+%   braccio_params: 1xQNUM-1 array, real parameters of the Braccio robot
+%                   - (1) = distance between ground and joint 1
+%                   - (2) = distance between joint 1 and joint 2
+%                   - (3) = distance between joint 2 and joint 3
+%                   - (4) = distance between joint 3 and EF tip
+%                   - (5) = 'a' (aka 'r') DH parameter for joint 5
 %
 %   Output arguments:
 %   ------------------
-%   Atot:           rototranslation matrix of direct kinematics
+%   Atot:           4x4 rototranslation matrix of direct kinematics
 %
 % See also DENAVIT_HARTERNBERG
     

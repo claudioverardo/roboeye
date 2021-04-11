@@ -2,12 +2,13 @@ function [sing_flag, sing_vec] = check_sing(Q, braccio_params)
 % CHECK_SING Check if there are singular configuration among a given set of
 % points in the space of joints (in model convention).
 %
-%   [sing_flag, sing_vec] = CHECK_SING(Q)
+%   [sing_flag, sing_vec] = CHECK_SING(Q, braccio_params)
 %
 %   Input arguments:
 %   ------------------
-%   Q:          NxQNUM-1 array, set of points under test (arranged by rows)
-%   braccio_params:     1xQNUM-1 array, real distances between robot joints
+%   Q:                  NxQNUM-1 array, set of joints positions under test
+%   braccio_params:     1xQNUM-1 array, real parameters of the Braccio robot,
+%                       cf. direct_kin(...)
 %   
 %   Output arguments:
 %   ------------------

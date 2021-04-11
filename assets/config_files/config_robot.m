@@ -42,18 +42,13 @@ vision_args.options.roi_pose_estimation_verbose = 0;
 vision_args.options.aruco_detection_verbose = 0;
 vision_args.options.verbose = 0; % aruco_pose_estimation_verbose
 
+% plot_aruco_markers(vision_args.aruco_markers);
+
 
 %% ROBOT TRAJECTORY PLANNING
 %--------------------------------------------------------------------------
 trajectory_planning_args.braccio_params = [71 125 125 195 -8];
-% braccio params(1) = distance between ground and joint 1
-% braccio params(2) = distance between joint 1 and joint 2
-% braccio params(3) = distance between joint 2 and joint 3
-% braccio params(4) = distance between joint 3 and EF tip
-% braccio params(5) = "a" DH parameter for joint 5
-
-
-trajectory_planning_args.post_corr = [0 0 0 0 0]; % [-3 -1 -1 4 0]
+trajectory_planning_args.post_corr = [0 0 0 0 0];
 trajectory_planning_args.z_min = -5; % [mm] in robot frame
 trajectory_planning_args.box_coords_grasp = [-4 1 20]; % [cm] in vision frame
 trajectory_planning_args.box_coords_grasp_parabola = [-4 1 12.5]; % [cm] in vision frame
@@ -62,7 +57,3 @@ trajectory_planning_args.touchdown_verbose = 0;
 trajectory_planning_args.gothere_verbose = 0;
 trajectory_planning_args.parabolic_traj_verbose = 0;
 trajectory_planning_args.objects_dict = load('../objects_dict/objects_dict_7x7.mat').objects_dict;
-
-% trajectory_planning_args.box_coords_grasp = [20 117 0 122 90 73];
-% trajectory_planning_args.box_coords_grasp_parabola = [-1 -1 12.5]; % [17.6 107 0.863 133 90 73]
-% trajectory_planning_args.box_coords_grasp_parabola = [-1 -4 12.5]; % [11.4 110 0.637 137 90 73]

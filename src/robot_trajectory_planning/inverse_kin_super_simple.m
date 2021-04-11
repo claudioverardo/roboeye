@@ -3,7 +3,7 @@ function [qloc, fval, info] = inverse_kin_super_simple(transl, joint4, startingp
 % position of the end effector. Differently to the function inverse_kin(...)
 % it calculates the 1st and the 5th joints positions via geometric considerations.
 % Differently to the function inverse_kin_simple(...), it receives as input the 
-% target position of the 4th joint. Then, it solves a super-semplified version
+% target position of the 4th joint. Then, it solves a super-simplified version
 % of the inverse kinematics problem on the remaining 2 joints (2-3).
 %
 %   [qloc, fval, info] = INVERSE_KIN_SUPER_SIMPLE(transl, joint4, startingpos_in,
@@ -13,12 +13,13 @@ function [qloc, fval, info] = inverse_kin_super_simple(transl, joint4, startingp
 %   ------------------
 %   transl:             translation vector of the end effector
 %   joint4:             angular position of the 4th joint 
-%   startingpos_in:     initial guess of the solution for the solver
-%   braccio_params:     1xQNUM-1 array, real distances between robot joints
+%   startingpos_in:     1xQNUM-1 array, initial guess for the solver
+%   braccio_params:     1xQNUM-1 array, real parameters of the Braccio robot,
+%                       cf. direct_kin(...)
 %
 %   Output arguments:
 %   ------------------
-%   qloc:               1xQNUM-1 array, solution found
+%   qloc:               1xQNUM-1 array, solution found (model convention)
 %   fval:               final residual of the solver
 %   info:               final flag of the solver
 %
@@ -65,7 +66,7 @@ function sol=inv_kin_prob_super_simple(var,transl,q4rad,braccio_params)
   %var(1)=q2
   %var(2)=q2+q3
     
-  %braccio=[71 125 125 195 0];
+  %braccio_params=[71 125 125 195 0];
   
   x=transl(1);
   y=transl(2);

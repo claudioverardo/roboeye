@@ -22,14 +22,14 @@ function [trajectory, time_trajectory, confirm] = generate_trajectory(method, ho
 %   current_q: 1xQNUM array, current position of the robot (joints)
 %   delta_t: timestep of the trajectory execution
 %   cam: webcam object of the camera, cf. webcam(...)
-%   vision_args: struct of vision parameters
+%   vision_args: struct of vision parameters, cf. get_target_from_vision(...)
 %   trajectory_planning_args: struct of trajectory planning parameters
 %   fn_cam2robot_coords: function to convert points from vision to robot frame 
 %   fn_robot_input: function to acquire input, cf. input(...) or cmdBuffer
 %
 %   trajectory_planning_args struct
 %   -------------------------------
-%   - braccio_params: parameters of the robot
+%   - braccio_params: real parameters of the robot, cf. direct_kin(...)
 %   - z_min: minimum z-value of target points [mm], in robot frame
 %   - box_coords_grasp: destination of 'grasp' [cm], in vision frame
 %   - box_coords_grasp_parabola: as above but for 'grasp-parabola' [cm]

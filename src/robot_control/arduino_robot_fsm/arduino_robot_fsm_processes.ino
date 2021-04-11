@@ -1,8 +1,12 @@
+/*
+ * START state of the FSM.
+ * Start serial connection with Matlab, send robot informations and go to the NOP state. 
+ */
 void processStart() {
   pinMode(LED_BUILTIN, OUTPUT);
   digitalWrite(LED_BUILTIN, HIGH);
   
-  // Init serial communication with Matlab
+  // Initialize serial communication with Matlab
   Serial.begin(BAUD_RATE);
 
   // Send robot informations to Matlab
@@ -21,8 +25,12 @@ void processStart() {
   state = NOP;
 }
 
+/*
+ * NOP state of the FSM.
+ * Robot turned off. Wait for user commands, do nothing in the meanwhile.
+ */
 void processNOP() {
-  // Wait for user commands, do nothing in the meanwhile
+  // Robot turned off, wait commands
   if (Serial.available() > 0) {
     incomingByte = Serial.read();
 
@@ -43,10 +51,31 @@ void processNOP() {
   }
 }
 
+/*
+ * INITIALIZE state of the FSM.
+ * Initialize the robot and go to the READY state.
+ */
 void processInitialize() {
-  // Initialization functions and set up the initial position for Braccio
-  // All the servo motors will be positioned in the "home" position (cf above)
-  initializeRobot(SOFT_INIT_DEFAULT);
+  // if SOFT_INIT_LEVEL = SOFT_INIT_DISABLED the softInit is disabled and you can use the pin 12
+  if (SOFT_INIT_LEVEL != SOFT_INIT_DISABLED) {
+    pinMode(SOFT_INIT_CONTROL_PIN, OUTPUT);
+    digitalWrite(SOFT_INIT_CONTROL_PIN, LOW);
+  }
+
+  // Initialization of all the pin servo motors
+  for (int i = 0; i < QNUM; i++) {
+    q[i].attach(qPin[i]);
+  }
+
+  // Position the robot in the "home" position
+  for (int i = 0; i < QNUM; i++) {
+    q[i].write(homePosition[i]);
+  }
+ 
+  // Turn ON the robot softly and save it from brokes
+  if (SOFT_INIT_LEVEL != SOFT_INIT_DISABLED) {
+    softInit(SOFT_INIT_LEVEL);
+  }
 
   // Reset trajectory informations, update current position
   finalizeTrajectory(homePosition);
@@ -56,6 +85,10 @@ void processInitialize() {
   state = READY;
 }
 
+/*
+ * READY state of the FSM.
+ * Robot initialized and ready to load/perform a trajectory.
+ */
 void processReady(){
   // Plot the actual position of the robot
   if (currentPositionChanged) {
@@ -97,22 +130,36 @@ void processReady(){
   }
 }
 
+/*
+ * LOAD_TRAJECTORY state of the FSM.
+ * Load a trajectory from Matlab into the robot.
+ */
 void processLoadTrajectory() {
+  // Wait commands/data
   if (Serial.available() > 0) {
     incomingByte = Serial.read();
 
+    // Type of the trajectory (0: unknown, 1: pointwise, 2: keypoints)
     if (!trajectoryTypeLoaded) {
       trajectoryType = incomingByte;
       trajectoryTypeLoaded = true;
     }
+    // Number of points of the trajectory
     else if (!trajectoryNumPointsLoaded) {
       trajectoryNumPoints = incomingByte;
       trajectoryNumPointsLoaded = true;
+      // Next state transition -> ERROR_STATE
+      if (trajectoryNumPoints > MAXPOINTS) {
+        transitionACK(LOAD_TRAJECTORY,ERROR_STATE);
+        state = ERROR_STATE;
+      }
     }
+    // Timestep of the trajectory
     else if (!trajectoryDeltaTLoaded) {
       trajectoryDeltaT = incomingByte;
       trajectoryDeltaTLoaded = true;
     }
+    // Points of the trajectory
     else {
       // Load trajectory array
       trajectory[trajectoryBytesCounter / QNUM][trajectoryBytesCounter % QNUM] = incomingByte;
@@ -146,6 +193,10 @@ void processLoadTrajectory() {
   }
 }
 
+/*
+ * POINTWISE_TRAJECTORY state of the FSM.
+ * Check the loaded trajectory and execute it as pointwise trajectory.
+ */
 void processPointwiseTrajectory() {
   // Wait data check from Matlab
   if (Serial.available() > 0) {
@@ -182,6 +233,10 @@ void processPointwiseTrajectory() {
   }
 }
 
+/*
+ * KEYPOINTS_TRAJECTORY state of the FSM.
+ * Check the loaded trajectory and execute it as keypoints trajectory.
+ */
 void processKeypointsTrajectory() {
   // Wait data check from Matlab
   if (Serial.available() > 0) {
@@ -219,12 +274,22 @@ void processKeypointsTrajectory() {
       state = ERROR_STATE;
     }
   }
-  
 }
 
+/*
+ * RELEASE state of the FSM.
+ * Turn off the robot and go to the NOP state.
+ */
 void processRelease() {
   // Turn off all the servo motors
-  releaseRobot(SOFT_INIT_DEFAULT);
+  for (int i = 0; i < QNUM; i++) {
+    q[i].detach();
+  }
+  
+  if (SOFT_INIT_LEVEL != SOFT_INIT_DISABLED) {
+    digitalWrite(SOFT_INIT_CONTROL_PIN, LOW);
+    pinMode(SOFT_INIT_CONTROL_PIN, INPUT);
+  }
   
   delay(DELTA_T_RELEASE);
   
@@ -233,10 +298,15 @@ void processRelease() {
   state = NOP;
 }
 
+/*
+ * ERROR_STATE state of the FSM.
+ * Some error occured. The robot does not receive commands and can be turned off only. 
+ */
 void processErrorState() {
   pinMode(LED_BUILTIN, OUTPUT);
   digitalWrite(LED_BUILTIN, HIGH);
   
+  // Wait commands
   if (Serial.available() > 0) {
     incomingByte = Serial.read();
     
@@ -249,6 +319,10 @@ void processErrorState() {
   }
 }
 
+/*
+ * END state of the FSM.
+ * Robot turned off and serial connection closed. Do nothing until the next reboot.
+ */
 void processEnd() {
   pinMode(LED_BUILTIN, OUTPUT);
   digitalWrite(LED_BUILTIN, HIGH);
