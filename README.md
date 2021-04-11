@@ -22,7 +22,7 @@ A control module allows the user to interactively define some tasks for the robo
 ## Table of Contents
 1. [Installation](#installation)
 2. [Overview](#overview)
-3. [Usage examples](#usage-examples)
+3. [Usage Examples](#usage-examples)
 4. [Documentation](#documentation)
 5. [Contributors](#contributors)
 6. [Credits](#credits)
@@ -32,25 +32,26 @@ A control module allows the user to interactively define some tasks for the robo
 <a name="installation"></a>
 ## Installation
 
-#### Hardware setup
-+ [ThinkerKit Braccio Robot](https://www.arduino.cc/en/Guide/Braccio)
-+ [Arduino Uno](https://www.arduino.cc/en/Guide/ArduinoUno)
-+ Roffie UC20 webcam 1080p
-
-#### Software requirements
+### Software requirements
 + [MATLAB](https://www.mathworks.com/products/matlab.html) >= R2019b (tested with R2020b)
 + [MATLAB Support Package for USB Webcams](https://www.mathworks.com/matlabcentral/fileexchange/45182-matlab-support-package-for-usb-webcams)
 + [MATLAB Support for MinGW-w64 C/C++ Compiler](https://www.mathworks.com/matlabcentral/fileexchange/52848-matlab-support-for-mingw-w64-c-c-compiler)
 + [Arduino IDE](https://www.arduino.cc/en/software) (tested with v1.8.13)
 + [Computer Vision Toolkit](http://www.diegm.uniud.it/fusiello/demo/toolkit/) (only if the calibration module is used)
 
-#### Run setup 
+### Run setup 
 1. Go to [/src](./src) and run the setup.m file.
 2. Go to [/src/robot_control/arduino_robot_fsm](./src/robot_control/arduino_robot_fsm) and upload the content on Arduino.
 
 <a name="overview"></a>
 ## Overview
-The code is composed by 4 main modules: vision, trajectory planning, control and calibration.
+This section provides an overview of the hardware setup employed in our experiments and the 4 main modules of the code: robot vision, robot trajectory planning, robot control, and robot calibration.
+
+### Hardware Setup
+Actually, no cutting-edge technology here. It was fun though to play around with it :grin:
+| ![HWBraccio](./docs/hardware/braccio.jpg) | ![HWArduino](./docs/hardware/arduino.jpg) | ![HWBraccio](./docs/hardware/camera.jpg) |
+:----: | :----: | :----: |
+| [TinkerKit Braccio Robot](https://www.arduino.cc/en/Guide/Braccio) | [Arduino UNO](https://www.arduino.cc/en/Guide/ArduinoUno/) | Roffie UC20 webcam 1080p |
 
 ### Robot Vision
 The vision module is composed by a pipeline that spots candidates regions of interest (**ROIs**), matches them with a dictionary of ArUco markers and estimates their poses in space. Namely:
