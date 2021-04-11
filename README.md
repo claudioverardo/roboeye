@@ -48,7 +48,7 @@ A control module allows the user to interactively define some tasks for the robo
 This section provides an overview of the hardware setup employed in our experiments and the 4 main modules of the code: robot vision, robot trajectory planning, robot control, and robot calibration.
 
 ### Hardware Setup
-Actually, no cutting-edge technology here. It was fun though to play around with it :grin:
+Actually, no cutting-edge technology here. It was fun though to play around with it and make it work :grin:
 | ![HWBraccio](./docs/hardware/braccio.jpg) | ![HWArduino](./docs/hardware/arduino.jpg) | ![HWBraccio](./docs/hardware/camera.jpg) |
 :----: | :----: | :----: |
 | [TinkerKit Braccio Robot](https://www.arduino.cc/en/Guide/Braccio) | [Arduino UNO](https://www.arduino.cc/en/Guide/ArduinoUno/) | Roffie UC20 webcam 1080p |
