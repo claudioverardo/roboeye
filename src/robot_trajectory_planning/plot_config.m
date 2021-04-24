@@ -22,7 +22,7 @@ function jointpos = plot_config(Q, braccio_params)
   % end
 
   npoints=length(Q(:,1));
-  lungax=1;
+  lungax=30;
 
   xax=zeros(npoints,3);
   yax=zeros(npoints,3);
@@ -34,7 +34,7 @@ function jointpos = plot_config(Q, braccio_params)
   %compute EF's reference frame axes
   for i=1:npoints
     
-    Qcorr=Q(i,[2 3 4 5 6])+[0 90 0 -90 0]; %convert angles to DH convenction
+    Qcorr=Q(i,:)+[0 90 0 -90 0]; %convert angles to DH convenction
     
     Aloc=direct_kin(Qcorr,5,braccio_params);
     Rloc=Aloc([1 2 3],[1 2 3]);
@@ -47,7 +47,6 @@ function jointpos = plot_config(Q, braccio_params)
     
   end
 
-  %calcola posizione giunti in config finale
   jointpos=zeros(6,3);
   
   %compute joints' positions
@@ -63,6 +62,12 @@ function jointpos = plot_config(Q, braccio_params)
     quiver3(XX(:,2), XX(:,3), XX(:,4), zax(:,1), zax(:,2), zax(:,3),'b');
     quiver3(XX(:,2), XX(:,3), XX(:,4), xax(:,1), xax(:,2), xax(:,3),'r');
     quiver3(XX(:,2), XX(:,3), XX(:,4), yax(:,1), yax(:,2), yax(:,3),'g');
+    
+    %global RF
+    quiver3(0, 0, 0, lungax, 0, 0,'r');
+    quiver3(0, 0, 0, 0, lungax, 0,'g');
+    quiver3(0, 0, 0, 0, 0, lungax,'b');
+    
     pbaspect([1 1 1])
 
     plot3(jointpos(:,1),jointpos(:,2),jointpos(:,3));

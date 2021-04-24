@@ -1,4 +1,4 @@
-function [Q_def, error_flag] = parabolic_traj(p1, p2, z_ap, roll_in, npoints, braccio_params, grasp, offset, post_corr, home, VERBOSE)
+function [Q_def, error_flag, Q_teo] = parabolic_traj(p1, p2, z_ap, roll_in, npoints, braccio_params, grasp, offset, post_corr, home, VERBOSE)
 % PARABOLIC_TRAJ Function that computes a parabolic trajectory in cylindrical
 % coordinates between the points p1 and p2 with apex at z_ap. It then solves
 % the inverse kinematics problem for a set of keypoints of the trajectory 
@@ -34,11 +34,13 @@ function [Q_def, error_flag] = parabolic_traj(p1, p2, z_ap, roll_in, npoints, br
 %   error_flag:         1 if for at least one of the keypoints either the
 %                       solution does not satisfy the robot constraints or
 %                       the fsolve routine fails, 0 otherwise
+%   Q_def:              npoints x QNUM array, keypoints of the trajectory 
+%                       in model RF (without compensations)
 %
 % See also GENERATE_TRAJECTORY, GOTHERE
 
     % z_ap-auto margin 
-    margin_z=60;
+    margin_z=50;
 
     if nargin <= 10
         VERBOSE=0;
@@ -71,6 +73,7 @@ function [Q_def, error_flag] = parabolic_traj(p1, p2, z_ap, roll_in, npoints, br
     error_flag=0;
 
     Q=zeros(npoints+1,6);
+    Q_teo=zeros(npoints+1,5);
     ef=zeros(npoints+1,1);
 
     theta1 = atan2(p1(2),p1(1));
@@ -115,9 +118,17 @@ function [Q_def, error_flag] = parabolic_traj(p1, p2, z_ap, roll_in, npoints, br
     roll_vec=linspace(roll_in,90,npoints+1);
     
     i=1;
-    [Q(i,:), ef(i)]=gothere(braccio_params,x_discr(i),y_discr(i),z_discr(i),roll_vec(i),grasp,offset,[],post_corr,home);
+    [Q(i,:), ef(i), Q_teo(i,:)]=gothere(braccio_params,x_discr(i),y_discr(i),z_discr(i),roll_vec(i),grasp,offset,[],post_corr,home);
     for i=2:npoints+1
-        [Q(i,:), ef(1)]=gothere(braccio_params,x_discr(i),y_discr(i),z_discr(i),roll_vec(i),grasp,offset,Q(i-1,:),post_corr,home);
+        %[Q(i,:), ef(i), Q_teo(i,:)]=gothere(braccio_params,x_discr(i),y_discr(i),z_discr(i),roll_vec(i),grasp,offset,[],post_corr,home);
+        [A, ef(i), C]=gothere(braccio_params,x_discr(i),y_discr(i),z_discr(i),roll_vec(i),grasp,offset,Q(i-1,:),post_corr,home);
+        if ef(i) == 0
+            Q(i,:)=A;
+            Q_teo(i,:)=C;
+        else
+            Q(i,:)=Q(i-1,:);
+            Q_teo(i,:)=Q_teo(i-1,:);
+        end    
     end
 
     if (any(ef == true(size(ef)))) || any(z_discr < zeros(size(z_discr)))

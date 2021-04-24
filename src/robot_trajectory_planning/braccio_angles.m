@@ -20,7 +20,7 @@ function out = braccio_angles(in, post_corr, AHposition, THposition)
     %     % AHposition=[90 84 99 95 90];
     %     % AHposition=[90 84 99 91 90]; % update 24/03/21
     %     % AHposition=[90 83 98 97 90]; % update 24/03/21
-    %     AHposition=[90 84 99 95 90];   % downgrade 25/03/21
+    %     % AHposition=[90 84 99 95 90];   % downgrade 25/03/21
     % end
 
     if nargin <=3 || isempty(THposition)

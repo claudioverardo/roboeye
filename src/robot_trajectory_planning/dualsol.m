@@ -16,15 +16,19 @@ function qlocdual = dualsol(qloc)
 
    qlocdual=qloc;
 
-   if qloc(3)*qloc(2)>=0
-       qlocdual(2)=qloc(2)-qloc(3);
-       qlocdual(3)=-qloc(3);
-       qlocdual(4)=qloc(4)-qloc(3);
-   else
-       qlocdual(2)=qloc(2)+qloc(3);
-       qlocdual(3)=-qloc(3);
-       qlocdual(4)=qloc(4)+qloc(3);
-   end
+%    if qloc(3)<=0
+%        qlocdual(2)=qloc(2)-qloc(3);
+%        qlocdual(3)=-qloc(3);
+%        qlocdual(4)=qloc(4)-qloc(3);
+%    else
+%        qlocdual(2)=qloc(2)+qloc(3);
+%        qlocdual(3)=-qloc(3);
+%        qlocdual(4)=qloc(4)+qloc(3);
+%    end
+
+        qlocdual(2)=qloc(2)+qloc(3);
+        qlocdual(3)=-qloc(3);
+        qlocdual(4)=qloc(4)+qloc(3);
 
 end
 

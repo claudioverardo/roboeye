@@ -58,22 +58,25 @@ function corr = z_correction(qloc, transl)
         corr4=0*z/50+4;
     elseif z>=50 && z<100
         corr2=1*(z-50)/50+2;
-        corr4=0*z/50+4;
+        corr4=0*(z-50)/50+4;
     elseif z>=100 && z<150
         corr2=4*(z-100)/50+3;
-        corr4=0*z/50+4;
+        corr4=0*(z-100)/50+4;
     elseif z>=150 && z<200
         corr2=0*(z-150)/50+7;
-        corr4=0*z/50+4;
+        corr4=0*(z-150)/50+4;
     elseif z>=200 && z<250
         corr2=1*(z-200)/50+7;
-        corr4=0*z/50+4;
+        corr4=0*(z-200)/50+4;
     elseif z>=250 && z<300
-        corr2=-8*(z-250)+8;
-        corr4=-4*z/50+4;
+        corr2=-8*(z-250)/50+8;
+        corr4=-4*(z-250)/50+4;
     else
         corr2=0;
+        corr4=0;
     end
+    
+    %q4 is inverted because the 4th joint has a different orientation
     
     corr=[0 corr2 corr3 -corr4 0];%*transl(3)/50;
     %corr=[0 0 0 0 0];

@@ -71,8 +71,15 @@ function sol=inv_kin_prob_simple(var, transl, eulr2, braccio_params)
   y=transl(2);
   z=transl(3);
   
-  cos1=sqrt(1-var(1)^2);
-  cos2=sqrt(1-var(2)^2);
+    %Adjust last parameter for negative semi-workspace
+  if x>=0
+      delta = -braccio_params(5);
+  else
+      delta = braccio_params(5);
+  end
+  
+%   cos1=sqrt(1-var(1)^2);
+%   cos2=sqrt(1-var(2)^2);
 
     
   r=sqrt(x^2+y^2);
@@ -80,7 +87,10 @@ function sol=inv_kin_prob_simple(var, transl, eulr2, braccio_params)
   %sol(1)=braccio(2)*var(1)+braccio(3)*(sin(-eulr2)*cos2+cos(-eulr2)*(-var(2)))+braccio(4)*sin(-eulr2)-r;
   %sol(2)=braccio(2)*cos1+braccio(3)*(cos(-eulr2)*cos2-sin(-eulr2)*(-var(2)))+braccio(4)*cos(-eulr2)+braccio(1)-z;
   
-  sol(1)=braccio_params(2)*sin(var(1))+braccio_params(3)*sin(var(2))+braccio_params(4)*sin(eulr2)-r;
-  sol(2)=braccio_params(2)*cos(var(1))+braccio_params(3)*cos(var(2))+braccio_params(4)*cos(eulr2)-z+braccio_params(1);
+  %sol(1)=braccio_params(2)*sin(var(1))+braccio_params(3)*sin(var(2))+braccio_params(4)*sin(eulr2)-r;
+  %sol(2)=braccio_params(2)*cos(var(1))+braccio_params(3)*cos(var(2))+braccio_params(4)*cos(eulr2)-z+braccio_params(1);
+
+  sol(1)=braccio_params(2)*sin(var(1))+braccio_params(3)*sin(var(2))+braccio_params(4)*sin(eulr2)-r+delta*sin(eulr2-pi/2);
+  sol(2)=braccio_params(2)*cos(var(1))+braccio_params(3)*cos(var(2))+braccio_params(4)*cos(eulr2)-z+braccio_params(1)+delta*cos(eulr2-pi/2);
   
 end

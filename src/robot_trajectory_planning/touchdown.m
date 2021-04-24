@@ -1,4 +1,4 @@
-function [Qrob, errorflag] = touchdown(braccio_params, x, y, z, post_corr, home, VERBOSE)
+function [Qrob, errorflag, Q_tot] = touchdown(braccio_params, x, y, z, post_corr, home, VERBOSE)
 % TOUCHDOWN Function that computes a trajectory from the home position to a 
 % target point. The trajectory is composed by two parts. The former arrives
 % to a certain position above the target moving all the joints with constant
@@ -29,6 +29,8 @@ function [Qrob, errorflag] = touchdown(braccio_params, x, y, z, post_corr, home,
 %   errorflag:          1 if for at least one of the keypoints either the
 %                       solution does not satisfy the robot constraint or
 %                       the fsolve routine fails, 0 otherwise
+%   Q_tot:              170xQNUM array, pointwise trajectory in the space 
+%                       of joints (model convention)
 %
 %   NOTE: do not use z too high (remain in <= 40mm), stay in the range
 %   140<=r<=360 mm where r=sqrt(x^2+y^2).
@@ -59,6 +61,7 @@ function [Qrob, errorflag] = touchdown(braccio_params, x, y, z, post_corr, home,
     else
         %compute end effector angle by linear interpolation
         eulr2 = 175-(r-rmin)/(rmax-rmin)*45;
+        
 
         %generate points in workspace 
         X=[ones(npoints,1)*x ones(npoints,1)*y linspace(z+vertical_run,z,npoints)' ones(npoints,1)*eulr2 ones(npoints,1)*eulr3];
@@ -74,10 +77,14 @@ function [Qrob, errorflag] = touchdown(braccio_params, x, y, z, post_corr, home,
            qloc=mod(qloc+180,360)-180;
 
            %check for dual solution:
-           qloc(3)*qloc(2);
-           if qloc(3)*qloc(2)<=0
-                %disp('IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII');
-                qloc=dualsol(qloc);
+           if transl(1) >= 0
+               if qloc(3)>0
+                    qloc=dualsol(qloc);
+               end
+           else
+               if qloc(3)<0
+                    qloc=dualsol(qloc);
+               end
            end
 
 
@@ -118,7 +125,7 @@ function [Qrob, errorflag] = touchdown(braccio_params, x, y, z, post_corr, home,
         end
 
         if VERBOSE > 0
-            jointpos=plot_config([ones(npoints+npoints_first,1) Q_tot], braccio_params);
+            jointpos=plot_config(Q_tot, braccio_params);
             jointpos=plot_config_rob(Qrob, braccio_params, post_corr, home);
         end
 

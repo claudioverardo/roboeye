@@ -54,8 +54,10 @@ function [qrob, errorflag, q] = gothere(braccio_params, x, y, z, roll, grasp, of
     % Offset correction
     braccio_params(4)=braccio_params(4)+offset;
 
-    % Initialization flags
+    % Initialization
     errorflag=false;
+    q=[];
+    qrob=[];
 
     % Define translation
     transl=[x y z];
@@ -76,9 +78,9 @@ function [qrob, errorflag, q] = gothere(braccio_params, x, y, z, roll, grasp, of
         end
     else
         %%%%% Search nearest solution
-        Q_poss =all_config(transl,braccio_params,post_corr,home);
+        Q_poss = all_config(transl,braccio_params,post_corr,home);
         
-        if Q_poss == zeros(size(Q_poss))
+        if isempty(Q_poss)
             foundflag=false;
         else
             foundflag=true;
@@ -88,6 +90,7 @@ function [qrob, errorflag, q] = gothere(braccio_params, x, y, z, roll, grasp, of
             [~,pos_min]=min(dist);
 
             qrob=Q_poss(pos_min,:);
+            q=braccio_angles_inv(qrob([1:5]),post_corr,home(1:end-1));
         end
     end
     
@@ -101,7 +104,7 @@ function [qrob, errorflag, q] = gothere(braccio_params, x, y, z, roll, grasp, of
     
     if VERBOSE > 0
         jp=plot_config_rob(qrob,braccio_params,post_corr,home);
-        jp=plot_config([0 q],braccio_params);
+        jp=plot_config(q,braccio_params);
     end
 
     % Set grabber angle
@@ -141,10 +144,17 @@ function Q_poss = all_config(transl,braccio_params,post_corr,home)
             errorflag=true;
         end
 
-        %check for dual solution
-        if qloc(3)*qloc(2)<=0
-           qloc=dualsol(qloc);
-        end
+           %check for dual solution:
+           if transl(1) >= 0
+               if qloc(3)>0
+                    qloc=dualsol(qloc);
+               end
+           else
+               if qloc(3)<0
+                    qloc=dualsol(qloc);
+               end
+           end
+
 
         %convert joint pos into robot's rf
         qrob=[braccio_angles(qloc,post_corr,home(1:end-1)) 0];    
@@ -203,9 +213,15 @@ function [qrob,q_teo,foundflag] = scan_EF_pitch(transl,dirindex,braccio_params,p
             errorflag=true;
         end
         
-        %check for dual solution
-        if qloc(3)*qloc(2)<=0
-           qloc=dualsol(qloc);
+        %check for dual solution:
+        if transl(1) >= 0
+           if qloc(3)>0
+                qloc=dualsol(qloc);
+           end
+        else
+           if qloc(3)<0
+                qloc=dualsol(qloc);
+           end
         end
 
         %convert joint pos into robot's rf
