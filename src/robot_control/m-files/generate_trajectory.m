@@ -316,8 +316,35 @@ function [trajectory, time_trajectory, confirm] = generate_trajectory(method, ho
     if sing_flag
         trajectory_robot_sing = trajectory_robot(sing_idcs,:);
         for i=1:length(sing_idcs)
-            fprintf('        WARNING: position %d will be singular: %s\n', ...
+            fprintf('        SINGULARITY WARNING: position %d will be singular: %s\n', ...
                     sing_idcs(i), mat2str(trajectory_robot_sing(i,:)) ...
+            );
+        end
+    end
+    
+    % Collision checking
+    coll_flag = false;
+    j = 1;
+    collision_idcs = [];
+    for i = 1:size(trajectory_robot,1)
+        % convert to robot convention
+        q = braccio_angles_inv(trajectory_robot(i,:),...
+            trajectory_planning_args.post_corr, home_q);
+        Joint_position = Joint_pos(q,...
+            trajectory_planning_args.braccio_params);
+        if any(Joint_position(:,3) < trajectory_planning_args.z_min-trajectory_planning_args.joint_safety_radius)
+            collision_idcs(j) = i;
+            j=j+1;
+            coll_flag = true;
+        end
+    end
+    
+    % Show collision positions
+    if coll_flag
+        trajectory_robot_coll = trajectory_robot(collision_idcs,:);
+        for i=1:length(sing_idcs)
+            fprintf('       COLLISION WARNING: in position %d will be a collision: %s\n', ...
+                    collision_idcs(i), mat2str(trajectory_robot_coll(i,:)) ...
             );
         end
     end

@@ -57,3 +57,4 @@ trajectory_planning_args.touchdown_verbose = 0;
 trajectory_planning_args.gothere_verbose = 0;
 trajectory_planning_args.parabolic_traj_verbose = 0;
 trajectory_planning_args.objects_dict = load('../objects_dict/objects_dict_7x7.mat').objects_dict;
+trajectory_planning_args.joint_safety_radius = [0 30 30 30 0]; % safety distance that joints sould manain from the ground [mm]

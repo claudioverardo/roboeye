@@ -1,4 +1,4 @@
-function trajectory_robot = emulate_keypoints_trajectory(start, trajectory)
+function [trajectory_robot, KEY_index] = emulate_keypoints_trajectory(start, trajectory)
 % EMULATE_KEYPOINTS_TRAJECTORY Given a trajectory defined via keypoints
 % return the actual trajectory followed by the robot. The actual trajectory
 % is interpolated by the microcontroller with braccioServoMovement(...).
@@ -13,6 +13,8 @@ function trajectory_robot = emulate_keypoints_trajectory(start, trajectory)
 %   Output arguments:
 %   ------------------
 %   trajectory_robot:   MxQNUM array, interpolated trajectory (M>=N)
+%   KEY_index:          1xQNUM array, coinains index where trajectory_robot
+%                       reaches the keypoints
 %
 % See also GENERATE_TRAJECTORY
     
@@ -47,6 +49,9 @@ function trajectory_robot = emulate_keypoints_trajectory(start, trajectory)
         
         % Store the emulated trajectory
         trajectory_robot = [trajectory_robot; trajectory_robot_i];
+        
+        % save keypoints index
+        KEY_index(i)=length(trajectory_robot(:,1));
         
     end
     

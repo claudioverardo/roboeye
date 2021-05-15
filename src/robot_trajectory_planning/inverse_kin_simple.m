@@ -87,10 +87,12 @@ function sol=inv_kin_prob_simple(var, transl, eulr2, braccio_params)
   %sol(1)=braccio(2)*var(1)+braccio(3)*(sin(-eulr2)*cos2+cos(-eulr2)*(-var(2)))+braccio(4)*sin(-eulr2)-r;
   %sol(2)=braccio(2)*cos1+braccio(3)*(cos(-eulr2)*cos2-sin(-eulr2)*(-var(2)))+braccio(4)*cos(-eulr2)+braccio(1)-z;
   
-  %sol(1)=braccio_params(2)*sin(var(1))+braccio_params(3)*sin(var(2))+braccio_params(4)*sin(eulr2)-r;
-  %sol(2)=braccio_params(2)*cos(var(1))+braccio_params(3)*cos(var(2))+braccio_params(4)*cos(eulr2)-z+braccio_params(1);
+  %%%%%%%   WITHOUT DELTA  %%%%%%%%
+  sol(1)=braccio_params(2)*sin(var(1))+braccio_params(3)*sin(var(2))+braccio_params(4)*sin(eulr2)-r;
+  sol(2)=braccio_params(2)*cos(var(1))+braccio_params(3)*cos(var(2))+braccio_params(4)*cos(eulr2)-z+braccio_params(1);
 
-  sol(1)=braccio_params(2)*sin(var(1))+braccio_params(3)*sin(var(2))+braccio_params(4)*sin(eulr2)-r+delta*sin(eulr2-pi/2);
-  sol(2)=braccio_params(2)*cos(var(1))+braccio_params(3)*cos(var(2))+braccio_params(4)*cos(eulr2)-z+braccio_params(1)+delta*cos(eulr2-pi/2);
+  %%%%%%%   WITH DELTA  %%%%%%%%
+  %sol(1)=braccio_params(2)*sin(var(1))+braccio_params(3)*sin(var(2))+braccio_params(4)*sin(eulr2)-r+delta*sin(eulr2-pi/2);
+  %sol(2)=braccio_params(2)*cos(var(1))+braccio_params(3)*cos(var(2))+braccio_params(4)*cos(eulr2)-z+braccio_params(1)+delta*cos(eulr2-pi/2);
   
 end

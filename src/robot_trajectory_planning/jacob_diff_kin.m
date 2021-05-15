@@ -1,4 +1,4 @@
-function J = jacob_diff_kin(q, braccio_params)
+function J = jacob_diff_kin(q, braccio_params,prism)
 % JACOB_DIFF_KIN Compute the geometric Jacobian of the Braccio robot for a
 % given position of the joints.
 %.
@@ -9,6 +9,8 @@ function J = jacob_diff_kin(q, braccio_params)
 %   q:                  1xQNUM-1 array, joints positions in model convention
 %   braccio_params:     1xQNUM-1 array, real parameters of the Braccio robot,
 %                       cf. direct_kin(...)
+%   prism:              1xnjoins logical array, true if the i-th joint is
+%                       prismatic, false if it is rotoidal
 %
 %   Output arguments:
 %   ------------------
@@ -16,12 +18,17 @@ function J = jacob_diff_kin(q, braccio_params)
 %
 % See also CHECK_SING
     
+    % define number of joints
+    njoints=5;
+    
     % if nargin <=2
     %     braccio_params=[71 125 125 195 0];
     % end
-
-    njoints=5;
-    prism=zeros(njoints,1);
+    
+    if nargin <=3
+        prism=zeros(njoints,1);
+    end
+    
 
     %initialization
     Jp=zeros(3,njoints);
