@@ -46,6 +46,7 @@ A control module allows the user to interactively define some tasks for the robo
 <a name="overview"></a>
 ## Overview
 This section provides an overview of the hardware setup employed in our experiments and the 4 main modules of the code: robot vision, robot trajectory planning, robot control, and robot calibration.
+![OverviewImage](./docs/overview_img.png)
 
 ### Hardware Setup
 Actually, no cutting-edge technology here. It was fun though to play around with it and make it work :grin:
