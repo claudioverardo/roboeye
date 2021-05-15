@@ -1,7 +1,7 @@
-function Jpos = joint_pos(q,braccio_params)
+function Jpos = joints_pos(q, braccio_params)
 % JACOB_DIFF_KIN Compute the spatial position of the joints in workspace.
 %.
-%   Jpos = joint_pos(q,braccio_params)
+%   Jpos = joints_pos(q, braccio_params)
 %
 %   Input arguments:
 %   ------------------
@@ -11,7 +11,7 @@ function Jpos = joint_pos(q,braccio_params)
 %
 %   Output arguments:
 %   ------------------
-%   Jpos:               QNUM-1x3 x,y,and z foint position in workspace
+%   Jpos:               QNUMx1x3 x,y,and z joint position in workspace
 %                       (robot convention)
     
     Jpos = zeros(length(q),3);
@@ -21,4 +21,5 @@ function Jpos = joint_pos(q,braccio_params)
         Afin=direct_kin(Qcorr,i,braccio_params);
         Jpos(i+1,:)=Afin([1 2 3],4)';
     end
+    
 end
