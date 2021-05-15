@@ -363,15 +363,6 @@ Output arguments:
     + components{i,2} is the set of tails of the i-th component
 </details>
 
-<!-- roi_extraction_dfs_c matlab function -->
-<details>
-    <summary>
-        roi_extraction_dfs_c
-    </summary>
-
-TODO
-</details>
-
 <!-- roi_matching matlab function -->
 <details>
     <summary>
@@ -516,7 +507,7 @@ The position and orientation of the end effector must be defined in the **robot 
 
 ![FrameRobot](./frame_robot.png)
 
-### Matlab functions         
+### Matlab functions
 
 <!-- braccio_angles matlab function -->
 <details>
@@ -654,6 +645,163 @@ Output arguments:
 + **qlocdual**: 1xQNUM-1 array, dual position of qloc
 </details>
 
+<!-- emulate_keypoints_trajectory matlab function -->
+<details>
+    <summary>
+        emulate_keypoints_trajectory
+    </summary>
+
+Given a trajectory defined via keypoints return the actual trajectory followed by the robot. The actual trajectory is interpolated by the microcontroller with braccioServoMovement(...).
+
+    trajectory_robot = emulate_keypoints_trajectory(start, trajectory)
+
+Input arguments:
++ **start**: 1xQNUM array, starting point of the trajectory
++ **trajectory**: NxQNUM array, trajectory defined by keypoints
+
+Output arguments:
++ **trajectory_robot**: MxQNUM array, interpolated trajectory (M>=N)
++ **key_idcs**: 1xN array, cointains index where trajectory_robot reaches the keypoints
+</details>
+
+<!-- estimate_time_trajectory matlab function -->
+<details>
+    <summary>
+        estimate_time_trajectory
+    </summary>
+
+Estimate the time to execute a trajectory on the robot.
+
+    time = estimate_time_trajectory(type_trajectory, trajectory, current_q, delta_t)
+
+Input arguments:
++ **type_trajectory**: type of trajectory, cf. generate_trajectory(...)
+    + 'pointwise': trajectory defined point by point
+    + 'keypoints': trajectory defined via keypoints to be interpolated
++ **trajectory**: NxQNUM array, points of the trajectory
++ **current_q**: 1xQNUM array, current position of the robot (joints)
++ **delta_t**: timestep of the trajectory execution
+
+Output arguments:
++ **time**: estimated execution time of the trajectory
+</details>
+
+<!-- fix_target_q matlab function -->
+<details>
+    <summary>
+        fix_target_q
+    </summary>
+
+Add a small overshoot to the trajectory of the first joint during the movement to a target position.
+
+    target_q_fix = fix_target_q(target_q, current_q, last_q)
+
+Input arguments:
++ **target_q**: 1xQNUM array, target position in joints space
++ **current_q**: 1xQNUM array, current position in joints space
++ **last_q**: 1xQNUM array, last position in joints space
+
+Output arguments:
++ **target_q_fix**: 3xQNUM array, fixed target position
+</details>
+
+<!-- generate_trajectory matlab function -->
+<details>
+    <summary>
+        generate_trajectory
+    </summary>
+
+High level interface to generate robot trajectories. Trajectories defined pointwise (P) and via keypoints (K) can be generated. The latter ones require a low level controller that interpolate between keypoints to be executed on the robot.
+
+    [trajectory, time_trajectory, confirm] = generate_trajectory(method, current_q, delta_t, cam, vision_args, trajectory_planning_args, fn_cam2robot_coords, fn_robot_input)
+
+Input arguments:
++ **method**: method used to generate the trajectory
+    + 'back-home': go back to the home position (K)
+    + 'move-q': move to a position in joints space (K)
+    + 'move-t-npoints': move to n positions in 3D space (K)
+    + 'move-t-pointwise': move to a position in 3D space from home (P)
+    + 'move-t': move to a position in 3D space (K)
+    + 'grasp': grasp a object in a position in 3D space (K)
+    + 'grasp-parabola': as 'grasp', with a parabolic trajectory (K)
++ **home_q**: 1xQNUM array, home position of the robot (joints)
++ **current_q**:1xQNUM array, current position of the robot (joints)
++ **delta_t**: timestep of the trajectory execution
++ **cam**: webcam object of the camera, cf. webcam(...)
++ **vision_args**: struct of vision parameters, cf. get_target_from_vision(...)
++ **trajectory_planning_args**: struct of trajectory planning parameters
++ **fn_cam2robot_coords**: function to convert points from vision to robot frame 
++ **fn_robot_input**: function to acquire input, cf. input(...) or cmdBuffer
+
+trajectory_planning_args struct:
++ braccio_params: parameters of the robot, cf. direct_kin(...)
++ z_min: minimum z-value of target points [mm], in robot frame
++ joint_safety_radius: minimum distance that joints have to mantain from the ground [mm], in robot frame
++ box_coords_grasp: destination of 'grasp' [cm], in vision frame
++ box_coords_grasp_parabola: as above but for 'grasp-parabola' [cm]
++ touchdown_verbose: verbosity level of touchdown(...)
++ gothere_verbose: verbosity level of gothere(...)
++ parabolic_traj_verbose: verbosity level of parabolic_traj(...)
++ objects_dict: parameters of the objects to be grasped, cf. object_offset(...)
+
+Output arguments:
++ **trajectory**: NxQNUM array of the generated N-points trajectory
++ **time_trajectory**: estimated execution time of the trajectory
++ **confirm**: flag to confirm or cancel execution of the trajectory
+
+NOTE: this function requires the MATLAB Support Package for USB Webcams. For details regarding vision_args refers to get_target_from_vision(...).
+</details>
+
+<!-- get_target matlab function -->
+<details>
+    <summary>
+        get_target
+    </summary>
+
+Retrieve the position of a target in the scene (world frame).
+
+    [target, i_aruco] = get_target(method, QNUM, cam, vision_args, fn_robot_input)
+
+Input arguments:
++ **method**: type of target acquisition
+    + 'q': position in joint space from user
+    + '3d-npoints': n positions in 3d space from user (world frame)
+    + '3d-vision': position in 3d space from user or camera (world frame)
++ **QNUM**: number of joints of the robot
++ **cam**: webcam object of the camera, cf. webcam(...)
++ **vision_args**: struct of vision parameters
++ **fn_robot_input**: function to acquire input, cf. input(...) or cmdBuffer
+
+Output arguments:
++ **target**: position ot the chosen target (world frame)
++ **i_aruco**: id of the marker associated to the target (0 if none)
+
+NOTE: this function requires the MATLAB Support Package for USB Webcams. For details regarding vision_args refers to get_target_from_vision(...).
+</details>
+
+<!-- get_target_from_vision matlab function -->
+<details>
+    <summary>
+        get_target_from_vision
+    </summary>
+
+Retrieve the position of a chosen marker in the scene observed by a camera (world frame).
+
+    [t, R, i_aruco] = GET_TARGET_FROM_VISION(cam, vision_args, fn_robot_input)
+
+Input arguments:
++ **cam**: webcam object of the camera, cf. webcam(...)
++ **vision_args**: struct of vision parameters, cf. below
++ **fn_robot_input**: function to acquire input, cf. input(...) or cmdBuffer
+
+The struct vision_args contains the positional arguments and parameters of aruco_pose_estimation(...).
+
+Output arguments:
++ **t**: translation vector of the roto-translation that maps points from the target frame into the world frame (Matlab convention)
++ **R**: rotation matrix of the roto-translation that maps points from the target frame into the world frame (Matlab convention)
++ **i_aruco**: id of the marker correspondent to the target
+</details>
+
 <!-- gothere matlab function -->
 <details>
     <summary>
@@ -769,9 +917,48 @@ Compute the geometric Jacobian of the Braccio robot for a given position of the 
 Input arguments:
 + **q**: 1xQNUM-1 array, joints positions in model convention
 + **braccio_params**: 1xQNUM-1 array, real parameters of the Braccio robot, cf. direct_kin(...)
++ **prism**: 1xnjoins logical array, true if the i-th joint is prismatic, false if it is rotoidal
 
 Output arguments:
 + **J**: 6xQNUM-1 geometric Jacobian matrix of the robot
+</details>
+
+<!-- joint_pos matlab function -->
+<details>
+    <summary>
+        joint_pos
+    </summary>
+
+Compute the spatial position of the joints in workspace.
+
+     Jpos = joints_pos(q, braccio_params)
+
+Input arguments:
++ **q**: 1xQNUM-1 array, joints positions in model convention
++ **braccio_params**: 1xQNUM-1 array, real parameters of the Braccio robot, cf. direct_kin(...)
+
+Output arguments:
++ **Jpos**: QNUMx1x3 x,y,and z joint position in workspace (robot convention)
+</details>
+
+<!-- object_offset matlab function -->
+<details>
+    <summary>
+        object_offset
+    </summary>
+
+Find the offset of the end-effector position to adjust the grasping position on the basis of object data (in robot coordinates).
+
+    dt = object_offset(dh, dr, t, nz)
+
+Input arguments:
++ **dh**: height offset in object frame
++ **dr**: radial offset in robot frame
++ **t**: [x,y,z] is the initial position of the end-effector in robot frame
++ **nz**: normal versor along which dh is applied (default [0 0 1])
+
+Output arguments:
++ **dt**: [dx,dy,dz] is the position offset of the end-effector in robot frame
 </details>
 
 <!-- parabolic_traj matlab function -->
@@ -802,7 +989,8 @@ Input arguments:
 Output arguments:
 + **Q_def**: npoints x QNUM array, keypoints of the trajectory in the space of joints (robot convention)
 + **error_flag**: 1 if for at least one of the keypoints either the solution does not satisfy the robot constraints or the fsolve routine fails, 0 otherwise
-</details>      
++ **Q_teo**: npoints x QNUM array, keypoints of the trajectory in model RF (without compensations)
+</details>
 
 <!-- plot_config matlab function -->
 <details>
@@ -812,11 +1000,13 @@ Output arguments:
 
 Given a input trajectory in joints space (model convention), plot the position and orientation of the end effector for each point of the trajectory. Moreover, plot the final robot configuration.
 
-    jointpos = plot_config(Q, braccio_params)
+    [jointpos, Aloc_out] = plot_config(Q, braccio_params)
 
 Input arguments:
 + **Q**: NxQNUM-1 array, trajectory in joints space
-+ **braccio_params**: 1xQNUM-1 array, real parameters of the Braccio robot, cf. direct_kin(...)
++ **braccio_params**: 1xQNUM-1 array, real parameters of the Braccio robot,cf. direct_kin(...)
++ **disp_kpts**: vector with indexes of keypoints to display
++ **plot_dual**: boolean, if true display with dashed line even the dual solution (the other sol if IK)
 
 Output arguments:
 + **jointpos**: (QNUM-1)x3 array, final 3D position of joints
@@ -918,9 +1108,11 @@ Input arguments:
 Output arguments:
 + **Qrob**: 170xQNUM array, pointwise trajectory in the space of joints (robot convention)
 + **errorflag**: 1 if for at least one of the keypoints either the solution does not satisfy the robot constraint or the fsolve routine fails, 0 otherwise
++ **Q_tot**: 170xQNUM array, pointwise trajectory in the space of joints (model convention)
 
 NOTE: do not use `z` too high (remain in `z<=40` mm), stay in the range `140<=r<=360` mm where `r=sqrt(x^2+y^2)`.
 </details>
+
 
 <!-- z_correction matlab function -->
 <details>
@@ -989,181 +1181,6 @@ Input arguments:
 
 Output arguments:
 + **cmd_err**: 1 if ACK is missing, 0 otherwise
-</details>
-
-<!-- emulate_keypoints_trajectory matlab function -->
-<details>
-    <summary>
-        emulate_keypoints_trajectory
-    </summary>
-
-Given a trajectory defined via keypoints return the actual trajectory followed by the robot. The actual trajectory is interpolated by the microcontroller with braccioServoMovement(...).
-
-    trajectory_robot = emulate_keypoints_trajectory(start, trajectory)
-
-Input arguments:
-+ **start**: 1xQNUM array, starting point of the trajectory
-+ **trajectory**: NxQNUM array, trajectory defined by keypoints
-
-Output arguments:
-+ **trajectory_robot**: MxQNUM array, interpolated trajectory (M>=N)
-</details>
-
-<!-- estimate_time_trajectory matlab function -->
-<details>
-    <summary>
-        estimate_time_trajectory
-    </summary>
-
-Estimate the time to execute a trajectory on the robot.
-
-    time = estimate_time_trajectory(type_trajectory, trajectory, current_q, delta_t)
-
-Input arguments:
-+ **type_trajectory**: type of trajectory, cf. generate_trajectory(...)
-    + 'pointwise': trajectory defined point by point
-    + 'keypoints': trajectory defined via keypoints to be interpolated
-+ **trajectory**: NxQNUM array, points of the trajectory
-+ **current_q**: 1xQNUM array, current position of the robot (joints)
-+ **delta_t**: timestep of the trajectory execution
-
-Output arguments:
-+ **time**: estimated execution time of the trajectory
-</details>
-
-<!-- fix_target_q matlab function -->
-<details>
-    <summary>
-        fix_target_q
-    </summary>
-
-Add a small overshoot to the trajectory of the first joint during the movement to a target position.
-
-    target_q_fix = fix_target_q(target_q, current_q, last_q)
-
-Input arguments:
-+ **target_q**: 1xQNUM array, target position in joints space
-+ **current_q**: 1xQNUM array, current position in joints space
-+ **last_q**: 1xQNUM array, last position in joints space
-
-Output arguments:
-+ **target_q_fix**: 3xQNUM array, fixed target position
-</details>
-
-<!-- generate_trajectory matlab function -->
-<details>
-    <summary>
-        generate_trajectory
-    </summary>
-
-High level interface to generate robot trajectories. Trajectories defined pointwise (P) and via keypoints (K) can be generated. The latter ones require a low level controller that interpolate between keypoints to be executed on the robot.
-
-    [trajectory, time_trajectory, confirm] = generate_trajectory(method, current_q, delta_t, cam, vision_args, trajectory_planning_args, fn_cam2robot_coords, fn_robot_input)
-
-Input arguments:
-+ **method**: method used to generate the trajectory
-    + 'back-home': go back to the home position (K)
-    + 'move-q': move to a position in joints space (K)
-    + 'move-t-npoints': move to n positions in 3D space (K)
-    + 'move-t-pointwise': move to a position in 3D space from home (P)
-    + 'move-t': move to a position in 3D space (K)
-    + 'grasp': grasp a object in a position in 3D space (K)
-    + 'grasp-parabola': as 'grasp', with a parabolic trajectory (K)
-+ **home_q**: 1xQNUM array, home position of the robot (joints)
-+ **current_q**:1xQNUM array, current position of the robot (joints)
-+ **delta_t**: timestep of the trajectory execution
-+ **cam**: webcam object of the camera, cf. webcam(...)
-+ **vision_args**: struct of vision parameters, cf. get_target_from_vision(...)
-+ **trajectory_planning_args**: struct of trajectory planning parameters
-+ **fn_cam2robot_coords**: function to convert points from vision to robot frame 
-+ **fn_robot_input**: function to acquire input, cf. input(...) or cmdBuffer
-
-trajectory_planning_args struct:
-+ braccio_params: parameters of the robot, cf. direct_kin(...)
-+ z_min: minimum z-value of target points [mm], in robot frame
-+ box_coords_grasp: destination of 'grasp' [cm], in vision frame
-+ box_coords_grasp_parabola: as above but for 'grasp-parabola' [cm]
-+ touchdown_verbose: verbosity level of touchdown(...)
-+ gothere_verbose: verbosity level of gothere(...)
-+ parabolic_traj_verbose: verbosity level of parabolic_traj(...)
-+ objects_dict: parameters of the objects to be grasped, cf. object_offset(...)
-
-Output arguments:
-+ **trajectory**: NxQNUM array of the generated N-points trajectory
-+ **time_trajectory**: estimated execution time of the trajectory
-+ **confirm**: flag to confirm or cancel execution of the trajectory
-
-NOTE: this function requires the MATLAB Support Package for USB Webcams. For details regarding vision_args refers to get_target_from_vision(...).
-</details>
-
-<!-- get_target matlab function -->
-<details>
-    <summary>
-        get_target
-    </summary>
-
-Retrieve the position of a target in the scene (world frame).
-
-    [target, i_aruco] = get_target(method, QNUM, cam, vision_args, fn_robot_input)
-
-Input arguments:
-+ **method**: type of target acquisition
-    + 'q': position in joint space from user
-    + '3d-npoints': n positions in 3d space from user (world frame)
-    + '3d-vision': position in 3d space from user or camera (world frame)
-+ **QNUM**: number of joints of the robot
-+ **cam**: webcam object of the camera, cf. webcam(...)
-+ **vision_args**: struct of vision parameters
-+ **fn_robot_input**: function to acquire input, cf. input(...) or cmdBuffer
-
-Output arguments:
-+ **target**: position ot the chosen target (world frame)
-+ **i_aruco**: id of the marker associated to the target (0 if none)
-
-NOTE: this function requires the MATLAB Support Package for USB Webcams. For details regarding vision_args refers to get_target_from_vision(...).
-</details>
-
-<!-- get_target_from_vision matlab function -->
-<details>
-    <summary>
-        get_target_from_vision
-    </summary>
-
-Retrieve the position of a chosen marker in the scene observed by a camera (world frame).
-
-    [t, R, i_aruco] = GET_TARGET_FROM_VISION(cam, vision_args, fn_robot_input)
-
-Input arguments:
-+ **cam**: webcam object of the camera, cf. webcam(...)
-+ **vision_args**: struct of vision parameters, cf. below
-+ **fn_robot_input**: function to acquire input, cf. input(...) or cmdBuffer
-
-The struct vision_args contains the positional arguments and parameters of aruco_pose_estimation(...).
-
-Output arguments:
-+ **t**: translation vector of the roto-translation that maps points from the target frame into the world frame (Matlab convention)
-+ **R**: rotation matrix of the roto-translation that maps points from the target frame into the world frame (Matlab convention)
-+ **i_aruco**: id of the marker correspondent to the target
-</details>
-
-<!-- object_offset matlab function -->
-<details>
-    <summary>
-        object_offset
-    </summary>
-
-Find the offset of the end-effector position to adjust the grasping position on the basis of object data (in robot coordinates).
-
-    function dt = object_offset(dh, dr, t, nz)
-
-Input arguments:
-+ **dh**: height offset in object frame
-+ **dr**: radial offset in robot frame
-+ **t**: [x,y,z] is the initial position of the end-effector in robot frame
-+ **nz**: normal versor along which dh is applied (default [0 0 1])
-
-Output arguments:
-+ **dt**: [dx,dy,dz] is the position offset of the end-effector in robot frame
 </details>
 
 <!-- robot_fsm_interface matlab function -->

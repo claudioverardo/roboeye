@@ -120,6 +120,7 @@ To run the Matlab interface with the Arduino FSM, perform in order the following
 
 To run the above steps with the data you can launch the script [run_pose_estimation.m](./src/scripts/run_pose_estimation.m). The following videos show an example of pick-and-place task performed via the Matlab interface (a little extra to the introduction demo :wink:). The commands are automatically fed into the command window by a previously filled buffer.
 
+![DemoVision5](./docs/arduino_fsm.png)
 [![RoboEye](./docs/video/video2a_play.png)](https://www.youtube.com/watch?v=Kzpq9sqbxM0)
 
 [![RoboEye](./docs/video/video2b_play.png)](https://www.youtube.com/watch?v=rr2VxXzEknk)

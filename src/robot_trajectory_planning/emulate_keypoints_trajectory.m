@@ -13,7 +13,7 @@ function [trajectory_robot, key_idcs] = emulate_keypoints_trajectory(start, traj
 %   Output arguments:
 %   ------------------
 %   trajectory_robot:   MxQNUM array, interpolated trajectory (M>=N)
-%   key_idcs:           1xN array, coinains index where trajectory_robot
+%   key_idcs:           1xN array, cointains index where trajectory_robot
 %                       reaches the keypoints
 %
 % See also GENERATE_TRAJECTORY
