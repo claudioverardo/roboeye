@@ -57,5 +57,5 @@ trajectory_planning_args.n_points_parabola = 10;
 trajectory_planning_args.touchdown_verbose = 0;
 trajectory_planning_args.gothere_verbose = 0;
 trajectory_planning_args.parabolic_traj_verbose = 0;
-trajectory_planning_args.generate_traj_verbose = 1;
+trajectory_planning_args.verbose = 0;
 trajectory_planning_args.objects_dict = load('../objects_dict/objects_dict_7x7.mat').objects_dict;

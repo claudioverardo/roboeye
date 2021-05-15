@@ -20,7 +20,7 @@ function [trajectory, time_trajectory, confirm] = generate_trajectory(method, ho
 %       - 'grasp-parabola': as 'grasp', with a parabolic trajectory (K)
 %   home_q: 1xQNUM array, home position of the robot (joints)
 %   current_q: 1xQNUM array, current position of the robot (joints)
-%   delta_t: timestep of the trajectory execution
+%   delta_t: timestep of the trajectory execution [ms]
 %   cam: webcam object of the camera, cf. webcam(...)
 %   vision_args: struct of vision parameters, cf. get_target_from_vision(...)
 %   trajectory_planning_args: struct of trajectory planning parameters
@@ -38,7 +38,7 @@ function [trajectory, time_trajectory, confirm] = generate_trajectory(method, ho
 %   - touchdown_verbose: verbosity level of touchdown(...)
 %   - gothere_verbose: verbosity level of gothere(...)
 %   - parabolic_traj_verbose: verbosity level of parabolic_traj(...)
-%   - generate_traj_verbose: verbosity level of generate_trajectory(...)
+%   - verbose: verbosity level of generate_trajectory(...)
 %   - objects_dict: parameters of the objects to be grasped, cf. object_offset(...)
 %
 %   Output arguments:
@@ -296,7 +296,7 @@ function [trajectory, time_trajectory, confirm] = generate_trajectory(method, ho
     );
     
     % Plot the trajectory
-    if trajectory_planning_args.generate_traj_verbose > 0
+    if trajectory_planning_args.verbose > 0
         plot_config( ...
             trajectory_robot_mod_coords, ...
             trajectory_planning_args.braccio_params, ...
@@ -348,7 +348,7 @@ function [trajectory, time_trajectory, confirm] = generate_trajectory(method, ho
     j = 1;
     collision_idcs = [];
     for i = 1:size(trajectory_robot,1)
-        Joint_position = joint_pos( ...
+        Joint_position = joints_pos( ...
             trajectory_robot_mod_coords(i,:), ...
             trajectory_planning_args.braccio_params ...
         );
@@ -374,16 +374,18 @@ function [trajectory, time_trajectory, confirm] = generate_trajectory(method, ho
     time_trajectory = estimate_time_trajectory('pointwise', trajectory_robot, current_q, delta_t);
     
     % Confirm or cancel the execution of the trajectory
-    if ~strcmp(method,'back-home') || sing_flag || coll_flag
-        confirm = cmd_acquire( ...
-            '', ...
-            @(x) isscalar(x) && ( x==0 || x==1 ), ...
-            fn_robot_input, ...
-            '   Confirm trajectory (0-1)? ', ...
-            '   Ans not valid\n' ...
-        );
-    else
-        confirm = 1;
+    if nargout > 2
+        if ~strcmp(method,'back-home') || sing_flag || coll_flag
+            confirm = cmd_acquire( ...
+                '', ...
+                @(x) isscalar(x) && ( x==0 || x==1 ), ...
+                fn_robot_input, ...
+                '   Confirm trajectory (0-1)? ', ...
+                '   Ans not valid\n' ...
+            );
+        else
+            confirm = 1;
+        end
     end
 
 end
