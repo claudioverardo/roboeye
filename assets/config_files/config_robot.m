@@ -47,14 +47,15 @@ vision_args.options.verbose = 0; % aruco_pose_estimation_verbose
 
 %% ROBOT TRAJECTORY PLANNING
 %--------------------------------------------------------------------------
-trajectory_planning_args.braccio_params = [71 125 125 195 -8];
+trajectory_planning_args.braccio_params = [71 125 125 195 0];
 trajectory_planning_args.post_corr = [0 0 0 0 0];
 trajectory_planning_args.z_min = -5; % [mm] in robot frame
+trajectory_planning_args.joint_safety_radius = [0 30 30 30 0]; % [mm] in robot frame
 trajectory_planning_args.box_coords_grasp = [-4 1 20]; % [cm] in vision frame
 trajectory_planning_args.box_coords_grasp_parabola = [-4 1 12.5]; % [cm] in vision frame
 trajectory_planning_args.n_points_parabola = 10;
 trajectory_planning_args.touchdown_verbose = 0;
 trajectory_planning_args.gothere_verbose = 0;
 trajectory_planning_args.parabolic_traj_verbose = 0;
+trajectory_planning_args.generate_traj_verbose = 1;
 trajectory_planning_args.objects_dict = load('../objects_dict/objects_dict_7x7.mat').objects_dict;
-trajectory_planning_args.joint_safety_radius = [0 30 30 30 0]; % safety distance that joints sould manain from the ground [mm]

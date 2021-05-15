@@ -1,4 +1,4 @@
-function jointpos = plot_config(Q, braccio_params,disp_kpts,plot_dual)
+function jointpos = plot_config(Q, braccio_params, disp_kpts, plot_dual)
 % PLOT_CONFIG Given a input trajectory in joints space (model convention), 
 % plot the position and orientation of the end effector for each point of 
 % the trajectory. Moreover, plot the final robot configuration.
@@ -20,14 +20,11 @@ function jointpos = plot_config(Q, braccio_params,disp_kpts,plot_dual)
 %
 % See also PLOT_CONFIG_ROB
   
-  % if nargin <= 1
-  %     braccio_params=[71 125 125 195 0];
-  % end
-  
-  if nargin <=2 
+  if nargin <= 2 
       disp_kpts = [];
   end
-  if nargin <=3 
+  
+  if nargin <= 3 
       plot_dual = false;
   end
 

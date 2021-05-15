@@ -90,7 +90,7 @@ function [qrob, errorflag, q] = gothere(braccio_params, x, y, z, roll, grasp, of
             [~,pos_min]=min(dist);
 
             qrob=Q_poss(pos_min,:);
-            q=braccio_angles_inv(qrob([1:5]),post_corr,home(1:end-1));
+            q=braccio_angles_inv(qrob(1:5),post_corr,home(1:end-1));
         end
     end
     
@@ -103,8 +103,8 @@ function [qrob, errorflag, q] = gothere(braccio_params, x, y, z, roll, grasp, of
     end
     
     if VERBOSE > 0
-        jp=plot_config_rob(qrob,braccio_params,post_corr,home);
-        jp=plot_config(q,braccio_params);
+        jp=plot_config_rob(qrob(1:5),braccio_params,post_corr,home);
+        jp=plot_config(q(1:5),braccio_params);
     end
 
     % Set grabber angle

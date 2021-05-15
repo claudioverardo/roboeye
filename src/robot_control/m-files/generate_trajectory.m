@@ -31,11 +31,14 @@ function [trajectory, time_trajectory, confirm] = generate_trajectory(method, ho
 %   -------------------------------
 %   - braccio_params: real parameters of the robot, cf. direct_kin(...)
 %   - z_min: minimum z-value of target points [mm], in robot frame
+%   - joint_safety_radius: minimum distance that joints have to mantain from 
+%     the ground [mm], in robot frame
 %   - box_coords_grasp: destination of 'grasp' [cm], in vision frame
 %   - box_coords_grasp_parabola: as above but for 'grasp-parabola' [cm]
 %   - touchdown_verbose: verbosity level of touchdown(...)
 %   - gothere_verbose: verbosity level of gothere(...)
 %   - parabolic_traj_verbose: verbosity level of parabolic_traj(...)
+%   - generate_traj_verbose: verbosity level of generate_trajectory(...)
 %   - objects_dict: parameters of the objects to be grasped, cf. object_offset(...)
 %
 %   Output arguments:
@@ -277,19 +280,37 @@ function [trajectory, time_trajectory, confirm] = generate_trajectory(method, ho
     % Emulate the trajectory performed by the robot
     if strcmp(type_trajectory,'pointwise')
         trajectory_robot = trajectory;
+        key_idcs = [];
     elseif strcmp(type_trajectory,'keypoints')
         fprintf('   Emulating robot trajectory\n');
-        trajectory_robot = emulate_keypoints_trajectory(current_q, trajectory);
+        [trajectory_robot, key_idcs] = emulate_keypoints_trajectory(current_q, trajectory);
         fprintf('   Num trajectory keypoints: %d\n', size(trajectory,1)); 
     end
     fprintf('   Num trajectory points: %d\n', size(trajectory_robot,1)); 
     
     % Convert trajectory from robot to model convention
     trajectory_robot_mod_coords = braccio_angles_inv( ...
-        trajectory_robot(:,1:end-1), ...
+        trajectory_robot(:,1:QNUM-1), ...
         trajectory_planning_args.post_corr, ...
-        home_q(1:end-1) ...
+        home_q(1:QNUM-1) ...
     );
+    
+    % Plot the trajectory
+    if trajectory_planning_args.generate_traj_verbose > 0
+        plot_config( ...
+            trajectory_robot_mod_coords, ...
+            trajectory_planning_args.braccio_params, ...
+            key_idcs ...
+        );
+        title('Generated trajectory');
+        % plot_config_rob( ... % just for checking
+        %     trajectory_robot(:,1:QNUM-1), ...
+        %     trajectory_planning_args.braccio_params, ...
+        %     trajectory_planning_args.post_corr, ...
+        %     home_q, ...
+        %     key_idcs ...
+        % );
+    end
     
     % Check if there are singularities in the trajectory performed by the robot
     fprintf('   Checking singularities\n');
@@ -316,34 +337,33 @@ function [trajectory, time_trajectory, confirm] = generate_trajectory(method, ho
     if sing_flag
         trajectory_robot_sing = trajectory_robot(sing_idcs,:);
         for i=1:length(sing_idcs)
-            fprintf('        SINGULARITY WARNING: position %d will be singular: %s\n', ...
+            fprintf('        SINGULARITY WARNING: position %d is singular: %s\n', ...
                     sing_idcs(i), mat2str(trajectory_robot_sing(i,:)) ...
             );
         end
     end
     
     % Collision checking
-    coll_flag = false;
+    fprintf('   Checking collisions\n');
     j = 1;
     collision_idcs = [];
     for i = 1:size(trajectory_robot,1)
-        % convert to robot convention
-        q = braccio_angles_inv(trajectory_robot(i,:),...
-            trajectory_planning_args.post_corr, home_q);
-        Joint_position = Joint_pos(q,...
-            trajectory_planning_args.braccio_params);
-        if any(Joint_position(:,3) < trajectory_planning_args.z_min-trajectory_planning_args.joint_safety_radius)
+        Joint_position = joint_pos( ...
+            trajectory_robot_mod_coords(i,:), ...
+            trajectory_planning_args.braccio_params ...
+        );
+        if any(Joint_position(:,3) < trajectory_planning_args.z_min+trajectory_planning_args.joint_safety_radius)
             collision_idcs(j) = i;
             j=j+1;
-            coll_flag = true;
         end
     end
+    coll_flag = any(collision_idcs);
     
     % Show collision positions
     if coll_flag
         trajectory_robot_coll = trajectory_robot(collision_idcs,:);
-        for i=1:length(sing_idcs)
-            fprintf('       COLLISION WARNING: in position %d will be a collision: %s\n', ...
+        for i=1:length(collision_idcs)
+            fprintf('       COLLISION WARNING: position %d cause a collision: %s\n', ...
                     collision_idcs(i), mat2str(trajectory_robot_coll(i,:)) ...
             );
         end
@@ -354,7 +374,7 @@ function [trajectory, time_trajectory, confirm] = generate_trajectory(method, ho
     time_trajectory = estimate_time_trajectory('pointwise', trajectory_robot, current_q, delta_t);
     
     % Confirm or cancel the execution of the trajectory
-    if ~strcmp(method,'back-home') || sing_flag
+    if ~strcmp(method,'back-home') || sing_flag || coll_flag
         confirm = cmd_acquire( ...
             '', ...
             @(x) isscalar(x) && ( x==0 || x==1 ), ...
