@@ -5,11 +5,11 @@
 [![RoboEye](./docs/video/video1b_play.png)](https://www.youtube.com/watch?v=31yvqWvIydo)
 -->
 
-Demo video: [https://www.youtube.com/watch?v=Vw66SZN9R2s](https://www.youtube.com/watch?v=Vw66SZN9R2s)
+Demo video (external perspective): [https://www.youtube.com/watch?v=Vw66SZN9R2s](https://www.youtube.com/watch?v=Vw66SZN9R2s)
 
 Demo video (robot perspective): [https://www.youtube.com/watch?v=31yvqWvIydo](https://www.youtube.com/watch?v=31yvqWvIydo)
 
-This project implements a basic hand-eye coordination system between a UVC  camera and the TinkerKit Braccio Robot. It is composed by two main modules. The former is a vision pipeline that detects and estimates the poses of the ArUco markers in the scene. The latter is a trajectory planner that solves the inverse kinematics problem in order to reach a desired position of the end effector in space.
+This project implements a basic hand-eye coordination system between a UVC camera and the TinkerKit Braccio Robot. It is composed by two main modules. The former is a vision pipeline that detects and estimates the poses of the ArUco markers in the scene. The latter is a trajectory planner that solves the inverse kinematics problem in order to reach a desired position and orientation of the end effector.
 
 A control module allows the user to interactively define some tasks for the robot such as moving to a target or pick and place an object identified by a marker. It automatically invokes the vision and the trajectory planning modules when necessary. Moreover, it sends the control signals and the data required by the low-level controller of the robot (Arduino). A calibration module allows the user to calibrate the intrinsics and extrinsics parameters of the camera.
 
@@ -17,7 +17,7 @@ A control module allows the user to interactively define some tasks for the robo
 ![Badge](https://img.shields.io/badge/Arduino-v1.8.13-blue?logo=arduino)
 ![Badge](https://img.shields.io/badge/MEX-v20.2.0-blue?logo=c%2B%2B)
 ![Badge](https://img.shields.io/badge/License-MIT-green)
-![Badge](https://img.shields.io/badge/License%20(thirdparty)-CC%20BY--NC--SA-green)
+![Badge](https://img.shields.io/badge/License%20(third--party)-CC%20BY--NC--SA-green)
 
 ## Table of Contents
 1. [Installation](#installation)
@@ -59,41 +59,31 @@ Actually, no cutting-edge technology here. It was fun though to play around with
 
 The vision module is composed by a pipeline that receives an image as input, spots candidates regions of interest (ROIs), matches them with a dictionary of ArUco markers and estimates their poses in space. It consists of 4 steps:
 
-+ ROI extraction: the first step extracts the contours from the input image deploying either the **adaptive thresholding + Moore-Neighbor tracing** or the **Canny edge detector + depth-first search (DFS**).
-    
-+ ROI refinement: the second step selects only the contours with quadrilateral shapes and refines them in order to identify their corners. To this end, it resorts to either the **Ramer–Douglas–Peucker** algorithm or a **geometric corner extractor**. The output are the ROIs candidated for the matching with the ArUco markers.
-    
++ ROI extraction: the first step extracts the contours from the input image deploying either the **adaptive thresholding + Moore-Neighbor tracing** or the **Canny edge detector + depth-first search (DFS)**.
++ ROI refinement: the second step selects only the contours with quadrilateral shapes and refines them in order to identify their corners. To this end, it resorts to either the **Ramer–Douglas–Peucker** algorithm or a **geometric corner extractor**. The output are the ROIs candidated for the matching with the ArUco markers.   
 + ROI matching: the third step removes the perspective distortion of the ROIs estimating a proper **homography transformation**. Then, it looks for matches within the ArUco dictionary exploiting the **Hamming distance 2D**.
-    
 + ROI pose estimation: the fourth step estimates the poses in space of the matched ArUco markers through the **Perspective-n-Points (PnP)** algorithm.
 
 ### Robot Trajectory Planning
 The trajectory planning module provides a tool to generate trajectories for the Tinkerkit Braccio Robot. Namely:
 
 + It computes the **direct kinematics** of the robot using its Denavit–Hartenberg (DH) parameters.
-
 + It solves the problem of **inverse kinematics** for a given position and orientation of the end effector in space. Three different approaches are implemented. The first addresses the full problem aiming to solve the direct kinematics equations with respect to the positions of the joints. The second and the third exploit some domain knowledge to reduce the number of joints to be considered from 5 to 3 and 2 respectively. The latter approaches lead to more stable and computationally efficient routines.
-    
 + Leveraging the solutions of the inverse kinematics, it allows to retrieve **keypoints** in the joints space from specifications of the end effector pose. These keypoints are then **interpolated** into a trajectory.
-    
- + When a target position specify an object to be grasped, it allows to adjust the **grasping objective** with some object-specific offsets in order to guarantee a solid grasp. 
-    
++ When a target position specify an object to be grasped, it allows to adjust the **grasping objective** with some object-specific offsets in order to guarantee a solid grasp. 
 + Studying the **geometric Jacobian** of the robot, it identifies the **singularities** among the joints positions.
-    
 + Monitoring the positions of the joints, it avoids **collisions** of the robot with the ground.
 
 ### Robot Control
 The control module provides the low-level controller of the robot and its high-level interface. Namely:
 
-+ A **finite-state-machine (FSM)** that runs on Arduino and control the robot behavior through 10 different states and their control signals/data received from the serial port.
-    
++ A **finite-state-machine (FSM)** that runs on Arduino and control the robot behavior through 10 different states and their control signals/data received from the serial port.  
 + A **Matlab interface** with the Arduino FSM through the serial connection. It keeps track of the state transitions and allows the user to send control signals and trajectory data from the Matlab command window. The interaction with the vision and trajectory planning modules is handled by the interface itself.
 
 ### Robot Calibration
 The calibration module provides some utilities to calibrate the camera used by the vision module. Namely:
 
 + Intrinsics and radial distortion calibration via the **Sturm-Maybank-Zhang (SMZ)** algorithm.
-
 + Extrinsics calibration via the **PnP** algorithm.
 
 <a name="usage-examples"></a>
@@ -102,6 +92,7 @@ To reproduce the following usage examples please refer to the scripts and the ex
 
 ### Robot Vision
 To run an example of pose estimation of ArUco markers, perform in order the following steps:
+
 1. Retrive the intrisics matrix `K`, the extrinsics `R`, `t` and the radial distortion coefficients `k` of the camera. For a new camera the calibration module can be used (cf. the related usage example). To use the test images provided with the repo (cf. point 4), the related camera parameters are available in [/assets/calibration](./assets/calibration).
 2. Create a m-file to set the parameters of the vision pipeline. An example containing the default parameters of the pipeline is [/assets/config_files/config_pose_estimation.m](./assets/config_files/config_pose_estimation.m). 
 3. Create the dictionary of ArUco markers to be matched in the scene, as done in [create_aruco_markers.m](./src/scripts/create_aruco_markers.m). Some examples of dictionaries are available in [/assets/aruco_markers](./assets/aruco_markers).
@@ -114,14 +105,13 @@ To run the above steps on the test data provided with the repo you can launch th
 :-:|:-:
 ![DemoVision3](./docs/results_img_7x7_12_02/03.png) | ![DemoVision4](./docs/results_img_7x7_12_02/04.png)
 
-![DemoVision5](./docs/results_img_7x7_06_03/05.png)
+![DemoVision5](./docs/aruco.png)
 
 <!--
 ![DemoVision1](./docs/results_img_7x7_12_02/01.png)
 ![DemoVision2](./docs/results_img_7x7_12_02/02.png)
 ![DemoVision3](./docs/results_img_7x7_12_02/03.png)
 ![DemoVision4](./docs/results_img_7x7_12_02/04.png)
-![DemoVision5](./docs/results_img_7x7_12_02/05.png)
 -->
 
 <!-- alternative vision demo
@@ -129,7 +119,6 @@ To run the above steps on the test data provided with the repo you can launch th
 ![DemoVision2](./docs/results_img_7x7_06_03/02.png)
 ![DemoVision3](./docs/results_img_7x7_06_03/03.png)
 ![DemoVision4](./docs/results_img_7x7_06_03/04.png)
-![DemoVision5](./docs/results_img_7x7_06_03/05.png)
 -->
 
 ### Robot Trajectory Planning
@@ -137,10 +126,9 @@ To run the above steps on the test data provided with the repo you can launch th
 To run an example of trajectory generation, perform in order the following steps:
 
 1. Create a m-file to set the parameters of the trajectory generator tool. An example containing the default parameters is [/assets/config_files/config_generate_trajectory.m](./assets/config_files/config_generate_trajectory.m). 
-
 2. Launch the trajectory generator tool by calling [generate_trajectory.m](./src/robot_trajectory_planning/generate_trajectory.m).
 
-To run the above steps you can launch the script [run_generate_trajectory.m](./src/scripts/run_generate_trajectory.m). The following images shows two results that can be obtained.
+To run the above steps you can launch the script [run_generate_trajectory.m](./src/scripts/run_generate_trajectory.m). Please note that the targets from vision are disabled. The following images shows two results that can be obtained.
 
 ![Trajectory1](./docs/trajectory/traj_1keypoints.png) |  ![Trajectory3](./docs/trajectory/traj_3keypoints.png)
 :-:|:-:
@@ -160,7 +148,7 @@ To run the above steps with the data you can launch the script [run_pose_estimat
 
 [![RoboEye](./docs/video/video2b_play.png)](https://www.youtube.com/watch?v=rr2VxXzEknk)
 
-First video: [https://www.youtube.com/watch?v=Kzpq9sqbxM0](https://www.youtube.com/watch?v=Kzpq9sqbxM0).
+First video (external perspective): [https://www.youtube.com/watch?v=Kzpq9sqbxM0](https://www.youtube.com/watch?v=Kzpq9sqbxM0).
 
 Second video (robot perspective): [https://www.youtube.com/watch?v=rr2VxXzEknk](https://www.youtube.com/watch?v=rr2VxXzEknk).
 
