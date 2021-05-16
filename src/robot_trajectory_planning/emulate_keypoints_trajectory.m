@@ -20,6 +20,7 @@ function [trajectory_robot, key_idcs] = emulate_keypoints_trajectory(start, traj
     
     QNUM = size(trajectory,2);
     trajectory_robot = [];
+    key_idcs = [];
     
     % For each couple of points of the keypoints trajectory
     for i=1:size(trajectory,1)
@@ -50,8 +51,11 @@ function [trajectory_robot, key_idcs] = emulate_keypoints_trajectory(start, traj
         % Store the emulated trajectory
         trajectory_robot = [trajectory_robot; trajectory_robot_i];
         
-        % save keypoints index
-        key_idcs(i)=length(trajectory_robot(:,1));
+        % Save keypoints indices
+        key_idx = length(trajectory_robot(:,1));
+        if key_idx > 0
+            key_idcs(i)=key_idx;
+        end
         
     end
     

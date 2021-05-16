@@ -1,8 +1,8 @@
-function J = jacob_diff_kin(q, braccio_params,prism)
+function J = jacob_diff_kin(q, braccio_params, prism)
 % JACOB_DIFF_KIN Compute the geometric Jacobian of the Braccio robot for a
 % given position of the joints.
 %.
-%   J = JACOB_DIFF_KIN(q, braccio_params)
+%   J = JACOB_DIFF_KIN(q, braccio_params, prism)
 %
 %   Input arguments:
 %   ------------------

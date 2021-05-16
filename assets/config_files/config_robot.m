@@ -1,4 +1,4 @@
-% CONFIGURATION FILE OF ROBOEYE
+%% CONFIGURATION FILE OF ROBOEYE
 
 %% ROBOT VISION
 %--------------------------------------------------------------------------

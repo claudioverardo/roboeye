@@ -503,7 +503,7 @@ Code to perform direct kinematics, inverse kinematics, trajectory planning and c
 
 These functions internally assumes a convention (in the following, **model convention**) for the positions of the joints, such that when the robot is in home position all the joints are at their zero position (cf. image below, left). This convention differs from the actual one used by the low level controller (in the following, **robot convention**). The routines invokes for the trajectory planning already perform the conversion from the model to the robot convention before returning the positions of the robot in the space of joints.
 
-The position and orientation of the end effector must be defined in the **robot frame** (cf. image below, right). Therefore, poses defined in the vision frame must be converted beforehand (cf. [Robot Control](#robot-control) to see how this issue is handled).
+The position and orientation of the end effector must be defined in the **robot frame** (cf. image below, right). Therefore, a proper transformation function must be provided in order to deal with poses defined in the vision frame.
 
 ![FrameRobot](./frame_robot.png)
 
@@ -574,7 +574,7 @@ Output arguments:
 
 Check if there are singular configuration among a given set of points in the space of joints (in model convention).
 
-    [sing_flag, sing_vec] = CHECK_SING(Q, braccio_params)
+    [sing_flag, sing_vec] = check_sing(Q, braccio_params)
 
 + **Q**: NxQNUM-1 array, set of joints positions under test
 + **braccio_params**: 1xQNUM-1 array, real parameters of the Braccio robot, cf. direct_kin(...)
@@ -653,7 +653,7 @@ Output arguments:
 
 Given a trajectory defined via keypoints return the actual trajectory followed by the robot. The actual trajectory is interpolated by the microcontroller with braccioServoMovement(...).
 
-    trajectory_robot = emulate_keypoints_trajectory(start, trajectory)
+    [trajectory_robot, key_idcs] = emulate_keypoints_trajectory(start, trajectory)
 
 Input arguments:
 + **start**: 1xQNUM array, starting point of the trajectory
@@ -787,7 +787,7 @@ NOTE: this function requires the MATLAB Support Package for USB Webcams. For det
 
 Retrieve the position of a chosen marker in the scene observed by a camera (world frame).
 
-    [t, R, i_aruco] = GET_TARGET_FROM_VISION(cam, vision_args, fn_robot_input)
+    [t, R, i_aruco] = get_target_from_vision(cam, vision_args, fn_robot_input)
 
 Input arguments:
 + **cam**: webcam object of the camera, cf. webcam(...)
@@ -912,7 +912,7 @@ Output arguments:
 
 Compute the geometric Jacobian of the Braccio robot for a given position of the joints.
 
-    J = jacob_diff_kin(q, braccio_params)
+    J = jacob_diff_kin(q, braccio_params, prism)
 
 Input arguments:
 + **q**: 1xQNUM-1 array, joints positions in model convention
@@ -1000,7 +1000,7 @@ Output arguments:
 
 Given a input trajectory in joints space (model convention), plot the position and orientation of the end effector for each point of the trajectory. Moreover, plot the final robot configuration.
 
-    [jointpos, Aloc_out] = plot_config(Q, braccio_params)
+    [jointpos, Aloc_out] = plot_config(Q, braccio_params, disp_kpts, plot_dual)
 
 Input arguments:
 + **Q**: NxQNUM-1 array, trajectory in joints space
@@ -1020,13 +1020,15 @@ Output arguments:
 
 Given a input trajectory in joints space (robot convention), plot the position and orientation of the end effector for each point of the trajectory. Moreover, plot the final robot configuration.
 
-    jointpos = plot_config_rob(Q_rob, braccio_params, post_corr, home)
+    jointpos = plot_config_rob(Q_rob, braccio_params, post_corr, home, disp_kpts, plot_dual)
 
 Input arguments:
 + **Q**: NxQNUM-1 array, trajectory in joints space
 + **braccio_params**: 1xQNUM-1 array, real parameters of the Braccio robot, cf. direct_kin(...)
 + **post_corr**: 1xQNUM-1 array, offsets to be applied a posteriori, cf. braccio_angles(...)
 + **home**: 1xQNUM array, home position of the robot
++ **disp_kpts**: vector with indexes of keypoints to display
++ **plot_dual**: boolean, if true display with dashed line even the dual solution (the other sol if IK)
 
 Output arguments:
 + **jointpos**: (QNUM-1)x3 array, final 3D position of joints
@@ -1135,9 +1137,9 @@ Output arguments:
 <a name="robot-control"></a>
 ## Robot Control
 
-Code to implement the low-level controller of the robot with Arduino and its high-level interface with Matlab. An example of usage can be found in [run_robot_fsm](../src/scripts/run_robot_fsm.m).
+Code to implement the low-level FSM of the robot with Arduino (cf. image below) and its high-level interface with Matlab. An example of usage can be found in [run_robot_fsm](../src/scripts/run_robot_fsm.m).
 
-These functions assume a known coordinates transfomation from the vision to the robot frame.
+![ArduinoFSM](./arduino_fsm.png)
 
 ### Matlab functions
 
@@ -1543,7 +1545,7 @@ NOTE: this function requires the MATLAB Support Package for USB Webcams.
 
 Retrive the rotation matrix and the translation vector (extrinsics) of a camera wrt a world frame attached to a checkerboard.
 
-    [R_cam, t_cam] = calibration_extrinsics_camera(cam, K, k, step_size, grid_arrangement, cm2px_scale, dir)
+    [R_cam, t_cam] = calibration_extrinsics_camera(cam, K, k, step_size, grid_arrangement, cm2px_scale, dir, check)
 
 Input arguments:
 + **cam**:                webcam object (cf. webcam(...))
@@ -1553,6 +1555,7 @@ Input arguments:
 + **grid_arrangement**:   [x-steps y-steps] steps of the checkerboard along x,y axes
 + **cm2px_scale**:        dimension in cm of 1 pixel of the rectified image
 + **dir**:                directory where to write/read the calibration files
++ **check**:              boolean, if true checks the calibration on a new image
 
 Output arguments:
 + **R_cam**: rotation matrix of the camera extrinsics in the world frame (literature convention)

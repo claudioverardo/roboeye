@@ -3,7 +3,7 @@ function jointpos = plot_config(Q, braccio_params, disp_kpts, plot_dual)
 % plot the position and orientation of the end effector for each point of 
 % the trajectory. Moreover, plot the final robot configuration.
 %
-%   [jointpos, Aloc_out] = PLOT_CONFIG(Q, braccio_params)
+%   [jointpos, Aloc_out] = PLOT_CONFIG(Q, braccio_params, disp_kpts, plot_dual)
 %
 %   Input arguments:
 %   ------------------

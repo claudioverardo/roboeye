@@ -1,4 +1,4 @@
-%% CONFIGURATION FILE OF ROBOEYE
+%% CONFIGURATION FILE OF ROBOEYE (POSE ESTIMATION)
 
 % ROI extraction parameters
 ROI_EXTRACTION_METHOD = 'adaptth-moore'; % adaptth-moore, canny-dfs, canny-dfs-c
