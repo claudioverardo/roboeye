@@ -9,6 +9,8 @@ Demo video (external perspective): [https://www.youtube.com/watch?v=Vw66SZN9R2s]
 
 Demo video (robot perspective): [https://www.youtube.com/watch?v=31yvqWvIydo](https://www.youtube.com/watch?v=31yvqWvIydo)
 
+Report: [roboeye_report.pdf](./roboeye_report.pdf)
+
 This project implements a basic hand-eye coordination system between a UVC camera and the TinkerKit Braccio Robot. It is composed by two main modules. The former is a vision pipeline that detects and estimates the poses of the ArUco markers in the scene. The latter is a trajectory planner that solves the inverse kinematics problem in order to reach a desired position and orientation of the end effector.
 
 A control module allows the user to interactively define some tasks for the robot such as moving to a target or pick and place an object identified by a marker. It automatically invokes the vision and the trajectory planning modules when necessary. Moreover, it sends the control signals and the data required by the low-level controller of the robot (Arduino). A calibration module allows the user to calibrate the intrinsics and extrinsics parameters of the camera.
