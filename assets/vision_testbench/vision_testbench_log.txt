@@ -1,0 +1,610 @@
+
+-------- Vision testbench start --------
+
+Image 1/20: aruco_40_30_25_3_18.png
+Loading ..\assets\vision_testbench\aruco_images_acquired\aruco_40_30_25_3_18.png
+Test pipeline: adaptth-moore
+    Found marker id 1
+    Saving results image
+    Reproj error ___lin [px] : 1.23965
+    Reproj error nonlin [px] : 0.17764
+    Centroid error  xyz [cm] : [-0.1058 0.2274 -0.5949]
+    Centroid error norm [cm] : 0.645622
+    Aligned theta error  [°] : 0.221733
+    Execution times      [s] : [1.043 0.02164 0.5712 0.03305]
+    Total execution time [s] : 1.66857
+    # ROIs extracted     [ ] : 258
+    # ROIs refined       [ ] : 35
+Test pipeline: canny-dfs
+    Found marker id 1
+    Saving results image
+    Reproj error ___lin [px] : 0.947202
+    Reproj error nonlin [px] : 0.167056
+    Centroid error  xyz [cm] : [-0.1377 0.2694 -0.7701]
+    Centroid error norm [cm] : 0.827356
+    Aligned theta error  [°] : -0.659262
+    Execution times      [s] : [1.968 1.056 0.8934 0.01908]
+    Total execution time [s] : 3.9359
+    # ROIs extracted     [ ] : 391
+    # ROIs refined       [ ] : 4
+
+Image 2/20: aruco_41_30_50_9_18.png
+Loading ..\assets\vision_testbench\aruco_images_acquired\aruco_41_30_50_9_18.png
+Test pipeline: adaptth-moore
+    Found marker id 2
+    Saving results image
+    Reproj error ___lin [px] : 0.447697
+    Reproj error nonlin [px] : 0.0839004
+    Centroid error  xyz [cm] : [-0.03724 0.2749 -1.032]
+    Centroid error norm [cm] : 1.06857
+    Aligned theta error  [°] : -0.78295
+    Execution times      [s] : [1.098 0.02601 0.545 0.02021]
+    Total execution time [s] : 1.6893
+    # ROIs extracted     [ ] : 270
+    # ROIs refined       [ ] : 37
+Test pipeline: canny-dfs
+    Found marker id 2
+    Saving results image
+    Reproj error ___lin [px] : 0.443572
+    Reproj error nonlin [px] : 0.0836028
+    Centroid error  xyz [cm] : [-0.04034 0.2888 -1.089]
+    Centroid error norm [cm] : 1.127
+    Aligned theta error  [°] : -1.90464
+    Execution times      [s] : [1.326 0.09506 0.154 0.02061]
+    Total execution time [s] : 1.59552
+    # ROIs extracted     [ ] : 387
+    # ROIs refined       [ ] : 2
+
+Image 3/20: aruco_42_30_75_15_18.png
+Loading ..\assets\vision_testbench\aruco_images_acquired\aruco_42_30_75_15_18.png
+Test pipeline: adaptth-moore
+    Found marker id 3
+    Saving results image
+    Reproj error ___lin [px] : 3.49204
+    Reproj error nonlin [px] : 0.425027
+    Centroid error  xyz [cm] : [0.1845 0.5244 -2.206]
+    Centroid error norm [cm] : 2.27471
+    Aligned theta error  [°] : -3.03853
+    Execution times      [s] : [1.025 0.02419 0.6026 0.03539]
+    Total execution time [s] : 1.68684
+    # ROIs extracted     [ ] : 285
+    # ROIs refined       [ ] : 40
+Test pipeline: canny-dfs
+    Found marker id 3
+    Saving results image
+    Reproj error ___lin [px] : 7.13875
+    Reproj error nonlin [px] : 0.83836
+    Centroid error  xyz [cm] : [0.2049 0.5232 -1.943]
+    Centroid error norm [cm] : 2.02298
+    Aligned theta error  [°] : -4.22214
+    Execution times      [s] : [1.293 0.08623 0.1276 0.03327]
+    Total execution time [s] : 1.54045
+    # ROIs extracted     [ ] : 393
+    # ROIs refined       [ ] : 2
+
+Image 4/20: aruco_43_30_100_21_18.png
+Loading ..\assets\vision_testbench\aruco_images_acquired\aruco_43_30_100_21_18.png
+Test pipeline: adaptth-moore
+    Found marker id 4
+    Saving results image
+    Reproj error ___lin [px] : 2.35522
+    Reproj error nonlin [px] : 0.308828
+    Centroid error  xyz [cm] : [0.192 0.2016 -0.7906]
+    Centroid error norm [cm] : 0.838147
+    Aligned theta error  [°] : 0.0888616
+    Execution times      [s] : [1.075 0.02141 0.4931 0.02002]
+    Total execution time [s] : 1.60946
+    # ROIs extracted     [ ] : 270
+    # ROIs refined       [ ] : 39
+Test pipeline: canny-dfs
+    Found marker id 4
+    Saving results image
+    Reproj error ___lin [px] : 2.35522
+    Reproj error nonlin [px] : 0.308828
+    Centroid error  xyz [cm] : [0.192 0.2016 -0.7906]
+    Centroid error norm [cm] : 0.838147
+    Aligned theta error  [°] : 0.0888616
+    Execution times      [s] : [1.309 0.07903 0.1914 0.02018]
+    Total execution time [s] : 1.59943
+    # ROIs extracted     [ ] : 399
+    # ROIs refined       [ ] : 9
+
+Image 5/20: aruco_44_30_125_6_12.png
+Loading ..\assets\vision_testbench\aruco_images_acquired\aruco_44_30_125_6_12.png
+Test pipeline: adaptth-moore
+    Found marker id 5
+    Saving results image
+    Reproj error ___lin [px] : 0.110755
+    Reproj error nonlin [px] : 0.0317452
+    Centroid error  xyz [cm] : [-0.122 0.1216 -1.184]
+    Centroid error norm [cm] : 1.19612
+    Aligned theta error  [°] : -0.389255
+    Execution times      [s] : [1.064 0.02037 0.5215 0.02287]
+    Total execution time [s] : 1.62899
+    # ROIs extracted     [ ] : 275
+    # ROIs refined       [ ] : 36
+Test pipeline: canny-dfs
+    Found marker id 5
+    Saving results image
+    Reproj error ___lin [px] : 0.917189
+    Reproj error nonlin [px] : 0.20949
+    Centroid error  xyz [cm] : [-0.09252 0.09465 -1.07]
+    Centroid error norm [cm] : 1.07782
+    Aligned theta error  [°] : -0.990097
+    Execution times      [s] : [1.233 0.1016 0.1703 0.02484]
+    Total execution time [s] : 1.52982
+    # ROIs extracted     [ ] : 387
+    # ROIs refined       [ ] : 5
+
+Image 6/20: aruco_45_30_150_12_12.png
+Loading ..\assets\vision_testbench\aruco_images_acquired\aruco_45_30_150_12_12.png
+Test pipeline: adaptth-moore
+    Found marker id 6
+    Saving results image
+    Reproj error ___lin [px] : 2.04806
+    Reproj error nonlin [px] : 0.389228
+    Centroid error  xyz [cm] : [0.0268 0.1109 -1.376]
+    Centroid error norm [cm] : 1.38109
+    Aligned theta error  [°] : -1.35609
+    Execution times      [s] : [1.158 0.02063 0.4665 0.02583]
+    Total execution time [s] : 1.67111
+    # ROIs extracted     [ ] : 302
+    # ROIs refined       [ ] : 37
+Test pipeline: canny-dfs
+    Found marker id 6
+    Saving results image
+    Reproj error ___lin [px] : 0.75742
+    Reproj error nonlin [px] : 0.190938
+    Centroid error  xyz [cm] : [0.05559 0.1284 -1.58]
+    Centroid error norm [cm] : 1.58645
+    Aligned theta error  [°] : -2.05729
+    Execution times      [s] : [1.274 0.09104 0.1505 0.03328]
+    Total execution time [s] : 1.54862
+    # ROIs extracted     [ ] : 397
+    # ROIs refined       [ ] : 5
+
+Image 7/20: aruco_46_30_175_18_12.png
+Loading ..\assets\vision_testbench\aruco_images_acquired\aruco_46_30_175_18_12.png
+Test pipeline: adaptth-moore
+    Found marker id 7
+    Saving results image
+    Reproj error ___lin [px] : 2.25346
+    Reproj error nonlin [px] : 0.377783
+    Centroid error  xyz [cm] : [0.1525 0.05537 -0.8554]
+    Centroid error norm [cm] : 0.870688
+    Aligned theta error  [°] : -0.669777
+    Execution times      [s] : [1.05 0.02122 0.5681 0.02857]
+    Total execution time [s] : 1.66785
+    # ROIs extracted     [ ] : 303
+    # ROIs refined       [ ] : 39
+Test pipeline: canny-dfs
+    Found marker id 7
+    Saving results image
+    Reproj error ___lin [px] : 0.0794881
+    Reproj error nonlin [px] : 0.0692817
+    Centroid error  xyz [cm] : [0.1678 0.07816 -1.108]
+    Centroid error norm [cm] : 1.12358
+    Aligned theta error  [°] : -1.20371
+    Execution times      [s] : [1.278 0.07075 0.1894 0.02889]
+    Total execution time [s] : 1.56676
+    # ROIs extracted     [ ] : 399
+    # ROIs refined       [ ] : 6
+
+Image 8/20: aruco_47_30_225_9_6.png
+Loading ..\assets\vision_testbench\aruco_images_acquired\aruco_47_30_225_9_6.png
+Test pipeline: adaptth-moore
+    Found marker id 8
+    Saving results image
+    Reproj error ___lin [px] : 1.28376
+    Reproj error nonlin [px] : 0.26583
+    Centroid error  xyz [cm] : [-0.03733 -0.05855 -1.117]
+    Centroid error norm [cm] : 1.11951
+    Aligned theta error  [°] : -0.626508
+    Execution times      [s] : [1.171 0.02783 0.5419 0.04066]
+    Total execution time [s] : 1.78146
+    # ROIs extracted     [ ] : 283
+    # ROIs refined       [ ] : 39
+Test pipeline: canny-dfs
+    Found marker id 8
+    Saving results image
+    Reproj error ___lin [px] : 1.2898
+    Reproj error nonlin [px] : 0.263742
+    Centroid error  xyz [cm] : [-0.03661 -0.05795 -1.105]
+    Centroid error norm [cm] : 1.10724
+    Aligned theta error  [°] : -1.75297
+    Execution times      [s] : [1.334 0.09346 0.155 0.03634]
+    Total execution time [s] : 1.61919
+    # ROIs extracted     [ ] : 386
+    # ROIs refined       [ ] : 3
+
+Image 9/20: aruco_48_30_275_15_6.png
+Loading ..\assets\vision_testbench\aruco_images_acquired\aruco_48_30_275_15_6.png
+Test pipeline: adaptth-moore
+    Found marker id 9
+    Saving results image
+    Reproj error ___lin [px] : 0.675185
+    Reproj error nonlin [px] : 0.114984
+    Centroid error  xyz [cm] : [0.1264 -0.07542 -1.318]
+    Centroid error norm [cm] : 1.32584
+    Aligned theta error  [°] : 0.191901
+    Execution times      [s] : [1.017 0.02418 0.6313 0.02802]
+    Total execution time [s] : 1.70098
+    # ROIs extracted     [ ] : 296
+    # ROIs refined       [ ] : 36
+Test pipeline: canny-dfs
+    Found marker id 9
+    Saving results image
+    Reproj error ___lin [px] : 0.68597
+    Reproj error nonlin [px] : 0.173783
+    Centroid error  xyz [cm] : [0.07514 -0.06939 -0.8928]
+    Centroid error norm [cm] : 0.898669
+    Aligned theta error  [°] : 0.0883493
+    Execution times      [s] : [1.278 0.07404 0.1231 0.02297]
+    Total execution time [s] : 1.49791
+    # ROIs extracted     [ ] : 374
+    # ROIs refined       [ ] : 2
+
+Image 10/20: aruco_49_30_325_21_6.png
+Loading ..\assets\vision_testbench\aruco_images_acquired\aruco_49_30_325_21_6.png
+Test pipeline: adaptth-moore
+    Found marker id 10
+    Saving results image
+    Reproj error ___lin [px] : 0.507173
+    Reproj error nonlin [px] : 0.147079
+    Centroid error  xyz [cm] : [0.3977 -0.1124 -1.756]
+    Centroid error norm [cm] : 1.80431
+    Aligned theta error  [°] : -0.791496
+    Execution times      [s] : [1.082 0.0205 0.4528 0.02278]
+    Total execution time [s] : 1.57819
+    # ROIs extracted     [ ] : 288
+    # ROIs refined       [ ] : 35
+Test pipeline: canny-dfs
+    Found marker id 10
+    Saving results image
+    Reproj error ___lin [px] : 1.61822
+    Reproj error nonlin [px] : 0.330321
+    Centroid error  xyz [cm] : [0.3694 -0.1432 -1.642]
+    Centroid error norm [cm] : 1.68921
+    Aligned theta error  [°] : -3.37958
+    Execution times      [s] : [1.258 0.07355 0.1646 0.03856]
+    Total execution time [s] : 1.53489
+    # ROIs extracted     [ ] : 421
+    # ROIs refined       [ ] : 6
+
+Image 11/20: aruco_50_35_60_24_18.png
+Loading ..\assets\vision_testbench\aruco_images_acquired\aruco_50_35_60_24_18.png
+Test pipeline: adaptth-moore
+    Found marker id 11
+    Saving results image
+    Reproj error ___lin [px] : 1.55566
+    Reproj error nonlin [px] : 0.233678
+    Centroid error  xyz [cm] : [0.2484 0.2144 -0.8368]
+    Centroid error norm [cm] : 0.898798
+    Aligned theta error  [°] : -1.23383
+    Execution times      [s] : [1.248 0.02753 0.6527 0.02228]
+    Total execution time [s] : 1.95047
+    # ROIs extracted     [ ] : 293
+    # ROIs refined       [ ] : 43
+Test pipeline: canny-dfs
+    Found marker id 11
+    Saving results image
+    Reproj error ___lin [px] : 3.10641
+    Reproj error nonlin [px] : 0.416961
+    Centroid error  xyz [cm] : [0.387 0.3055 -1.189]
+    Centroid error norm [cm] : 1.28736
+    Aligned theta error  [°] : -1.92718
+    Execution times      [s] : [1.83 0.0842 0.174 0.02064]
+    Total execution time [s] : 2.10879
+    # ROIs extracted     [ ] : 376
+    # ROIs refined       [ ] : 7
+
+Image 12/20: aruco_51_35_120_18_15.png
+Loading ..\assets\vision_testbench\aruco_images_acquired\aruco_51_35_120_18_15.png
+Test pipeline: adaptth-moore
+    Found marker id 12
+    Saving results image
+    Reproj error ___lin [px] : 0.253946
+    Reproj error nonlin [px] : 0.0538534
+    Centroid error  xyz [cm] : [0.1147 0.1329 -0.7974]
+    Centroid error norm [cm] : 0.816449
+    Aligned theta error  [°] : -0.0570568
+    Execution times      [s] : [1.065 0.02053 0.458 0.01864]
+    Total execution time [s] : 1.56188
+    # ROIs extracted     [ ] : 295
+    # ROIs refined       [ ] : 35
+Test pipeline: canny-dfs
+    Found marker id 12
+    Saving results image
+    Reproj error ___lin [px] : 1.33365
+    Reproj error nonlin [px] : 0.38688
+    Centroid error  xyz [cm] : [0.1231 0.1492 -0.9217]
+    Centroid error norm [cm] : 0.941793
+    Aligned theta error  [°] : -0.177539
+    Execution times      [s] : [1.25 0.08325 0.5397 0.04162]
+    Total execution time [s] : 1.91468
+    # ROIs extracted     [ ] : 376
+    # ROIs refined       [ ] : 6
+
+Image 13/20: aruco_52_35_190_9_9.png
+Loading ..\assets\vision_testbench\aruco_images_acquired\aruco_52_35_190_9_9.png
+Test pipeline: adaptth-moore
+    Found marker id 13
+    Saving results image
+    Reproj error ___lin [px] : 0.191873
+    Reproj error nonlin [px] : 0.0502331
+    Centroid error  xyz [cm] : [-0.04848 0.01116 -1.169]
+    Centroid error norm [cm] : 1.17035
+    Aligned theta error  [°] : 0.0105681
+    Execution times      [s] : [0.9849 0.0185 0.4354 0.0191]
+    Total execution time [s] : 1.45789
+    # ROIs extracted     [ ] : 308
+    # ROIs refined       [ ] : 31
+Test pipeline: canny-dfs
+    Found marker id 13
+    Saving results image
+    Reproj error ___lin [px] : 0.286907
+    Reproj error nonlin [px] : 0.106134
+    Centroid error  xyz [cm] : [0.007568 0.04162 -0.7637]
+    Centroid error norm [cm] : 0.764832
+    Aligned theta error  [°] : 0.102981
+    Execution times      [s] : [1.255 0.06741 0.1412 0.01898]
+    Total execution time [s] : 1.48228
+    # ROIs extracted     [ ] : 359
+    # ROIs refined       [ ] : 4
+
+Image 14/20: aruco_53_35_240_21_6.png
+Loading ..\assets\vision_testbench\aruco_images_acquired\aruco_53_35_240_21_6.png
+Test pipeline: adaptth-moore
+    Found marker id 14
+    Saving results image
+    Reproj error ___lin [px] : 0.818773
+    Reproj error nonlin [px] : 0.244858
+    Centroid error  xyz [cm] : [0.3816 -0.104 -1.608]
+    Centroid error norm [cm] : 1.65587
+    Aligned theta error  [°] : -0.905598
+    Execution times      [s] : [1.038 0.01969 0.4513 0.02198]
+    Total execution time [s] : 1.53133
+    # ROIs extracted     [ ] : 282
+    # ROIs refined       [ ] : 35
+Test pipeline: canny-dfs
+    Found marker id 14
+    Saving results image
+    Reproj error ___lin [px] : 0.757635
+    Reproj error nonlin [px] : 0.142395
+    Centroid error  xyz [cm] : [0.2744 -0.08499 -1.163]
+    Centroid error norm [cm] : 1.19777
+    Aligned theta error  [°] : -1.0006
+    Execution times      [s] : [1.317 0.0854 0.1381 0.02201]
+    Total execution time [s] : 1.56296
+    # ROIs extracted     [ ] : 359
+    # ROIs refined       [ ] : 3
+
+Image 15/20: aruco_54_35_300_12_3.png
+Loading ..\assets\vision_testbench\aruco_images_acquired\aruco_54_35_300_12_3.png
+Test pipeline: adaptth-moore
+    Found marker id 15
+    Saving results image
+    Reproj error ___lin [px] : 0.992635
+    Reproj error nonlin [px] : 0.224771
+    Centroid error  xyz [cm] : [0.0615 -0.1546 -1.24]
+    Centroid error norm [cm] : 1.25106
+    Aligned theta error  [°] : 0.187763
+    Execution times      [s] : [1.051 0.02017 0.4656 0.02074]
+    Total execution time [s] : 1.5573
+    # ROIs extracted     [ ] : 283
+    # ROIs refined       [ ] : 35
+Test pipeline: canny-dfs
+    Found marker id 15
+    Saving results image
+    Reproj error ___lin [px] : 1.21567
+    Reproj error nonlin [px] : 0.340603
+    Centroid error  xyz [cm] : [0.03272 -0.07525 -0.4746]
+    Centroid error norm [cm] : 0.481682
+    Aligned theta error  [°] : -0.403002
+    Execution times      [s] : [1.266 0.0746 0.1639 0.02607]
+    Total execution time [s] : 1.53039
+    # ROIs extracted     [ ] : 405
+    # ROIs refined       [ ] : 6
+
+Image 16/20: aruco_60_40_40_9_15.png
+Loading ..\assets\vision_testbench\aruco_images_acquired\aruco_60_40_40_9_15.png
+Test pipeline: adaptth-moore
+    Found marker id 16
+    Saving results image
+    Reproj error ___lin [px] : 0.858524
+    Reproj error nonlin [px] : 0.252012
+    Centroid error  xyz [cm] : [-0.04754 0.165 -0.9396]
+    Centroid error norm [cm] : 0.955186
+    Aligned theta error  [°] : -0.394106
+    Execution times      [s] : [1.031 0.02052 0.5002 0.02555]
+    Total execution time [s] : 1.5768
+    # ROIs extracted     [ ] : 266
+    # ROIs refined       [ ] : 40
+Test pipeline: canny-dfs
+    Found marker id 16
+    Saving results image
+    Reproj error ___lin [px] : 0.923147
+    Reproj error nonlin [px] : 0.385264
+    Centroid error  xyz [cm] : [-0.02626 0.06197 -0.6361]
+    Centroid error norm [cm] : 0.639662
+    Aligned theta error  [°] : 0.0666661
+    Execution times      [s] : [1.254 0.08743 0.138 0.02567]
+    Total execution time [s] : 1.50493
+    # ROIs extracted     [ ] : 400
+    # ROIs refined       [ ] : 2
+
+Image 17/20: aruco_61_40_100_21_15.png
+Loading ..\assets\vision_testbench\aruco_images_acquired\aruco_61_40_100_21_15.png
+Test pipeline: adaptth-moore
+    Found marker id 17
+    Saving results image
+    Reproj error ___lin [px] : 0.589086
+    Reproj error nonlin [px] : 0.191485
+    Centroid error  xyz [cm] : [0.1385 0.105 -0.7248]
+    Centroid error norm [cm] : 0.745324
+    Aligned theta error  [°] : -0.00504068
+    Execution times      [s] : [1.01 0.01906 0.5228 0.02072]
+    Total execution time [s] : 1.57241
+    # ROIs extracted     [ ] : 318
+    # ROIs refined       [ ] : 40
+Test pipeline: canny-dfs
+    Found marker id 17
+    Saving results image
+    Reproj error ___lin [px] : 0.551981
+    Reproj error nonlin [px] : 0.0916207
+    Centroid error  xyz [cm] : [0.1388 0.08769 -0.6802]
+    Centroid error norm [cm] : 0.699773
+    Aligned theta error  [°] : 1.48389
+    Execution times      [s] : [1.229 0.0714 0.1418 0.02329]
+    Total execution time [s] : 1.46524
+    # ROIs extracted     [ ] : 366
+    # ROIs refined       [ ] : 4
+
+Image 18/20: aruco_62_40_160_6_9.png
+Loading ..\assets\vision_testbench\aruco_images_acquired\aruco_62_40_160_6_9.png
+Test pipeline: adaptth-moore
+    Found marker id 18
+    Saving results image
+    Reproj error ___lin [px] : 2.15409
+    Reproj error nonlin [px] : 0.564299
+    Centroid error  xyz [cm] : [-0.116 0.03381 -1.109]
+    Centroid error norm [cm] : 1.11523
+    Aligned theta error  [°] : -1.30482
+    Execution times      [s] : [1.018 0.02109 0.4712 0.02875]
+    Total execution time [s] : 1.53867
+    # ROIs extracted     [ ] : 328
+    # ROIs refined       [ ] : 36
+Test pipeline: canny-dfs
+    Found marker id 18
+    Saving results image
+    Reproj error ___lin [px] : 1.64586
+    Reproj error nonlin [px] : 0.358089
+    Centroid error  xyz [cm] : [-0.1015 0.0009147 -1.121]
+    Centroid error norm [cm] : 1.12592
+    Aligned theta error  [°] : -1.58713
+    Execution times      [s] : [1.303 0.06728 0.1644 0.02145]
+    Total execution time [s] : 1.55627
+    # ROIs extracted     [ ] : 398
+    # ROIs refined       [ ] : 6
+
+Image 19/20: aruco_63_40_220_15_9.png
+Loading ..\assets\vision_testbench\aruco_images_acquired\aruco_63_40_220_15_9.png
+Test pipeline: adaptth-moore
+    Found marker id 19
+    Saving results image
+    Reproj error ___lin [px] : 0.683534
+    Reproj error nonlin [px] : 0.258709
+    Centroid error  xyz [cm] : [0.1007 0.007907 -0.9255]
+    Centroid error norm [cm] : 0.931033
+    Aligned theta error  [°] : 0.0696941
+    Execution times      [s] : [1.051 0.01935 0.549 0.02947]
+    Total execution time [s] : 1.64843
+    # ROIs extracted     [ ] : 328
+    # ROIs refined       [ ] : 37
+Test pipeline: canny-dfs
+    Found marker id 19
+    Saving results image
+    Reproj error ___lin [px] : 0.43494
+    Reproj error nonlin [px] : 0.136867
+    Centroid error  xyz [cm] : [0.0834 0.01784 -0.9338]
+    Centroid error norm [cm] : 0.937683
+    Aligned theta error  [°] : -1.23585
+    Execution times      [s] : [1.28 0.07022 0.1346 0.01937]
+    Total execution time [s] : 1.50406
+    # ROIs extracted     [ ] : 394
+    # ROIs refined       [ ] : 3
+
+Image 20/20: aruco_64_40_280_24_6.png
+Loading ..\assets\vision_testbench\aruco_images_acquired\aruco_64_40_280_24_6.png
+Test pipeline: adaptth-moore
+    Found marker id 20
+    Saving results image
+    Reproj error ___lin [px] : 1.05255
+    Reproj error nonlin [px] : 0.17884
+    Centroid error  xyz [cm] : [0.3149 -0.09542 -0.9828]
+    Centroid error norm [cm] : 1.03642
+    Aligned theta error  [°] : 0.106743
+    Execution times      [s] : [1.04 0.02262 0.604 0.01977]
+    Total execution time [s] : 1.68674
+    # ROIs extracted     [ ] : 318
+    # ROIs refined       [ ] : 41
+Test pipeline: canny-dfs
+    Found marker id 20
+    Saving results image
+    Reproj error ___lin [px] : 1.05698
+    Reproj error nonlin [px] : 0.18028
+    Centroid error  xyz [cm] : [0.1605 -0.06909 -0.4907]
+    Centroid error norm [cm] : 0.520922
+    Aligned theta error  [°] : 0.572332
+    Execution times      [s] : [1.273 0.06921 0.1692 0.01888]
+    Total execution time [s] : 1.53038
+    # ROIs extracted     [ ] : 401
+    # ROIs refined       [ ] : 6
+
+Saving results of adaptth-moore...
+
+                <strong>image</strong>                <strong>check_id</strong>    <strong>reproj_err_lin</strong>    <strong>reproj_err_nonlin</strong>     <strong>centroid_gt</strong>                 <strong>centroid</strong>                          <strong>centroid_err</strong>                <strong>centroid_err_norm</strong>    <strong>theta_gt</strong>    <strong>theta</strong>     <strong>theta_err</strong>                        <strong>times</strong>                       <strong>times_tot</strong>    <strong>n_rois_extracted</strong>    <strong>n_rois_refined</strong>
+    <strong>_____________________________</strong>    <strong>________</strong>    <strong>______________</strong>    <strong>_________________</strong>    <strong>______________</strong>    <strong>______________________________</strong>    <strong>___________________________________</strong>    <strong>_________________</strong>    <strong>________</strong>    <strong>______</strong>    <strong>__________</strong>    <strong>___________________________________________</strong>    <strong>_________</strong>    <strong>________________</strong>    <strong>______________</strong>
+
+    {'aruco_40_30_25_3_18.png'  }       1            1.2396             0.17764          3    18     0    2.8942      18.227    -0.59492     -0.10577      0.22739     -0.59492         0.64562            25       25.222       0.22173     1.0427    0.021642     0.57117    0.033051     1.6686            258                 35      
+    {'aruco_41_30_50_9_18.png'  }       1            0.4477              0.0839          9    18     0    8.9628      18.275     -1.0319    -0.037235      0.27494      -1.0319          1.0686            50       49.217      -0.78295     1.0981    0.026013     0.54501     0.02021     1.6893            270                 37      
+    {'aruco_42_30_75_15_18.png' }       1             3.492             0.42503         15    18     0    15.184      18.524     -2.2057      0.18447      0.52445      -2.2057          2.2747            75       71.961       -3.0385     1.0247     0.02419     0.60256    0.035389     1.6868            285                 40      
+    {'aruco_43_30_100_21_18.png'}       1            2.3552             0.30883         21    18     0    21.192      18.202    -0.79056      0.19201      0.20157     -0.79056         0.83815           100       100.09      0.088862     1.0749    0.021411      0.4931    0.020017     1.6095            270                 39      
+    {'aruco_44_30_125_6_12.png' }       1           0.11075            0.031745          6    12     0     5.878      12.122     -1.1837     -0.12195      0.12164      -1.1837          1.1961           125       124.61      -0.38925     1.0643    0.020368     0.52149    0.022872      1.629            275                 36      
+    {'aruco_45_30_150_12_12.png'}       1            2.0481             0.38923         12    12     0    12.027      12.111     -1.3764     0.026803      0.11086      -1.3764          1.3811           150       148.64       -1.3561     1.1582    0.020627     0.46649     0.02583     1.6711            302                 37      
+    {'aruco_46_30_175_18_12.png'}       1            2.2535             0.37778         18    12     0    18.152      12.055    -0.85544      0.15248     0.055367     -0.85544         0.87069           175       174.33      -0.66978       1.05    0.021221     0.56805    0.028571     1.6679            303                 39      
+    {'aruco_47_30_225_9_6.png'  }       1            1.2838             0.26583          9     6     0    8.9627      5.9415     -1.1174     -0.03733    -0.058548      -1.1174          1.1195           225       224.37      -0.62651     1.1711    0.027829      0.5419    0.040658     1.7815            283                 39      
+    {'aruco_48_30_275_15_6.png' }       1           0.67519             0.11498         15     6     0    15.126      5.9246     -1.3176       0.1264    -0.075417      -1.3176          1.3258           275       275.19        0.1919     1.0175    0.024183     0.63128    0.028015      1.701            296                 36      
+    {'aruco_49_30_325_21_6.png' }       1           0.50717             0.14708         21     6     0    21.398      5.8876     -1.7563      0.39771     -0.11242      -1.7563          1.8043           325       324.21       -0.7915     1.0821    0.020502     0.45285    0.022778     1.5782            288                 35      
+    {'aruco_50_35_60_24_18.png' }       1            1.5557             0.23368         24    18     0    24.248      18.214    -0.83678      0.24837      0.21438     -0.83678          0.8988            60       58.766       -1.2338     1.2479    0.027535     0.65275    0.022284     1.9505            293                 43      
+    {'aruco_51_35_120_18_15.png'}       1           0.25395            0.053853         18    15     0    18.115      15.133    -0.79736      0.11466      0.13287     -0.79736         0.81645           120       119.94     -0.057057     1.0647    0.020534     0.45798    0.018639     1.5619            295                 35      
+    {'aruco_52_35_190_9_9.png'  }       1           0.19187            0.050233          9     9     0    8.9515      9.0112     -1.1693    -0.048483     0.011161      -1.1693          1.1704           190       190.01      0.010568    0.98487      0.0185     0.43543    0.019096     1.4579            308                 31      
+    {'aruco_53_35_240_21_6.png' }       1           0.81877             0.24486         21     6     0    21.382       5.896     -1.6079      0.38164     -0.10404      -1.6079          1.6559           240       239.09       -0.9056     1.0383    0.019694     0.45133     0.02198     1.5313            282                 35      
+    {'aruco_54_35_300_12_3.png' }       1           0.99264             0.22477         12     3     0    12.061      2.8454     -1.2399     0.061498     -0.15461      -1.2399          1.2511           300       300.19       0.18776     1.0507    0.020169     0.46565    0.020744     1.5573            283                 35      
+    {'aruco_60_40_40_9_15.png'  }       1           0.85852             0.25201          9    15     0    8.9525      15.165    -0.93962     -0.04754      0.16505     -0.93962         0.95519            40       39.606      -0.39411     1.0305    0.020516     0.50021     0.02555     1.5768            266                 40      
+    {'aruco_61_40_100_21_15.png'}       1           0.58909             0.19149         21    15     0    21.138      15.105    -0.72478      0.13849      0.10502     -0.72478         0.74532           100       99.995    -0.0050407     1.0098    0.019056     0.52284    0.020716     1.5724            318                 40      
+    {'aruco_62_40_160_6_9.png'  }       1            2.1541              0.5643          6     9     0     5.884      9.0338     -1.1087     -0.11596     0.033813      -1.1087          1.1152           160        158.7       -1.3048     1.0176     0.02109     0.47119    0.028755     1.5387            328                 36      
+    {'aruco_63_40_220_15_9.png' }       1           0.68353             0.25871         15     9     0    15.101      9.0079    -0.92553      0.10073    0.0079067     -0.92553         0.93103           220       220.07      0.069694     1.0506    0.019346     0.54905    0.029468     1.6484            328                 37      
+    {'aruco_64_40_280_24_6.png' }       1            1.0525             0.17884         24     6     0    24.315      5.9046    -0.98279      0.31493    -0.095422     -0.98279          1.0364           280       280.11       0.10674     1.0404     0.02262     0.60396    0.019766     1.6867            318                 41      
+
+            <strong>reproj_err_lin</strong>    <strong>reproj_err_nonlin</strong>              <strong>centroid_err</strong>              <strong>centroid_err_norm</strong>    <strong>theta_err</strong>                         <strong>times</strong>                         <strong>times_tot</strong>    <strong>n_rois_extracted</strong>    <strong>n_rois_refined</strong>
+            <strong>______________</strong>    <strong>_________________</strong>    <strong>________________________________</strong>    <strong>_________________</strong>    <strong>_________</strong>    <strong>_______________________________________________</strong>    <strong>_________</strong>    <strong>________________</strong>    <strong>______________</strong>
+
+    <strong>rms </strong>        1.4595              0.2649          0.18285     0.17915      1.1894          1.2166          0.93949       1.0677     0.022012        0.529     0.025891      1.6415          293.12             37.399    
+    <strong>mean</strong>        1.1782             0.22874         0.096295    0.079297     -1.1281           1.155         -0.53389       1.0659     0.021852      0.52521     0.025219      1.6382          292.45               37.3    
+    <strong>std </strong>       0.88373             0.13707          0.15948     0.16482     0.38648         0.39209          0.79313     0.062441    0.0027136     0.064788    0.0060122     0.10541          20.338             2.7928    
+
+
+Saving results of canny-dfs...
+
+                <strong>image</strong>                <strong>check_id</strong>    <strong>reproj_err_lin</strong>    <strong>reproj_err_nonlin</strong>     <strong>centroid_gt</strong>                 <strong>centroid</strong>                           <strong>centroid_err</strong>                 <strong>centroid_err_norm</strong>    <strong>theta_gt</strong>    <strong>theta</strong>     <strong>theta_err</strong>                      <strong>times</strong>                       <strong>times_tot</strong>    <strong>n_rois_extracted</strong>    <strong>n_rois_refined</strong>
+    <strong>_____________________________</strong>    <strong>________</strong>    <strong>______________</strong>    <strong>_________________</strong>    <strong>______________</strong>    <strong>______________________________</strong>    <strong>_____________________________________</strong>    <strong>_________________</strong>    <strong>________</strong>    <strong>______</strong>    <strong>_________</strong>    <strong>__________________________________________</strong>    <strong>_________</strong>    <strong>________________</strong>    <strong>______________</strong>
+
+    {'aruco_40_30_25_3_18.png'  }       1             0.9472            0.16706          3    18     0    2.8623      18.269    -0.77005     -0.13775       0.26937      -0.77005         0.82736            25       24.341    -0.65926     1.9675      1.0559     0.89337    0.019076     3.9359            391                 4       
+    {'aruco_41_30_50_9_18.png'  }       1            0.44357           0.083603          9    18     0    8.9597      18.289     -1.0886    -0.040339       0.28884       -1.0886           1.127            50       48.095     -1.9046     1.3259    0.095057     0.15398    0.020613     1.5955            387                 2       
+    {'aruco_42_30_75_15_18.png' }       1             7.1388            0.83836         15    18     0    15.205      18.523     -1.9434      0.20494       0.52317       -1.9434           2.023            75       70.778     -4.2221     1.2934    0.086228      0.1276    0.033271     1.5404            393                 2       
+    {'aruco_43_30_100_21_18.png'}       1             2.3552            0.30883         21    18     0    21.192      18.202    -0.79056      0.19201       0.20157      -0.79056         0.83815           100       100.09    0.088862     1.3088    0.079035     0.19145    0.020183     1.5994            399                 9       
+    {'aruco_44_30_125_6_12.png' }       1            0.91719            0.20949          6    12     0    5.9075      12.095     -1.0697    -0.092522      0.094646       -1.0697          1.0778           125       124.01     -0.9901     1.2331     0.10155     0.17028     0.02484     1.5298            387                 5       
+    {'aruco_45_30_150_12_12.png'}       1            0.75742            0.19094         12    12     0    12.056      12.128     -1.5803     0.055586       0.12835       -1.5803          1.5864           150       147.94     -2.0573     1.2738    0.091037     0.15046    0.033281     1.5486            397                 5       
+    {'aruco_46_30_175_18_12.png'}       1           0.079488           0.069282         18    12     0    18.168      12.078     -1.1082      0.16779      0.078164       -1.1082          1.1236           175        173.8     -1.2037     1.2777     0.07075     0.18944    0.028886     1.5668            399                 6       
+    {'aruco_47_30_225_9_6.png'  }       1             1.2898            0.26374          9     6     0    8.9634      5.9421     -1.1051    -0.036609     -0.057946       -1.1051          1.1072           225       223.25      -1.753     1.3343    0.093459     0.15504    0.036336     1.6192            386                 3       
+    {'aruco_48_30_275_15_6.png' }       1            0.68597            0.17378         15     6     0    15.075      5.9306    -0.89283     0.075145     -0.069386      -0.89283         0.89867           275       275.09    0.088349     1.2778    0.074039     0.12314    0.022974     1.4979            374                 2       
+    {'aruco_49_30_325_21_6.png' }       1             1.6182            0.33032         21     6     0    21.369      5.8568     -1.6421       0.3694      -0.14323       -1.6421          1.6892           325       321.62     -3.3796     1.2582    0.073546     0.16462    0.038561     1.5349            421                 6       
+    {'aruco_50_35_60_24_18.png' }       1             3.1064            0.41696         24    18     0    24.387      18.306     -1.1892      0.38703       0.30551       -1.1892          1.2874            60       58.073     -1.9272       1.83    0.084198       0.174    0.020637     2.1088            376                 7       
+    {'aruco_51_35_120_18_15.png'}       1             1.3337            0.38688         18    15     0    18.123      15.149    -0.92171      0.12306       0.14924      -0.92171         0.94179           120       119.82    -0.17754     1.2501    0.083248     0.53974     0.04162     1.9147            376                 6       
+    {'aruco_52_35_190_9_9.png'  }       1            0.28691            0.10613          9     9     0    9.0076      9.0416    -0.76366    0.0075682      0.041621      -0.76366         0.76483           190        190.1     0.10298     1.2547    0.067406      0.1412    0.018984     1.4823            359                 4       
+    {'aruco_53_35_240_21_6.png' }       1            0.75764            0.14239         21     6     0    21.274       5.915     -1.1628      0.27443     -0.084995       -1.1628          1.1978           240          239     -1.0006     1.3175      0.0854     0.13807    0.022008      1.563            359                 3       
+    {'aruco_54_35_300_12_3.png' }       1             1.2157             0.3406         12     3     0    12.033      2.9247    -0.47464     0.032717     -0.075253      -0.47464         0.48168           300        299.6      -0.403     1.2659    0.074604     0.16385    0.026066     1.5304            405                 6       
+    {'aruco_60_40_40_9_15.png'  }       1            0.92315            0.38526          9    15     0    8.9737      15.062    -0.63611    -0.026262      0.061972      -0.63611         0.63966            40       40.067    0.066666     1.2539    0.087435     0.13797    0.025672     1.5049            400                 2       
+    {'aruco_61_40_100_21_15.png'}       1            0.55198           0.091621         21    15     0    21.139      15.088    -0.68024      0.13879      0.087693      -0.68024         0.69977           100       101.48      1.4839     1.2287    0.071402     0.14181    0.023294     1.4652            366                 4       
+    {'aruco_62_40_160_6_9.png'  }       1             1.6459            0.35809          6     9     0    5.8985      9.0009     -1.1213     -0.10147    0.00091469       -1.1213          1.1259           160       158.41     -1.5871     1.3032    0.067285     0.16435     0.02145     1.5563            398                 6       
+    {'aruco_63_40_220_15_9.png' }       1            0.43494            0.13687         15     9     0    15.083      9.0178     -0.9338     0.083397      0.017836       -0.9338         0.93768           220       218.76     -1.2358     1.2799    0.070222     0.13457    0.019373     1.5041            394                 3       
+    {'aruco_64_40_280_24_6.png' }       1              1.057            0.18028         24     6     0     24.16      5.9309    -0.49075      0.16047     -0.069086      -0.49075         0.52092           280       280.57     0.57233     1.2731     0.06921     0.16915    0.018881     1.5304            401                 6       
+
+            <strong>reproj_err_lin</strong>    <strong>reproj_err_nonlin</strong>              <strong>centroid_err</strong>              <strong>centroid_err_norm</strong>    <strong>theta_err</strong>                       <strong>times</strong>                       <strong>times_tot</strong>    <strong>n_rois_extracted</strong>    <strong>n_rois_refined</strong>
+            <strong>______________</strong>    <strong>_________________</strong>    <strong>________________________________</strong>    <strong>_________________</strong>    <strong>_________</strong>    <strong>___________________________________________</strong>    <strong>_________</strong>    <strong>________________</strong>    <strong>______________</strong>
+
+    <strong>rms </strong>        2.0312             0.31101          0.17133     0.18404      1.0823         1.1111            1.6517      1.3537     0.24893     0.27649    0.026714      1.7877          388.71             4.9346    
+    <strong>mean</strong>        1.3773             0.25902         0.091869    0.087451     -1.0183         1.0448           -1.0049      1.3404     0.12905      0.2112      0.0258      1.7064           388.4               4.55    
+    <strong>std </strong>        1.5316             0.17661          0.14837     0.16614     0.37623         0.3879            1.3449     0.19441      0.2184     0.18307    0.007108     0.54668          15.955             1.9595    
+
