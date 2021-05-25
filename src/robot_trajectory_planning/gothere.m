@@ -203,7 +203,7 @@ function [qrob,q_teo,foundflag] = scan_EF_pitch(transl,dirindex,braccio_params,p
         [qloc, info] = inverse_kin_super_simple_an(transl,joint4,braccio_params);
         fval = 0;
         qloc=mod(qloc+180,360)-180;
-        disp(qloc(4));
+        %disp(qloc(4));
         %q([1 2 3 4 5])=qloc;
         
         %corrections

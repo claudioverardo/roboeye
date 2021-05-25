@@ -1,9 +1,30 @@
-function [qloc,errorflag] = inverse_kin_super_simple_an(transl, q4, braccio_params)
+function [qloc, errorflag] = inverse_kin_super_simple_an(transl, q4, braccio_params)
+% INVERSE_KIN_SUPER_SIMPLE_AN Solve the problem of inverse kinematics for a given 
+% position of the end effector. Differently to the function inverse_kin(...)
+% it calculates the 1st and the 5th joints positions via geometric considerations.
+% Differently to the function inverse_kin_simple(...), it receives as input the 
+% target position of the 4th joint. Then, it solves analytically a super-simplified
+% version of the inverse kinematics problem on the remaining 2 joints (2-3).
+%
+%   [qloc, errorflag] = INVERSE_KIN_SUPER_SIMPLE_AN(transl, q4, braccio_params)
+%
+%   Input arguments:
+%   ------------------
+%   transl:             translation vector of the end effector
+%   q4:                 angular position of the 4th joint 
+%   braccio_params:     1xQNUM-1 array, real parameters of the Braccio robot,
+%                       cf. direct_kin(...)
+%
+%   Output arguments:
+%   ------------------
+%   qloc:               1xQNUM-1 array, solution found (model convention)
+%   errorflag:          1 if solution is found, -1 otherwise
+%
+% See also GENERATE_TRAJECTORY, GOTHERE
 
+  %--- q1 and q5 computation
   
-  %% q1 and q5 computation
-  
-    errorflag = 0;
+    errorflag = 1;
   
     % joint 1
     qloc(1) = atan2(transl(2),abs(transl(1)))*180/pi;
@@ -11,7 +32,7 @@ function [qloc,errorflag] = inverse_kin_super_simple_an(transl, q4, braccio_para
     % joint 5
     qloc(5)=0; % for the moment
   
-  %% PLANAR ROBOT SOLUTION 
+  %--- PLANAR ROBOT SOLUTION 
   
   r = sign(transl(1))*sqrt(transl(1)^2+transl(2)^2);
   
@@ -30,7 +51,7 @@ function [qloc,errorflag] = inverse_kin_super_simple_an(transl, q4, braccio_para
     
     c2 = (pwx^2+pwy^2-a1^2-a2^2)/(2*a1*a2);
     if (1-c2^2)<0
-        errorflag = 1;
+        errorflag = -1;
         qloc = [0 0 0 0 0];
     else
         s2 = -sqrt(1-c2^2);
@@ -41,7 +62,7 @@ function [qloc,errorflag] = inverse_kin_super_simple_an(transl, q4, braccio_para
         c1 = ((a1+a2*c2)*pwx+a2*s2*pwy)/(pwx^2+pwy^2);
 
         if abs(s1)>1 || abs(c1)>1
-            errorflag = 1;
+            errorflag = -1;
             qloc = [0 0 0 0 0];
         else
 

@@ -18,10 +18,10 @@ function [qloc, fval, info] = inverse_kin(transl, eulr, startingpos_in, braccio_
 %   fval:               final residual of the solver
 %   info:               final flag of the solver
 %
-%   NOTE: this method is rather unstable, cf. inverse_kin_super_simple(...)
-%         for a more stable solution.
+%   NOTE: this method is rather unstable, cf. inverse_kin_simple(...) and 
+%         inverse_kin_super_simple(...) for more stable solutions.
 %
-% See also INVERSE_KIN_SUPER_SIMPLE
+% See also GENERATE_TRAJECTORY
   
   %define Roto-translation matrix in the end effector's rf
   A_target=roto_transl_mat(transl,eulr);
