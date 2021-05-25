@@ -49,7 +49,7 @@ function in = braccio_angles_inv(out, post_corr, AHposition, THposition)
 
     in=out-[90 90 90 90 90]-incr;
 
-    in(1)=-in(1);
-    in(4)=-in(4);
+    in(:,1)=-in(:,1);
+    in(:,4)=-in(:,4);
 
 end

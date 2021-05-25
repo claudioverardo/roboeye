@@ -5,11 +5,13 @@
 [![RoboEye](./docs/video/video1b_play.png)](https://www.youtube.com/watch?v=31yvqWvIydo)
 -->
 
-Demo video: [https://www.youtube.com/watch?v=Vw66SZN9R2s](https://www.youtube.com/watch?v=Vw66SZN9R2s)
+Demo video (external perspective): [https://www.youtube.com/watch?v=Vw66SZN9R2s](https://www.youtube.com/watch?v=Vw66SZN9R2s)
 
 Demo video (robot perspective): [https://www.youtube.com/watch?v=31yvqWvIydo](https://www.youtube.com/watch?v=31yvqWvIydo)
 
-This project implements a basic hand-eye coordination system between a UVC  camera and the TinkerKit Braccio Robot. It is composed by two main modules. The former is a vision pipeline that detects and estimates the poses of the ArUco markers in the scene. The latter is a trajectory planner that solves the inverse kinematics problem in order to reach a desired position of the end effector in space.
+Report of the project: [roboeye_report.pdf](./roboeye_report.pdf)
+
+This project implements a basic hand-eye coordination system between a UVC camera and the TinkerKit Braccio Robot. It is composed of two main modules. The former is a vision pipeline that detects and estimates the poses of the ArUco markers in the scene. The latter is a trajectory planner that solves the inverse kinematics problem in order to reach a desired position and orientation of the end effector.
 
 A control module allows the user to interactively define some tasks for the robot such as moving to a target or pick and place an object identified by a marker. It automatically invokes the vision and the trajectory planning modules when necessary. Moreover, it sends the control signals and the data required by the low-level controller of the robot (Arduino). A calibration module allows the user to calibrate the intrinsics and extrinsics parameters of the camera.
 
@@ -17,7 +19,7 @@ A control module allows the user to interactively define some tasks for the robo
 ![Badge](https://img.shields.io/badge/Arduino-v1.8.13-blue?logo=arduino)
 ![Badge](https://img.shields.io/badge/MEX-v20.2.0-blue?logo=c%2B%2B)
 ![Badge](https://img.shields.io/badge/License-MIT-green)
-![Badge](https://img.shields.io/badge/License%20(thirdparty)-CC%20BY--NC--SA-green)
+![Badge](https://img.shields.io/badge/License%20(third--party)-CC%20BY--NC--SA-green)
 
 ## Table of Contents
 1. [Installation](#installation)
@@ -47,6 +49,8 @@ A control module allows the user to interactively define some tasks for the robo
 ## Overview
 This section provides an overview of the hardware setup employed in our experiments and the 4 main modules of the code: robot vision, robot trajectory planning, robot control, and robot calibration.
 
+![OverviewImage](./docs/overview_img.png)
+
 ### Hardware Setup
 Actually, no cutting-edge technology here. It was fun though to play around with it and make it work :grin:
 | ![HWBraccio](./docs/hardware/braccio.jpg) | ![HWArduino](./docs/hardware/arduino.jpg) | ![HWBraccio](./docs/hardware/camera.jpg) |
@@ -54,32 +58,35 @@ Actually, no cutting-edge technology here. It was fun though to play around with
 | [TinkerKit Braccio Robot](https://www.arduino.cc/en/Guide/Braccio) | [Arduino UNO](https://www.arduino.cc/en/Guide/ArduinoUno/) | Roffie UC20 webcam 1080p |
 
 ### Robot Vision
-The vision module is composed by a pipeline that spots candidates regions of interest (**ROIs**), matches them with a dictionary of ArUco markers and estimates their poses in space. Namely:
- + The first step extracts the contours from the input image deploying either the **adaptive thresholding + Moore-Neighbor tracing** or the **Canny edge detector + depth-first search (DFS)**.
- + The second step selects only the contours with quadrilateral shapes and refines them in order to identify their corners. To this end, it resorts to either the **Ramer–Douglas–Peucker** algorithm or a **geometric corner extractor**. The output are the ROIs candidated for the matching with the ArUco markers.
- + The third step removes the perspective distortion of the input ROIs estimating a proper **homography transformation**. Then, it looks for matchings with the ArUco markers in the provided dictionary evaluating their **Hamming distances** with the binarized ROIs.
- + The fourth step estimates the poses in space of the matched ArUco markers through the **Perspective-n-Points (PnP)** algorithm and the minimization of the **reprojection error**.
 
-The vision module requires a calibrated camera, i.e., with known intrisics and extrinsics parameters.
+The vision module is composed by a pipeline that receives an image as input, spots candidates regions of interest (ROIs), matches them with a dictionary of ArUco markers and estimates their poses in space. It consists of 4 steps:
+
++ ROI extraction: the first step extracts the contours from the input image deploying either the **adaptive thresholding + Moore-Neighbor tracing** or the **Canny edge detector + depth-first search (DFS)**.
++ ROI refinement: the second step selects only the contours with quadrilateral shapes and refines them in order to identify their corners. To this end, it resorts to either the **Ramer–Douglas–Peucker** algorithm or a **geometric corner extractor**. The output are the ROIs candidated for the matching with the ArUco markers.   
++ ROI matching: the third step removes the perspective distortion of the ROIs estimating a proper **homography transformation**. Then, it looks for matches within the ArUco dictionary exploiting the **Hamming distance 2D**.
++ ROI pose estimation: the fourth step estimates the poses in space of the matched ArUco markers through the **Perspective-n-Points (PnP)** algorithm.
 
 ### Robot Trajectory Planning
-The trajectory planning module deals with the modelling and the planning for the Tinkerkit Braccio Robot, which is a 5 DOF robot with a gripper as end effector. Namely:
-+ It computes the **direct kinematics** of the robot using its **Denavit–Hartenberg (DH) parameters**.
-+ It solves the problem of **inverse kinematics** for a given position and orientation of the end effector in space. Three different approaches are implemented. The first addresses the full problem aiming to solve the direct kinematics equations wrt the positions of the joints. The second and the third exploit some domain knowledge to reduce the number of joints to be considered in the problem from 5 to 3 and 2 respectively. The latter approaches lead to more stable and computationally efficient routines. 
-+ Leveraging the solutions of the inverse kinematics, it allows to retrieve **keypoints** and **elemental trajectories** in the joints space from specifications of the end effector poses. They can be used as building blocks for more complex trajectories defined by keypoints or point-by-point.
+The trajectory planning module provides a tool to generate trajectories for the Tinkerkit Braccio Robot. Namely:
+
++ It computes the **direct kinematics** of the robot using its Denavit–Hartenberg (DH) parameters.
++ It solves the problem of **inverse kinematics** for a given position and orientation of the end effector in space. Three different approaches are implemented. The first addresses the full problem aiming to solve the direct kinematics equations with respect to the positions of the joints. The second and the third exploit some domain knowledge to reduce the number of joints to be considered from 5 to 3 and 2 respectively. The latter approaches lead to more stable and computationally efficient routines.
++ Leveraging the solutions of the inverse kinematics, it allows to retrieve **keypoints** in the joints space from specifications of the end effector pose. These keypoints are then **interpolated** into a trajectory.
++ When a target position specify an object to be grasped, it allows to adjust the **grasping objective** with some object-specific offsets in order to guarantee a solid grasp. 
 + Studying the **geometric Jacobian** of the robot, it identifies the **singularities** among the joints positions.
++ Monitoring the positions of the joints, it avoids **collisions** of the robot with the ground.
 
 ### Robot Control
 The control module provides the low-level controller of the robot and its high-level interface. Namely:
 
-+ A **finite-state-machine (FSM)** that runs on Arduino and control the robot behavior through 10 different states and their control signals/data received from the serial.
-+ A **Matlab interface** with the Arduino FSM through the serial connection. It keeps track of the FSM transitions and allows the user to send control signals and data from the Matlab command window.
-+ Within the Matlab interface, a **trajectory generator** tool is available. It allows the user to interactively define some basic tasks such as pick-and-place objects or move to targets identified by ArUco markers. The interaction with the vision and trajectory planning modules is handled by the interface itself.
++ A **finite-state-machine (FSM)** that runs on Arduino and control the robot behavior through 10 different states and their control signals/data received from the serial port.  
++ A **Matlab interface** with the Arduino FSM through the serial connection. It keeps track of the state transitions and allows the user to send control signals and trajectory data from the Matlab command window. The interaction with the vision and trajectory planning modules is handled by the interface itself.
 
 ### Robot Calibration
-The calibration module provides some utilities to calibrate the camera used by the vision module:
-+ Intrinsics calibration via the **Sturm-Maybank-Zhang (SMZ)** algorithm.
-+ Extrinsics calibration wrt a **checkerboard pattern** as world frame via the PnP algorithm.
+The calibration module provides some utilities to calibrate the camera used by the vision module. Namely:
+
++ Intrinsics and radial distortion calibration via the **Sturm-Maybank-Zhang (SMZ)** algorithm.
++ Extrinsics calibration via the **PnP** algorithm.
 
 <a name="usage-examples"></a>
 ## Usage examples
@@ -87,6 +94,7 @@ To reproduce the following usage examples please refer to the scripts and the ex
 
 ### Robot Vision
 To run an example of pose estimation of ArUco markers, perform in order the following steps:
+
 1. Retrive the intrisics matrix `K`, the extrinsics `R`, `t` and the radial distortion coefficients `k` of the camera. For a new camera the calibration module can be used (cf. the related usage example). To use the test images provided with the repo (cf. point 4), the related camera parameters are available in [/assets/calibration](./assets/calibration).
 2. Create a m-file to set the parameters of the vision pipeline. An example containing the default parameters of the pipeline is [/assets/config_files/config_pose_estimation.m](./assets/config_files/config_pose_estimation.m). 
 3. Create the dictionary of ArUco markers to be matched in the scene, as done in [create_aruco_markers.m](./src/scripts/create_aruco_markers.m). Some examples of dictionaries are available in [/assets/aruco_markers](./assets/aruco_markers).
@@ -95,19 +103,37 @@ To run an example of pose estimation of ArUco markers, perform in order the foll
 
 To run the above steps on the test data provided with the repo you can launch the script [run_pose_estimation.m](./src/scripts/run_pose_estimation.m). The following images shows the results obtained for all the stages of the vision pipeline.
 
+![DemoVision1](./docs/results_img_7x7_12_02/01.png) |  ![DemoVision2](./docs/results_img_7x7_12_02/02.png)
+:-:|:-:
+![DemoVision3](./docs/results_img_7x7_12_02/03.png) | ![DemoVision4](./docs/results_img_7x7_12_02/04.png)
+
+![DemoVision5](./docs/aruco.png)
+
+<!--
+![DemoVision1](./docs/results_img_7x7_12_02/01.png)
+![DemoVision2](./docs/results_img_7x7_12_02/02.png)
+![DemoVision3](./docs/results_img_7x7_12_02/03.png)
+![DemoVision4](./docs/results_img_7x7_12_02/04.png)
+-->
+
 <!-- alternative vision demo
 ![DemoVision1](./docs/results_img_7x7_06_03/01.png)
 ![DemoVision2](./docs/results_img_7x7_06_03/02.png)
 ![DemoVision3](./docs/results_img_7x7_06_03/03.png)
 ![DemoVision4](./docs/results_img_7x7_06_03/04.png)
-![DemoVision5](./docs/results_img_7x7_06_03/05.png)
 -->
 
-![DemoVision1](./docs/results_img_7x7_12_02/01.png)
-![DemoVision2](./docs/results_img_7x7_12_02/02.png)
-![DemoVision3](./docs/results_img_7x7_12_02/03.png)
-![DemoVision4](./docs/results_img_7x7_12_02/04.png)
-![DemoVision5](./docs/results_img_7x7_12_02/05.png)
+### Robot Trajectory Planning
+
+To run an example of trajectory generation, perform in order the following steps:
+
+1. Create a m-file to set the parameters of the trajectory generator tool. An example containing the default parameters is [/assets/config_files/config_generate_trajectory.m](./assets/config_files/config_generate_trajectory.m). 
+2. Launch the trajectory generator tool by calling [generate_trajectory.m](./src/robot_trajectory_planning/generate_trajectory.m).
+
+To run the above steps you can launch the script [run_generate_trajectory.m](./src/scripts/run_generate_trajectory.m). Please note that the targets from vision are disabled. The following images shows two results that can be obtained.
+
+![Trajectory1](./docs/trajectory/traj_1keypoints.png) |  ![Trajectory3](./docs/trajectory/traj_3keypoints.png)
+:-:|:-:
 
 ### Robot Control
 
@@ -124,7 +150,7 @@ To run the above steps with the data you can launch the script [run_pose_estimat
 
 [![RoboEye](./docs/video/video2b_play.png)](https://www.youtube.com/watch?v=rr2VxXzEknk)
 
-First video: [https://www.youtube.com/watch?v=Kzpq9sqbxM0](https://www.youtube.com/watch?v=Kzpq9sqbxM0).
+First video (external perspective): [https://www.youtube.com/watch?v=Kzpq9sqbxM0](https://www.youtube.com/watch?v=Kzpq9sqbxM0).
 
 Second video (robot perspective): [https://www.youtube.com/watch?v=rr2VxXzEknk](https://www.youtube.com/watch?v=rr2VxXzEknk).
 
@@ -186,22 +212,25 @@ Wherever not differently specified, the code is licensed under MIT License as de
 
 <a name="references"></a>
 ## References
-[1] J. Canny, "A Computational Approach to Edge Detection," in IEEE Transactions on Pattern Analysis and Machine Intelligence, vol. PAMI-8, no. 6, pp. 679-698, Nov. 1986.
 
-[2] P. Corke. 2013. Robotics, Vision and Control: Fundamental Algorithms in MATLAB (1st. ed.). Springer Publishing Company, Incorporated.
+[1] R. Hartley and A. Zisserman. 2003. Multiple View Geometry in Computer Vision (2nd. ed.). Cambridge University Press, USA.
 
-[3] S. Garrido-Jurado, R. Muñoz-Salinas, F.J. Madrid-Cuevas, M.J. Marín-Jiménez, Automatic generation and detection of highly reliable fiducial markers under occlusion, Pattern Recognition, Volume 47, Issue 6, 2014, Pages 2280-2292, ISSN 0031-3203.
+[2] R. Szeliski. 2010. Computer Vision: Algorithms and Applications (1st. ed.). Springer-Verlag, Berlin, Heidelberg.
 
-[4] R. Hartley and A. Zisserman. 2003. Multiple View Geometry in Computer Vision (2nd. ed.). Cambridge University Press, USA.
+[3] B. Siciliano, L. Sciavicco, L. Villani, and G. Oriolo. 2010. Robotics: Modelling, Planning and Control. Springer Publishing Company, Incorporated.
 
-[5] N. Otsu, "A Threshold Selection Method from Gray-Level Histograms," in IEEE Transactions on Systems, Man, and Cybernetics, vol. 9, no. 1, pp. 62-66, Jan. 1979.
+[4] P. Corke. 2013. Robotics, Vision and Control: Fundamental Algorithms in MATLAB (1st. ed.). Springer Publishing Company, Incorporated.
 
-[6] B. Siciliano, L. Sciavicco, L. Villani, and G. Oriolo. 2010. Robotics: Modelling, Planning and Control. Springer Publishing Company, Incorporated.
+[5] S. Garrido-Jurado, R. Muñoz-Salinas, F.J. Madrid-Cuevas, M.J. Marín-Jiménez, Automatic generation and detection of highly reliable fiducial markers under occlusion, Pattern Recognition, Volume 47, Issue 6, 2014, Pages 2280-2292, ISSN 0031-3203.
 
-[7] P. F. Sturm and S. J. Maybank, "On plane-based camera calibration: A general algorithm, singularities, applications," Proceedings. 1999 IEEE Computer Society Conference on Computer Vision and Pattern Recognition (Cat. No PR00149), Fort Collins, CO, USA, 1999, pp. 432-437 Vol. 1.
+[6] G. Bradski, "The  OpenCV  Library,” Dr. Dobb’s  Journal of Software Tools, 2000.
 
-[8] R. Szeliski. 2010. Computer Vision: Algorithms and Applications (1st. ed.). Springer-Verlag, Berlin, Heidelberg.
+[7] J. Canny, "A Computational Approach to Edge Detection," in IEEE Transactions on Pattern Analysis and Machine Intelligence, vol. PAMI-8, no. 6, pp. 679-698, Nov. 1986.
 
-[9] T. H. Cormen, C. E. Leiserson, R. L. Rivest, and C. Stein. 2009. Introduction to Algorithms, Third Edition (3rd. ed.). The MIT Press.
+[8] T. H. Cormen, C. E. Leiserson, R. L. Rivest, and C. Stein. 2009. Introduction to Algorithms, Third Edition (3rd. ed.). The MIT Press.
 
-[10] Z. Zhang, "A flexible new technique for camera calibration," in IEEE Transactions on Pattern Analysis and Machine Intelligence, vol. 22, no. 11, pp. 1330-1334, Nov. 2000.
+[9] N. Otsu, "A Threshold Selection Method from Gray-Level Histograms," in IEEE Transactions on Systems, Man, and Cybernetics, vol. 9, no. 1, pp. 62-66, Jan. 1979.
+
+[10] P. F. Sturm and S. J. Maybank, "On plane-based camera calibration: A general algorithm, singularities, applications," Proceedings. 1999 IEEE Computer Society Conference on Computer Vision and Pattern Recognition (Cat. No PR00149), Fort Collins, CO, USA, 1999, pp. 432-437 Vol. 1.
+
+[11] Z. Zhang, "A flexible new technique for camera calibration," in IEEE Transactions on Pattern Analysis and Machine Intelligence, vol. 22, no. 11, pp. 1330-1334, Nov. 2000.

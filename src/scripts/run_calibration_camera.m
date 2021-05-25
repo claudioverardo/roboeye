@@ -39,5 +39,7 @@ k = intrinsics.radial;
 % dir = '../assets/calibration/extrinsics_cam1_tests_8x8';
 % dir = '../assets/calibration/extrinsics_cam1_tests_robot';
 % dir = '../assets/calibration/extrinsics_cam2_vision_testbench';
+check = false;
+% check = true;
 
-[R_cam, t_cam] = calibration_extrinsics_camera(cam, K, k, step_size, grid_arrangement, cm2px_scale, dir);
+[R_cam, t_cam] = calibration_extrinsics_camera(cam, K, k, step_size, grid_arrangement, cm2px_scale, dir, check);

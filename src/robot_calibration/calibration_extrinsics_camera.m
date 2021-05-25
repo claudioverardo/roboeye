@@ -1,8 +1,8 @@
-function [R_cam, t_cam] = calibration_extrinsics_camera(cam, K, k, step_size, grid_arrangement, cm2px_scale, dir)
+function [R_cam, t_cam] = calibration_extrinsics_camera(cam, K, k, step_size, grid_arrangement, cm2px_scale, dir, check)
 % CALIBRATION_EXTRINSICS_CAMERA Retrive the rotation matrix and the translation
 % vector (extrinsics) of a camera wrt a world frame attached to a checkerboard.
 %
-%   [R_cam, t_cam] = CALIBRATION_EXTRINSICS_CAMERA(cam, K, k, step_size, grid_arrangement, cm2px_scale, dir)
+%   [R_cam, t_cam] = CALIBRATION_EXTRINSICS_CAMERA(cam, K, k, step_size, grid_arrangement, cm2px_scale, dir, check)
 %
 %   Input arguments:
 %   ------------------
@@ -13,6 +13,7 @@ function [R_cam, t_cam] = calibration_extrinsics_camera(cam, K, k, step_size, gr
 %   grid_arrangement    [x-steps y-steps] steps of the checkerboard along x,y axes
 %   cm2px_scale:        dimension in cm of 1 pixel of the rectified image
 %   dir:                directory where to write/read the calibration files
+%   check:              boolean, if true checks the calibration on a new image
 %
 %   Output arguments:
 %   ------------------
@@ -26,6 +27,10 @@ function [R_cam, t_cam] = calibration_extrinsics_camera(cam, K, k, step_size, gr
 %         - Computer Vision Toolkit (http://www.diegm.uniud.it/fusiello/demo/toolkit/)
 %
 %   See also CALIBRATION_INTRINSICS_CAMERA, PNP_LIN, PNP_NONLIN
+
+    if nargin <= 7
+       check = false; 
+    end
 
     fprintf('\n------ Camera Calibration (Extrinsics) ------\n');
     fprintf('%s\n', dir);
@@ -144,9 +149,9 @@ function [R_cam, t_cam] = calibration_extrinsics_camera(cam, K, k, step_size, gr
     axes_world = step_size * [1 0 0; 0 1 0; 0 0 1];
     centroid_image = hom_tf(centroid_world, P', K', k);
     axes_image = hom_tf(axes_world, P', K', k);
+    colors_axes=['c' 'm' 'y'];
     
     figure(fig);
-    colors_axes=['c' 'm' 'y'];
     for i=1:3
         lines_axes(i) = line( ...
             [centroid_image(1,1) axes_image(i,1)], ...
@@ -155,9 +160,31 @@ function [R_cam, t_cam] = calibration_extrinsics_camera(cam, K, k, step_size, gr
             'linestyle','-', 'linewidth', 3, ...
             'marker','none', 'markersize', 5);
     end
-    
     legend([line_control_points lines_axes], ...
         'Control points', 'World frame X-axis', 'World frame Y-axis', 'World frame Z-axis');
     title('Calibrated camera extrinsics');
+    
+    if check
+        
+        img_check = snapshot(cam);
+        
+        figure;
+        imshow(img_check);
+        hold on;
+    
+        line_control_points_check = plot(control_points(1,:), control_points(2,:), 'r*');
+        for i=1:3
+            lines_axes_check(i) = line( ...
+                [centroid_image(1,1) axes_image(i,1)], ...
+                [centroid_image(1,2) axes_image(i,2)], ...
+                'color', colors_axes(i), ...
+                'linestyle','-', 'linewidth', 3, ...
+                'marker','none', 'markersize', 5);
+        end
+        legend([line_control_points_check lines_axes_check], ...
+            'Control points', 'World frame X-axis', 'World frame Y-axis', 'World frame Z-axis');
+        title('Check camera extrinsics');
+        
+    end
     
 end

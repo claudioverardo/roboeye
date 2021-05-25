@@ -34,7 +34,7 @@ function [Q_def, error_flag, Q_teo] = parabolic_traj(p1, p2, z_ap, roll_in, npoi
 %   error_flag:         1 if for at least one of the keypoints either the
 %                       solution does not satisfy the robot constraints or
 %                       the fsolve routine fails, 0 otherwise
-%   Q_def:              npoints x QNUM array, keypoints of the trajectory 
+%   Q_teo:              npoints x QNUM array, keypoints of the trajectory 
 %                       in model RF (without compensations)
 %
 % See also GENERATE_TRAJECTORY, GOTHERE
@@ -136,9 +136,10 @@ function [Q_def, error_flag, Q_teo] = parabolic_traj(p1, p2, z_ap, roll_in, npoi
     end
     
     if VERBOSE >0
-        for i=1:length(Q(:,1))
-            jp=plot_config_rob(Q(i,:),braccio_params,post_corr,home);
-        end
+        % for i=1:length(Q(:,1))
+        %    jp=plot_config_rob(Q(i,1:5),braccio_params,post_corr,home);
+        % end
+        jp = plot_config_rob(Q(:,1:5),braccio_params,post_corr,home);
     end
     
     %truncate first line
