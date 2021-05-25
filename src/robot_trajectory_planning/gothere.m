@@ -68,8 +68,8 @@ function [qrob, errorflag, q] = gothere(braccio_params, x, y, z, roll, grasp, of
         else % Backward workspace
             dirindex=1;
         end
-
         [qrob,q,foundflag] = scan_EF_pitch(transl,dirindex,braccio_params,post_corr,home);
+        
 
         % Check if the algorithm have found a solution and if not check the other direction
         if foundflag==false 
@@ -132,7 +132,9 @@ function Q_poss = all_config(transl,braccio_params,post_corr,home)
         errorflag=false;
         
         %solve inverse kinematics
-        [qloc, fval, info] = inverse_kin_super_simple(transl,q4,startingpos,braccio_params);
+        %[qloc, fval, info] = inverse_kin_super_simple(transl,q4,startingpos,braccio_params);
+        [qloc, info] = inverse_kin_super_simple_an(transl,q4,braccio_params);
+        fval = 0;
         qloc=mod(qloc+180,360)-180;
 
         %corrections
@@ -197,8 +199,11 @@ function [qrob,q_teo,foundflag] = scan_EF_pitch(transl,dirindex,braccio_params,p
         joint4=eulr_index*dirindex;
 
         %solve inverse kinematics
-        [qloc, fval, info] = inverse_kin_super_simple(transl,joint4,startingpos,braccio_params);
+        %[qloc, fval, info] = inverse_kin_super_simple(transl,joint4,startingpos,braccio_params);
+        [qloc, info] = inverse_kin_super_simple_an(transl,joint4,braccio_params);
+        fval = 0;
         qloc=mod(qloc+180,360)-180;
+        disp(qloc(4));
         %q([1 2 3 4 5])=qloc;
         
         %corrections
