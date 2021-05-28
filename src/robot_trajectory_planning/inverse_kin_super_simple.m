@@ -3,8 +3,8 @@ function [qloc, fval, info] = inverse_kin_super_simple(transl, joint4, startingp
 % position of the end effector. Differently to the function inverse_kin(...)
 % it calculates the 1st and the 5th joints positions via geometric considerations.
 % Differently to the function inverse_kin_simple(...), it receives as input the 
-% target position of the 4th joint. Then, it solves a super-simplified version
-% of the inverse kinematics problem on the remaining 2 joints (2-3).
+% target position of the 4th joint. Then, it solves numerically a super-simplified
+% version of the inverse kinematics problem on the remaining 2 joints (2-3).
 %
 %   [qloc, fval, info] = INVERSE_KIN_SUPER_SIMPLE(transl, joint4, startingpos_in,
 %   braccio_params)
@@ -23,7 +23,7 @@ function [qloc, fval, info] = inverse_kin_super_simple(transl, joint4, startingp
 %   fval:               final residual of the solver
 %   info:               final flag of the solver
 %
-% See also GOTHERE
+% See also GENERATE_TRAJECTORY, GOTHERE
 
   startingpos=startingpos_in([2 4]);
 
@@ -34,7 +34,7 @@ function [qloc, fval, info] = inverse_kin_super_simple(transl, joint4, startingp
   if transl(1)<0 
      q4rad=joint4*pi/180;
   else
-     q4rad=joint4*pi/180;
+     q4rad=-joint4*pi/180;
   end
 
   %solve numerically inverse kinematics problem finding the nearest zero of inv_kin_prob from startingpos
@@ -53,7 +53,7 @@ function [qloc, fval, info] = inverse_kin_super_simple(transl, joint4, startingp
    else
        qloc(2)=-qloc_2(1)*180/pi;
        qloc(3)=-qloc_2(2)*180/pi;
-       qloc(4)=-joint4;
+       qloc(4)=joint4;
    end
    qloc(5)=0; %for the moment
       

@@ -857,7 +857,7 @@ Output arguments:
 + **fval**: final residual of the solver
 + **info**: final flag of the solver
 
-NOTE: this method is rather unstable, cf. inverse_kin_super_simple(...) for a more stable solution.
+NOTE: this method is rather unstable, cf. inverse_kin_simple(...) and inverse_kin_super_simple(...) for more stable solutions.
 </details>
 
 <!-- inverse_kin_simple matlab function -->
@@ -866,7 +866,7 @@ NOTE: this method is rather unstable, cf. inverse_kin_super_simple(...) for a mo
         inverse_kin_simple
     </summary>
 
-Solve the problem of inverse kinematics for a given position and orientation of the end effector. Differently to the function inverse_kin(...) it calculates the 1st and the 5th joints positions via geometric considerations. Then, it solves a simplified version of the inverse kinematics problem on the remaining 3 joints (2-3-4).
+Solve the problem of inverse kinematics for a given position and orientation of the end effector. Differently to the function inverse_kin(...) it calculates the 1st and the 5th joints positions via geometric considerations. Then, it solves numerically a simplified version of the inverse kinematics problem on the remaining 3 joints (2-3-4).
 
     [qloc, fval, info] = inverse_kin_simple(transl, eulr, startingpos_in, braccio_params)
 
@@ -882,13 +882,33 @@ Output arguments:
 + **info**: final flag of the solver
 </details>
 
+<!-- inverse_kin_simple_an matlab function -->
+<details>
+    <summary>
+        inverse_kin_simple_an
+    </summary>
+
+Solve the problem of inverse kinematics for a given position and orientation of the end effector. Differently to the function inverse_kin(...) it calculates the 1st and the 5th joints positions via geometric considerations. Then, it solves analytically a simplified version of the inverse kinematics problem on the remaining 3 joints (2-3-4).
+
+    [qloc, errorflag] = inverse_kin_simple_an(transl, eulr, braccio_params)
+
+Input arguments:
++ **transl**: translation vector of the end effector
++ **eulr**: euler angles of the rotation of the end effector
++ **braccio_params**: 1xQNUM-1 array, real parameters of the Braccio robot, cf. direct_kin(...)
+  
+Output arguments:
++ **qloc**: 1xQNUM-1 array, solution found (model convention)
++ **errorflag**: 1 if solution is found, -1 otherwise
+</details>
+
 <!-- inverse_kin_super_simple matlab function -->
 <details>
     <summary>
         inverse_kin_super_simple
     </summary>
 
-Solve the problem of inverse kinematics for a given position of the end effector. Differently to the function inverse_kin(...) it calculates the 1st and the 5th joints positions via geometric considerations. Differently to the function inverse_kin_simple(...), it receives as input the target position of the 4th joint. Then, it solves a super-simplified version of the inverse kinematics problem on the remaining 2 joints (2-3).
+Solve the problem of inverse kinematics for a given position of the end effector. Differently to the function inverse_kin(...) it calculates the 1st and the 5th joints positions via geometric considerations. Differently to the function inverse_kin_simple(...), it receives as input the target position of the 4th joint. Then, it solves numerically a super-simplified version of the inverse kinematics problem on the remaining 2 joints (2-3).
 
     [qloc, fval, info] = inverse_kin_super_simple(transl, joint4, startingpos_in, braccio_params)
 
@@ -902,7 +922,27 @@ Output arguments:
 + **qloc**: 1xQNUM-1 array, solution found (model convention)
 + **fval**: final residual of the solver
 + **info**: final flag of the solver
-</details>           
+</details>
+
+<!-- inverse_kin_super_simple_an matlab function -->
+<details>
+    <summary>
+        inverse_kin_super_simple_an
+    </summary>
+
+Solve the problem of inverse kinematics for a given position of the end effector. Differently to the function inverse_kin(...) it calculates the 1st and the 5th joints positions via geometric considerations. Differently to the function inverse_kin_simple(...), it receives as input the target position of the 4th joint. Then, it solves analytically a super-simplified version of the inverse kinematics problem on the remaining 2 joints (2-3).
+
+    [qloc, errorflag] = inverse_kin_super_simple_an(transl, q4, braccio_params)
+
+Input arguments:
++ **transl**: translation vector of the end effector
++ **q4**: angular position of the 4th joint 
++ **braccio_params**: 1xQNUM-1 array, real parameters of the Braccio robot, cf. direct_kin(...)
+
+Output arguments:
++ **qloc**: 1xQNUM-1 array, solution found (model convention)
++ **errorflag**: 1 if solution is found, -1 otherwise
+</details>    
 
 <!-- jacob_diff_kin matlab function -->
 <details>

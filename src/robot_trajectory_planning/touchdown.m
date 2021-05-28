@@ -74,6 +74,8 @@ function [Qrob, errorflag, Q_tot] = touchdown(braccio_params, x, y, z, post_corr
            eulr=[atan2(transl(2),transl(1)) X(i,[4 5])*pi/180];
            %solve inverse kinematics
            [qloc, fval, info] = inverse_kin_simple(transl,eulr,startingpos,braccio_params);
+           %[qloc, info] = inverse_kin_simple_an(transl,eulr,braccio_params);
+           %fval = 0;
            qloc=mod(qloc+180,360)-180;
 
            %check for dual solution:
